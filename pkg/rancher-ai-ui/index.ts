@@ -3,6 +3,11 @@ import { IPlugin } from '@shell/core/types';
 
 // Init the package
 export default function(plugin: IPlugin): void {
+  if (!plugin.environment.isPrime) {
+    console.warn('[Rancher AI]: Rancher Prime subscription required');
+    return;
+  }
+
   // Auto-import model, detail, edit from the folders
   importTypes(plugin);
 
