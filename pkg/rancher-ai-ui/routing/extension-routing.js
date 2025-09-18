@@ -5,13 +5,13 @@ const PRODUCT_NAME = 'rancher-ai-ui';
 
 const routes = [
   {
-    name: `${PRODUCT_NAME}-c-cluster`,
-    path: `/${PRODUCT_NAME}/c/:cluster`,
+    name:      `${ PRODUCT_NAME }-c-cluster`,
+    path:      `/${ PRODUCT_NAME }/c/:cluster`,
     component: Dashboard,
-    meta: {
+    meta:      {
       product: PRODUCT_NAME,
       cluster: BLANK_CLUSTER,
-      pkg: PRODUCT_NAME,
+      pkg:     PRODUCT_NAME,
     },
   },
 ];

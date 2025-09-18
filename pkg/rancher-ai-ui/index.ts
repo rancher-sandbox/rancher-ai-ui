@@ -24,8 +24,7 @@ export default function(plugin: IPlugin, { store }: any): void {
   plugin.addRoutes(extensionRouting);
 
   // Register the Chat component in shell/components/SecondarySidePanel
-  plugin.register('component', 'ChatComponent', defineAsyncComponent(() =>
-    import('./components/Chat.vue')
+  plugin.register('component', 'ChatComponent', defineAsyncComponent(() => import('./components/Chat.vue')
   ));
 
   // Open chat window action
@@ -34,9 +33,9 @@ export default function(plugin: IPlugin, { store }: any): void {
     {},
     {
       tooltipKey: 'action.openChat',
-      tooltip: 'Rancher AI Chat',
-      shortcut: 'shift alt i',
-      icon: 'icon-comment',
+      tooltip:    'Rancher AI Chat',
+      shortcut:   'shift alt i',
+      icon:       'icon-comment',
       invoke() {
         store.dispatch('wm/secondary/open', {
           id:        'chat',
