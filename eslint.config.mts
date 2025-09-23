@@ -208,7 +208,6 @@ export default defineConfig([
         }
       ],
       // Add the rule here
-      'vue/no-empty-component-block':           'error',
       'vue/one-component-per-file':             'off',
       'vue/no-deprecated-slot-attribute':       'off',
       'vue/require-explicit-emits':             'off',
