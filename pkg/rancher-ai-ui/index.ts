@@ -2,6 +2,8 @@ import { importTypes } from '@rancher/auto-import';
 import { ActionLocation, IPlugin } from '@shell/core/types';
 import extensionRouting from './routing/extension-routing';
 import { defineAsyncComponent } from 'vue';
+import { WORKLOAD_TYPES } from '@shell/config/types';
+import { AGENT_NAME, AGENT_NAMESPACE } from './product';
 import { NotificationLevel } from '@shell/types/notifications';
 
 // Init the package
@@ -38,7 +40,7 @@ export default function(plugin: IPlugin, { store }: any): void {
   plugin.addRoutes(extensionRouting);
 
   // Register the Chat component in shell/components/SecondarySidePanel
-  plugin.register('component', 'ChatComponent', defineAsyncComponent(() => import('./components/Chat.vue')));
+  plugin.register('component', 'ChatComponent', defineAsyncComponent(() => import('./components/Chat.vue')) as Function);
 
   // Open chat window action
   plugin.addAction(
@@ -48,19 +50,27 @@ export default function(plugin: IPlugin, { store }: any): void {
       tooltipKey: 'ai.action.openChat',
       shortcut: 'i',
       svg: require('./assets/chat-icon.svg'),
+      enabled:    async () => {
+        if (store.getters['management/schemaFor'](WORKLOAD_TYPES.DEPLOYMENT)) {
+          try {
+            const aiAgent = await store.dispatch('management/find', { type: WORKLOAD_TYPES.DEPLOYMENT, id: `${ AGENT_NAMESPACE }/${ AGENT_NAME }` });
+
+            return !!aiAgent;
+          } catch (error) {
+            console.warn('[Rancher AI]: \'rancher-ai-agent\' deployment not found');
+          }
+        } else {
+          console.warn('[Rancher AI]: Deployment schema not found');
+        }
+
+        return false;
+      },
       invoke() {
         store.dispatch('wm/secondary/open', {
-          id:        'chat',
-          label:     'chat',
-          icon:      'terminal',
-          config: {
-            componentName: 'ChatComponent',
-            extensionId:   'rancher-ai-ui',
-          },
-          attrs:     {
-            // cluster: {},
-            // pod:     {}
-          }
+          id:            'rancher-ai-ui-chat',
+          label:         'Chat',
+          componentName: 'ChatComponent',
+          extensionId:   'rancher-ai-ui',
         }, { root: true });
       }
     }

@@ -1,7 +1,5 @@
 import Dashboard from '../pages/index.vue';
-
-const BLANK_CLUSTER = '_';
-const PRODUCT_NAME = 'rancher-ai-ui';
+import { PRODUCT_NAME, BLANK_CLUSTER } from '../product';
 
 const routes = [
   {

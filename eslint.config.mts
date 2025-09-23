@@ -4,7 +4,12 @@ import pluginVue from 'eslint-plugin-vue';
 import { defineConfig, globalIgnores } from 'eslint/config';
 
 export default defineConfig([
-  globalIgnores(['**/vue.config.js', '**/babel.config.js', 'pkg/rancher-ai-ui/index.ts']),
+  globalIgnores([
+    '**/vue.config.js',
+    '**/babel.config.js',
+    'pkg/rancher-ai-ui/index.ts',
+    'dist-pkg/**'
+  ]),
   {
     files:           ['**/*.{js,mjs,cjs,ts,mts,cts,vue}'],
     languageOptions: { globals: globals.browser }

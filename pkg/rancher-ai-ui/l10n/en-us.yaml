@@ -4,3 +4,15 @@ ai:
   nonPrime:
     title: Rancher AI Assistant requires Rancher Prime
     message: The Rancher AI Assistant requires a Rancher Prime subscription. Please upgrade to Prime or uninstall this extension.
+  message:
+    system:
+      welcome: Hello! I am your Rancher AI Assistant. How can I help you today?
+      disconnected: Connection closed.
+    assistant:
+      thinking:
+        completed: Completed
+        inProgress: Thinking
+  prompt:
+    placeholder: Type your message...
+    send: Send
+
