@@ -2,11 +2,25 @@ import { importTypes } from '@rancher/auto-import';
 import { ActionLocation, IPlugin } from '@shell/core/types';
 import extensionRouting from './routing/extension-routing';
 import { defineAsyncComponent } from 'vue';
+import { NotificationLevel } from '@shell/types/notifications';
 
 // Init the package
 export default function(plugin: IPlugin, { store }: any): void {
   if (!plugin.environment.isPrime) {
-    console.warn('[Rancher AI]: Rancher Prime subscription required');
+    console.warn('[Rancher AI]: Rancher Prime subscription required'); //eslint-disable-line no-console
+
+    plugin.addNavHooks({
+      onLogin: async(store: any) => {
+        store.dispatch('notifications/add', {
+          id:      'rancher-ai-requires-prime',
+          level:   NotificationLevel.Error,
+          // Note: Hard-coded strings due to issue where onLogin called before i18n loaded from extension
+          title:   'Rancher AI Assistant requires Rancher Prime',
+          message: 'The Rancher AI Assistant requires a Rancher Prime subscription. Please upgrade to Prime or uninstall this extension.'
+        });
+      }
+    });
+
     return;
   }
 
@@ -32,10 +46,9 @@ export default function(plugin: IPlugin, { store }: any): void {
     ActionLocation.HEADER,
     {},
     {
-      tooltipKey: 'action.openChat',
-      tooltip:    'Rancher AI Chat',
-      shortcut:   'shift alt i',
-      icon:       'icon-comment',
+      tooltipKey: 'ai.action.openChat',
+      shortcut: 'i',
+      svg: require('./assets/chat-icon.svg'),
       invoke() {
         store.dispatch('wm/secondary/open', {
           id:        'chat',
