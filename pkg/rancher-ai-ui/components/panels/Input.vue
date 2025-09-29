@@ -8,17 +8,20 @@ import { useI18n } from '@shell/composables/useI18n';
 import { Agent } from '../../types';
 import RcButton from '@components/RcButton/RcButton.vue';
 import Banner from '@components/Banner/Banner.vue';
+import SelectContext from '../context/SelectContext.vue';
+import { Context } from '../../types';
 
 const store = useStore();
 const { t } = useI18n(store);
 
 const props = defineProps<{
+  context?: Context[],
   agent: Agent,
   disabled?: boolean,
   error?: string
 }>();
 
-const emit = defineEmits(['sendMessage', 'update:prompt']);
+const emit = defineEmits(['send:message', 'select:context']);
 
 const message = ref('');
 const promptTextarea = ref<HTMLTextAreaElement | null>(null);
@@ -54,12 +57,12 @@ function sendMessage(event: Event) {
   event.preventDefault();
   event.stopPropagation();
 
-  emit('sendMessage', cleanMessage.value);
+  emit('send:message', cleanMessage.value);
 
   message.value = '';
 
   nextTick(() => {
-    autoResizePrompt(50);
+    autoResizePrompt(18);
   });
 }
 
@@ -84,12 +87,19 @@ function autoResizePrompt(height?: number) {
         :label="props.error"
       />
     </div>
+    <div class="context-panel">
+      <SelectContext
+        :options="context"
+        :auto-select="context"
+        @update="emit('select:context', $event)"
+      />
+    </div>
     <textarea
       ref="promptTextarea"
       class="prompt-panel"
       rows="1"
       :value="message"
-      :placeholder="t('ai.prompt.placeholder')"
+      :placeholder="props.disabled ? '' : t('ai.prompt.placeholder')"
       :disabled="props.disabled"
       autocomplete="off"
       @input="onInputMessage"
@@ -131,18 +141,22 @@ function autoResizePrompt(height?: number) {
   border: 1px solid var(--border);
   background-color: var(--body-bg);
   border-radius: var(--border-radius);
-  padding: 12px;
+  padding: 8px 12px 12px 12px;
   margin-top: 16px;
-  margin-bottom: 90px;
+
+  .context-panel {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 8px;
+  }
 
   .prompt-panel {
     border: none;
     width: auto;
-    padding: 0 0 8px 0;
+    padding: 0;
     outline-offset: 0;
     resize: none;
     overflow: hidden;
-    min-height: 50px;
     max-height: 200px;
   }
 

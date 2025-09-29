@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useI18n } from '@shell/composables/useI18n';
 import {
@@ -8,6 +8,7 @@ import {
 import { Message, ContentType, Role, Tag } from '../types';
 import Messages from './panels/Messages.vue';
 import Input from './panels/Input.vue';
+import type { Context } from '../types';
 
 const store = useStore();
 const { t } = useI18n(store);
@@ -16,6 +17,10 @@ function useChat() {
   const ws = ref<WebSocket | null>(null);
   const messages = ref<Message[]>([]);
   const error = ref('');
+
+  const context = computed(() => store.getters['ui-context/all']);
+  const selectedContext = ref<Context[]>([]);
+  const formattedContext = ref('');
 
   function connect() {
     const url = `wss://${ window.location.host }/api/v1/namespaces/${ AGENT_NAMESPACE }/services/http:${ AGENT_NAME }:80/proxy/${ AGENT_API_PATH }`;
@@ -131,15 +136,30 @@ function useChat() {
     ws.value = null;
   }
 
-  function sendMessage(value: string) {
-    if (value) {
-      ws.value?.send(value);
+  function sendMessage(content: string) {
+    if (content) {
+      ws.value?.send(formattedContext.value + content);
 
       messages.value.push({
         role:    Role.User,
-        content: value,
+        content,
+        context: selectedContext.value,
       });
     }
+  }
+
+  function selectContext(context: Context[]) {
+    selectedContext.value = context;
+
+    if (context.length === 0) {
+      formattedContext.value = '';
+
+      return;
+    }
+
+    const contextText = selectedContext.value.map((c) => `${ c.tag } : ${ c.value } - is ${ c.description }`).join('\n');
+
+    formattedContext.value = `Context:\n${ contextText }\n\n`;
   }
 
   onMounted(connect);
@@ -148,13 +168,15 @@ function useChat() {
   return {
     ws,
     messages,
+    context,
     error,
     sendMessage,
+    selectContext,
   };
 }
 
 const {
-  ws, messages, error, sendMessage
+  ws, messages, context, error, sendMessage, selectContext
 } = useChat();
 </script>
 
@@ -162,13 +184,15 @@ const {
   <div class="chat-container">
     <Messages :messages="messages" />
     <Input
+      :context="context"
       :agent="{
         name: AI_AGENT_NAME,
         version: AI_AGENT_VERSION
       }"
       :disabled="!ws || !!error"
       :error="error"
-      @sendMessage="sendMessage"
+      @select:context="selectContext"
+      @send:message="sendMessage"
     />
   </div>
 </template>
@@ -177,7 +201,7 @@ const {
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: calc(100vh - 90px);
   padding: 16px;
 }
 </style>

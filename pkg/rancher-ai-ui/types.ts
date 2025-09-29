@@ -32,10 +32,18 @@ export interface Message {
   contentType?: ContentType;
   completed?: boolean;
   timestamp?: number;
+  context?: Context[];
 }
 
 export interface Agent {
   id?: string;
   name: string;
   version: string;
+}
+
+export interface Context {
+  tag: string;
+  value: string;
+  description?: string;
+  icon?: string;
 }

@@ -15,4 +15,7 @@ ai:
   prompt:
     placeholder: Type your message...
     send: Send
+  context:
+    add: Add Context
+    none: No context
 
