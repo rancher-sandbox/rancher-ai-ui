@@ -3,10 +3,9 @@ import {
   ref, computed, onMounted, onUnmounted, watch
 } from 'vue';
 import { useStore } from 'vuex';
-import { useI18n } from '@shell/composables/useI18n';
 
 const store = useStore();
-const { t } = useI18n(store);
+const t = store.getters['i18n/t'];
 
 const now = ref(Date.now());
 

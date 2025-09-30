@@ -4,7 +4,6 @@ import {
   onMounted
 } from 'vue';
 import { useStore } from 'vuex';
-import { useI18n } from '@shell/composables/useI18n';
 import { Agent } from '../../types';
 import RcButton from '@components/RcButton/RcButton.vue';
 import Banner from '@components/Banner/Banner.vue';
@@ -12,7 +11,7 @@ import SelectContext from '../context/SelectContext.vue';
 import { Context } from '../../types';
 
 const store = useStore();
-const { t } = useI18n(store);
+const t = store.getters['i18n/t'];
 
 const props = defineProps<{
   context?: Context[],

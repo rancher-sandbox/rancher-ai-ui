@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, type PropType } from 'vue';
 import { useStore } from 'vuex';
-import { useI18n } from '@shell/composables/useI18n';
 import {
   RcDropdown,
   RcDropdownTrigger,
@@ -14,7 +13,7 @@ function _id(item: Context) {
 }
 
 const store = useStore();
-const { t } = useI18n(store);
+const t = store.getters['i18n/t'];
 
 const selected = ref<Context[]>([]);
 const isOpen = ref(false);

@@ -1,13 +1,12 @@
 import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
-import { useI18n } from '@shell/composables/useI18n';
 import { Message, ContentType, Role, Tag } from '../types';
 
 export function useChatMessageHandler(options: {
   chatId: string,
 }) {
   const store = useStore();
-  const { t } = useI18n(store);
+  const t = store.getters['i18n/t'];
 
   const messages = computed(() => Object.values(store.getters['rancher-ai-ui/chat/getMessages'](options.chatId)) as Message[]);
   const currThinkingMsg = ref<Message>({} as Message);
