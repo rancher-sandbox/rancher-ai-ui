@@ -89,6 +89,7 @@ function autoResizePrompt(height?: number) {
     </div>
     <div class="context-panel">
       <SelectContext
+        v-if="!props.disabled"
         :options="context"
         :auto-select="context"
         @update="emit('select:context', $event)"
@@ -98,7 +99,7 @@ function autoResizePrompt(height?: number) {
       ref="promptTextarea"
       class="prompt-panel"
       rows="1"
-      :value="message"
+      :value="props.disabled ? '' : message"
       :placeholder="props.disabled ? '' : t('ai.prompt.placeholder')"
       :disabled="props.disabled"
       autocomplete="off"
@@ -115,7 +116,7 @@ function autoResizePrompt(height?: number) {
         <!-- Future options can be added here -->
         <div class="agent-model text-label">
           <span>{{ props.agent.name }} {{ props.agent.version }}</span>
-          <i class="icon icon-sort-down" />
+          <!-- <i class="icon icon-sort-down" /> -->
         </div>
       </div>
       <div class="send">

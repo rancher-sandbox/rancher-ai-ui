@@ -1,5 +1,21 @@
 /* eslint-disable no-unused-vars */
 
+interface Error {
+  message: string;
+}
+
+export interface ConnectionError extends Error {
+  code?: number;
+}
+
+export interface ConnectionParams {
+  url: string;
+  onopen?: (ev: Event) => any;
+  onmessage?: (ev: MessageEvent) => any;
+  onclose?: (ev: CloseEvent) => any;
+  onerror?: (ev: Event) => any;
+}
+
 export const enum PanelState {
   Idle = 'idle',
   Loading = 'loading',
@@ -26,13 +42,14 @@ export const enum ContentType {
 }
 
 export interface Message {
-  // id: number
+  id?: number | string;
   role: Role;
   content?: string;
   contentType?: ContentType;
   completed?: boolean;
   timestamp?: number;
   context?: Context[];
+  isExpanded?: boolean;
 }
 
 export interface Agent {

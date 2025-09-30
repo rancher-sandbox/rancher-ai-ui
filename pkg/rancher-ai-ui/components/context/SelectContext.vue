@@ -40,10 +40,12 @@ const emit = defineEmits([
 
 watch(() => props.autoSelect, (newVal) => {
   selected.value = newVal;
+  emit('update', selected.value);
 }, { immediate: true });
 
 watch(() => props.options, (newVal) => {
   selected.value = selected.value.filter((s) => newVal.find((n) => _id(n) === _id(s)));
+  emit('update', selected.value);
 });
 
 function toggleItem(item: Context) {

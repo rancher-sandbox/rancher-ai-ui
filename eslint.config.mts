@@ -26,14 +26,15 @@ export default defineConfig([
         max:    1,
         maxEOF: 0
       }],
-      'vue/no-empty-component-block':           'error',
-      '@typescript-eslint/no-explicit-any':     'off',
-      '@typescript-eslint/no-unused-vars':      'off',
-      '@typescript-eslint/no-var-requires':     'off',
-      '@typescript-eslint/no-this-alias':       'off',
-      'array-bracket-spacing':                  'warn',
-      'arrow-parens':                           'warn',
-      'arrow-spacing':                      [
+      'vue/no-empty-component-block':               'error',
+      '@typescript-eslint/no-unsafe-function-type': 'off',
+      '@typescript-eslint/no-explicit-any':         'off',
+      '@typescript-eslint/no-unused-vars':          'off',
+      '@typescript-eslint/no-var-requires':         'off',
+      '@typescript-eslint/no-this-alias':           'off',
+      'array-bracket-spacing':                      'warn',
+      'arrow-parens':                               'warn',
+      'arrow-spacing':                              [
         'warn',
         {
           before: true,

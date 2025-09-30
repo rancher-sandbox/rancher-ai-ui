@@ -13,6 +13,8 @@ const props = defineProps({
   }
 });
 
+const emit = defineEmits(['update:message']);
+
 const messagesContainer = ref<HTMLDivElement | null>(null);
 const autoScrollEnabled = ref(true);
 
@@ -69,6 +71,7 @@ onBeforeUnmount(() => {
       v-for="(message, i) in sortedMessages"
       :key="i"
       :message="message"
+      @update:message="emit('update:message', message)"
     />
   </div>
 </template>

@@ -1,7 +1,9 @@
+import { defineAsyncComponent } from 'vue';
 import { importTypes } from '@rancher/auto-import';
 import { ActionLocation, IPlugin } from '@shell/core/types';
 import extensionRouting from './routing/extension-routing';
-import { defineAsyncComponent } from 'vue';
+import connectionStore from './store/connection';
+import chatStore from './store/chat';
 import { WORKLOAD_TYPES } from '@shell/config/types';
 import { AGENT_NAME, AGENT_NAMESPACE } from './product';
 import { NotificationLevel } from '@shell/types/notifications';
@@ -40,7 +42,7 @@ export default function(plugin: IPlugin, { store }: any): void {
   plugin.addRoutes(extensionRouting);
 
   // Register the Chat component in shell/components/SecondarySidePanel
-  plugin.register('component', 'ChatComponent', defineAsyncComponent(() => import('./components/Chat.vue')) as Function);
+  plugin.register('component', 'ChatComponent', defineAsyncComponent(() => import('./pages/Chat.vue')) as Function);
 
   // Open chat window action
   plugin.addAction(
@@ -75,4 +77,8 @@ export default function(plugin: IPlugin, { store }: any): void {
       }
     }
   );
+
+  // Add stores
+  plugin.addDashboardStore(connectionStore.config.namespace, connectionStore.specifics, connectionStore.config);
+  plugin.addDashboardStore(chatStore.config.namespace, chatStore.specifics, chatStore.config);
 }

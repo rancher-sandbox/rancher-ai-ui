@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, type PropType } from 'vue';
+import { computed, type PropType } from 'vue';
 import { Message, ContentType, Role as RoleEnum } from '../../types';
 import RcButton from '@components/RcButton/RcButton.vue';
 import Thinking from './Thinking.vue';
@@ -11,12 +11,14 @@ const props = defineProps({
   }
 });
 
-const showThinking = ref(true);
+const emit = defineEmits(['update:message']);
 
 const isThinking = computed(() => props.message.role === RoleEnum.Assistant && props.message.contentType === ContentType.Thinking);
 
-function toggleShowMessage() {
-  showThinking.value = !showThinking.value;
+function toggleShowMessage(message: Message) {
+  message.isExpanded = !message.isExpanded;
+
+  emit('update:message', message);
 }
 </script>
 
@@ -40,21 +42,21 @@ function toggleShowMessage() {
         small
         ghost
         class="expand-button"
-        @click="toggleShowMessage"
+        @click="toggleShowMessage(props.message)"
       >
         <i
           class="icon"
           :class="{
-            ['icon-chevron-up']: showThinking,
-            ['icon-chevron-down']: !showThinking
+            ['icon-chevron-up']: props.message.isExpanded,
+            ['icon-chevron-down']: !props.message.isExpanded
           }"
         />
       </RcButton>
     </div>
     <div
-      v-if="showThinking || !isThinking"
+      v-if="props.message.isExpanded || !isThinking"
       class="body"
-      :class="{['expanded']: isThinking && showThinking }"
+      :class="{['expanded']: isThinking && props.message.isExpanded }"
     >
       <span
         class="message-text"
