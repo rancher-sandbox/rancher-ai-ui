@@ -2,7 +2,7 @@ import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import type { Context } from '../types';
 
-export function useContextHandler() {
+export function useAgentHandler() {
   const store = useStore();
 
   const context = computed(() => {

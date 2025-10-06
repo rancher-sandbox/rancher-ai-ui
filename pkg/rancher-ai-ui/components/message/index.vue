@@ -3,6 +3,7 @@ import { computed, type PropType } from 'vue';
 import { Message, ContentType, Role as RoleEnum } from '../../types';
 import RcButton from '@components/RcButton/RcButton.vue';
 import Thinking from './Thinking.vue';
+import Action from './Action.vue';
 
 const props = defineProps({
   message: {
@@ -63,6 +64,17 @@ function toggleShowMessage(message: Message) {
       >
         {{ props.message.content }}
       </span>
+
+      <div
+        v-for="(action, index) in props.message.actions"
+        :key="index"
+        class="mt-2 message-actions"
+      >
+        <Action
+          :value="action"
+        />
+      </div>
+
       <span
         v-if="props.message.timestamp"
         class="message-timestamp"
@@ -96,6 +108,11 @@ function toggleShowMessage(message: Message) {
     .message-text {
       font-size: 0.875rem;
       font-weight: 500;
+    }
+
+    .message-actions {
+      display: flex;
+      flex-direction: column;
     }
 
     .message-timestamp {

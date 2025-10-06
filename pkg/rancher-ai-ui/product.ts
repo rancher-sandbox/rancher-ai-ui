@@ -1,4 +1,5 @@
 import { IPlugin } from '@shell/core/types';
+import { RIGHT } from '@shell/utils/position';
 
 export const PRODUCT_NAME = 'rancher-ai-ui';
 export const BLANK_CLUSTER = '_';
@@ -9,6 +10,8 @@ export const AGENT_API_PATH = 'agent/ws';
 
 export const AI_AGENT_NAME = 'Ollama';
 export const AI_AGENT_VERSION = 'qwen3:1.7b';
+
+export const PANEL_POSITION = RIGHT;
 
 export function init($plugin: IPlugin, store: any) {
   const { product } = $plugin.DSL(store, PRODUCT_NAME);

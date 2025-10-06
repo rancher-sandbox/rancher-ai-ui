@@ -1,4 +1,5 @@
 ai:
+  title: Rancher AI Assistant
   action:
     openChat: Rancher AI Assisstant
   nonPrime:

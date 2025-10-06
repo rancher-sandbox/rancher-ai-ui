@@ -1,9 +1,14 @@
 import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
-import { Message, ContentType, Role, Tag } from '../types';
+import { useContextHandler } from './useContextHandler';
+import {
+  Message, ContentType, Role, Tag, Context
+} from '../types';
+import { formatMessageActions } from '../utils/format';
 
 export function useChatMessageHandler(options: {
   chatId: string,
+  expandThinking: boolean
 }) {
   const store = useStore();
   const t = store.getters['i18n/t'];
@@ -11,7 +16,32 @@ export function useChatMessageHandler(options: {
   const messages = computed(() => Object.values(store.getters['rancher-ai-ui/chat/getMessages'](options.chatId)) as Message[]);
   const currThinkingMsg = ref<Message>({} as Message);
   const currResultMsg = ref<Message>({} as Message);
-  const error = ref('');
+  const error = ref<object | null>(null);
+
+  const { selectContext, selectedContext } = useContextHandler();
+
+  function sendMessage(prompt: string, ws: WebSocket) {
+    if (prompt) {
+      ws.send(formatMessage(prompt, selectedContext.value));
+
+      addMessage({
+        role:    Role.User,
+        content: prompt,
+      });
+    }
+  }
+
+  function formatMessage(prompt: string, selectedContext: Context[]) {
+    const context = selectedContext.reduce((acc, ctx) => ({
+      ...acc,
+      [ctx.tag]: ctx.value
+    }), {});
+
+    return JSON.stringify({
+      prompt,
+      context
+    });
+  }
 
   async function addMessage(message: Message) {
     return await store.dispatch('rancher-ai-ui/chat/addMessage', {
@@ -53,7 +83,7 @@ export function useChatMessageHandler(options: {
           role:        Role.Assistant,
           content:     '',
           contentType: ContentType.Thinking,
-          isExpanded:  true,
+          isExpanded:  options.expandThinking,
           completed:   false
         });
 
@@ -89,6 +119,14 @@ export function useChatMessageHandler(options: {
           if (!currResultMsg.value.content && data.trim() === '') {
             break;
           }
+
+          if (data.startsWith(Tag.McpResultStart) && data.endsWith(Tag.McpResultEnd)) {
+            currResultMsg.value.actions = formatMessageActions(data);
+
+            currResultMsg.value.content += 'List of resources: \n';
+            break;
+          }
+
           currResultMsg.value.content += data;
           break;
         }
@@ -97,7 +135,7 @@ export function useChatMessageHandler(options: {
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('Error processing messages:', err);
-      error.value = 'Error processing messages. Please close the chat and try again.';
+      error.value = { message: 'Error processing messages. Please close the chat and try again.' };
     }
   }
 
@@ -113,8 +151,10 @@ export function useChatMessageHandler(options: {
     onclose,
     onmessage,
     messages,
+    sendMessage,
     addMessage,
     updateMessage,
+    selectContext,
     error
   };
 }

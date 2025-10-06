@@ -28,6 +28,8 @@ export const enum Tag {
   MessageEnd = '</message>',
   ThinkingStart = '<think>',
   ThinkingEnd = '</think>',
+  McpResultStart = '<mcp-response>',
+  McpResultEnd = '</mcp-response>',
 }
 
 export const enum Role {
@@ -41,6 +43,27 @@ export const enum ContentType {
   Result = 'result',
 }
 
+export const enum ActionType {
+  Link = 'link',
+  Button = 'button',
+  // Add more action types as needed
+}
+
+export interface ActionResource {
+  kind: string;
+  type: string;
+  name: string;
+  namespace: string;
+  cluster: string;
+}
+
+export interface MessageAction {
+  type: ActionType | string;
+  label: string;
+  description?: string;
+  resource: ActionResource;
+}
+
 export interface Message {
   id?: number | string;
   role: Role;
@@ -48,8 +71,9 @@ export interface Message {
   contentType?: ContentType;
   completed?: boolean;
   timestamp?: number;
-  context?: Context[];
   isExpanded?: boolean;
+  context?: Context[];
+  actions?: MessageAction[];
 }
 
 export interface Agent {

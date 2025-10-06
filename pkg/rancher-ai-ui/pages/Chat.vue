@@ -1,78 +1,81 @@
 <script lang="ts" setup>
 import { onMounted, onBeforeUnmount } from 'vue';
 import {
-  AGENT_NAME, AGENT_NAMESPACE, AGENT_API_PATH, AI_AGENT_NAME, AI_AGENT_VERSION
+  AGENT_NAME, AGENT_NAMESPACE, AGENT_API_PATH, AI_AGENT_NAME, AI_AGENT_VERSION,
+  PANEL_POSITION,
+  PRODUCT_NAME
 } from '../product';
 import { useConnectionHandler } from '../composables/useConnectionHandler';
 import { useChatMessageHandler } from '../composables/useChatMessageHandler';
 import { useContextHandler } from '../composables/useContextHandler';
-import { Role } from '../types';
+import { useHeaderHandler } from '../composables/useHeaderHandler';
+import Header from '../components/panels/Header.vue';
 import Messages from '../components/panels/Messages.vue';
 import Input from '../components/panels/Input.vue';
 
-function useChat() {
-  const chatId = 'default';
-
-  const {
-    messages,
-    onopen,
-    onmessage,
-    onclose,
-    addMessage,
-    updateMessage,
-    error: chatError
-  } = useChatMessageHandler({ chatId });
-
-  const {
-    ws,
-    connect,
-    disconnect,
-    error: wsError
-  } = useConnectionHandler({
-    onopen,
-    onmessage,
-    onclose,
-  });
-
-  const {
-    context,
-    selectContext,
-    formattedContext
-  } = useContextHandler();
-
-  function sendMessage(content: string) {
-    if (content) {
-      ws.value?.send(formattedContext.value + content);
-
-      addMessage({
-        role: Role.User,
-        content,
-      });
-    }
-  }
-
-  onMounted(() => connect(AGENT_NAMESPACE, AGENT_NAME, AGENT_API_PATH));
-  onBeforeUnmount(disconnect);
-
-  return {
-    ws,
-    wsError,
-    messages,
-    context,
-    chatError,
-    sendMessage,
-    updateMessage,
-    selectContext,
-  };
-}
+const chatPanelId = PRODUCT_NAME;
+const chatId = 'default';
+const expandThinking = false;
 
 const {
-  ws, messages, context, wsError, chatError, sendMessage, updateMessage, selectContext
-} = useChat();
+  messages,
+  onopen,
+  onmessage,
+  onclose,
+  sendMessage,
+  updateMessage,
+  selectContext,
+  error: chatError
+} = useChatMessageHandler({
+  chatId,
+  expandThinking
+});
+
+const {
+  ws,
+  connect,
+  disconnect,
+  error: wsError
+} = useConnectionHandler({
+  onopen,
+  onmessage,
+  onclose,
+});
+
+const { context } = useContextHandler();
+
+const {
+  resize,
+  close,
+  setDefaultPosition,
+} = useHeaderHandler({
+  panelId:       chatPanelId,
+  panelPosition: PANEL_POSITION
+});
+
+onMounted(() => {
+  connect(AGENT_NAMESPACE, AGENT_NAME, AGENT_API_PATH);
+  // Ensure disconnection on browser refresh/close
+  window.addEventListener('beforeunload', unmount);
+});
+
+onBeforeUnmount(() => {
+  unmount();
+  window.removeEventListener('beforeunload', unmount);
+});
+
+function unmount() {
+  disconnect();
+  setDefaultPosition();
+}
 </script>
 
 <template>
   <div class="chat-container">
+    <Header
+      @resize="resize"
+      @close="close"
+    />
     <Messages
       :messages="messages"
       @update:message="updateMessage"
@@ -86,7 +89,7 @@ const {
       :disabled="!ws || ws.readyState === 3 || !!wsError || !!chatError"
       :error="wsError || chatError"
       @select:context="selectContext"
-      @send:message="sendMessage"
+      @input:content="sendMessage($event, ws)"
     />
   </div>
 </template>
@@ -95,7 +98,8 @@ const {
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 90px);
+  gap: 16px;
+  height: calc(100vh - 55px);
   padding: 16px;
 }
 </style>

@@ -5,8 +5,10 @@ import extensionRouting from './routing/extension-routing';
 import connectionStore from './store/connection';
 import chatStore from './store/chat';
 import { WORKLOAD_TYPES } from '@shell/config/types';
-import { AGENT_NAME, AGENT_NAMESPACE } from './product';
+import { AGENT_NAME, AGENT_NAMESPACE, PRODUCT_NAME, PANEL_POSITION } from './product';
 import { NotificationLevel } from '@shell/types/notifications';
+import { BOTTOM, LEFT, RIGHT } from '@shell/utils/position';
+import { Layout } from '@shell/types/window-manager';
 
 // Init the package
 export default function(plugin: IPlugin, { store }: any): void {
@@ -68,12 +70,28 @@ export default function(plugin: IPlugin, { store }: any): void {
         return false;
       },
       invoke() {
-        store.dispatch('wm/secondary/open', {
-          id:            'rancher-ai-ui-chat',
+        const tabs = [...store.getters['wm/tabs']].filter((tab: any) => tab.id !== PRODUCT_NAME);
+
+        tabs.forEach((tab) => {
+          store.commit('wm/switchTab', { tabId: tab.id, targetPosition: BOTTOM });
+        });
+
+        store.commit('wm/setPanelWidth', { position: PANEL_POSITION, width: window.innerWidth / 3 });
+
+        store.dispatch('wm/open', {
+          id:            PRODUCT_NAME,
+          extensionId:   PRODUCT_NAME,
           label:         'Chat',
-          componentName: 'ChatComponent',
-          extensionId:   'rancher-ai-ui',
+          component:     'ChatComponent',
+          position:      PANEL_POSITION,
+          layouts:       [
+            Layout.default,
+            Layout.home
+          ],
+          showHeader:    false,
         }, { root: true });
+
+        store.commit('wm/setLockedPositions', [RIGHT, LEFT, BOTTOM ]);
       }
     }
   );

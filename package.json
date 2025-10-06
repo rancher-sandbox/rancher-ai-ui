@@ -23,6 +23,7 @@
     "lint": "eslint ."
   },
   "devDependencies": {
+    "@types/lodash": "4.17.20",
     "eslint": "^9.35.0",
     "eslint-plugin-vue": "^10.4.0",
     "globals": "^16.4.0",

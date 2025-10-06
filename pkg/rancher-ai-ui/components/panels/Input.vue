@@ -17,10 +17,10 @@ const props = defineProps<{
   context?: Context[],
   agent: Agent,
   disabled?: boolean,
-  error?: string
+  error?: object
 }>();
 
-const emit = defineEmits(['send:message', 'select:context']);
+const emit = defineEmits(['input:content', 'select:context']);
 
 const message = ref('');
 const promptTextarea = ref<HTMLTextAreaElement | null>(null);
@@ -48,15 +48,15 @@ function onInputMessage(event: Event) {
 
 function handleTextareaKeydown(event: KeyboardEvent) {
   if (event.key === 'Enter' && !event.shiftKey) {
-    sendMessage(event);
+    sendContent(event);
   }
 }
 
-function sendMessage(event: Event) {
+function sendContent(event: Event) {
   event.preventDefault();
   event.stopPropagation();
 
-  emit('send:message', cleanMessage.value);
+  emit('input:content', cleanMessage.value);
 
   message.value = '';
 
@@ -123,8 +123,8 @@ function autoResizePrompt(height?: number) {
           small
           secondary
           :disabled="!cleanMessage || props.disabled"
-          @click="sendMessage"
-          @keydown.enter="sendMessage"
+          @click="sendContent"
+          @keydown.enter="sendContent"
         >
           {{ t('ai.prompt.send') }}
         </RcButton>
@@ -142,7 +142,6 @@ function autoResizePrompt(height?: number) {
   background-color: var(--body-bg);
   border-radius: var(--border-radius);
   padding: 8px 12px 12px 12px;
-  margin-top: 16px;
 
   .context-panel {
     display: flex;
