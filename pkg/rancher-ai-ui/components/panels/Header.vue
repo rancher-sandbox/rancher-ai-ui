@@ -7,7 +7,6 @@ const store = useStore();
 const t = store.getters['i18n/t'];
 
 const emit = defineEmits([
-  'resize',
   'close',
 ]);
 </script>
@@ -17,25 +16,12 @@ const emit = defineEmits([
     ref="headerContainer"
     class="header-container"
   >
-    <div class="group">
-      <div
-        class="resizer resizer-x"
-        role="button"
-        tabindex="0"
-        :aria-label="t('sideWindow.secondary.resize')"
-        aria-expanded="true"
-        @mousedown.prevent.stop="emit('resize', $event)"
-        @touchstart.prevent.stop="emit('resize', $event)"
+    <div class="tab-header">
+      <span
+        class="tab-label"
       >
-        <i class="icon icon-code" />
-      </div>
-      <div class="tab-header">
-        <span
-          class="tab-label"
-        >
-          {{ t('ai.title') }}
-        </span>
-      </div>
+        {{ t('ai.title') }}
+      </span>
     </div>
     <div
       class="actions"
@@ -62,11 +48,6 @@ const emit = defineEmits([
   justify-content: space-between;
   padding: 2px 8px 2px 0;
   border-bottom: 1px solid var(--body-bg);
-
-  .group {
-    display: flex;
-    align-items: center;
-  }
 
   .tab-header {
     margin: 0 4px
