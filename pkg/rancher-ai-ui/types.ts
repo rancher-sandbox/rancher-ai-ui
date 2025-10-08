@@ -62,6 +62,8 @@ export interface MessageAction {
 export interface Message {
   id?: number | string;
   role: Role;
+  thinkingStreamedResponse?: string;
+  messageStreamedResponse?: string;
   messageContent?: string;
   thinkingContent?: string;
   thinking?: boolean;

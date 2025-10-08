@@ -3,6 +3,7 @@ import { useStore } from 'vuex';
 import { useContextHandler } from './useContextHandler';
 import { Message, Role, Tag, Context } from '../types';
 import { formatMessageActions } from '../utils/format';
+import MarkdownIt from 'markdown-it';
 
 export function useChatMessageHandler(options: {
   chatId: string,
@@ -14,6 +15,13 @@ export function useChatMessageHandler(options: {
   const messages = computed(() => Object.values(store.getters['rancher-ai-ui/chat/getMessages'](options.chatId)) as Message[]);
   const currentMsg = ref<Message>({} as Message);
   const error = ref<object | null>(null);
+
+  const md = new MarkdownIt({
+    html:        true,
+    breaks:      true,
+    linkify:     true,
+    typographer: true,
+  });
 
   const { selectContext, selectedContext } = useContextHandler();
 
@@ -75,12 +83,14 @@ export function useChatMessageHandler(options: {
       switch (data) {
       case Tag.MessageStart:
         const msgId = await addMessage({
-          role:            Role.Assistant,
-          messageContent:     '',
-          thinkingContent:    '',
-          showThinking:    options.expandThinking,
-          thinking:        false,
-          completed:       false
+          role:                     Role.Assistant,
+          thinkingStreamedResponse: '',
+          messageStreamedResponse:  '',
+          messageContent:           '',
+          thinkingContent:          '',
+          showThinking:             options.expandThinking,
+          thinking:                 false,
+          completed:                false
         });
 
         currentMsg.value = getMessage(msgId);
@@ -103,7 +113,8 @@ export function useChatMessageHandler(options: {
           if (!currentMsg.value.thinkingContent && data.trim() === '') {
             break;
           }
-          currentMsg.value.thinkingContent += data;
+          currentMsg.value.thinkingStreamedResponse += data;
+          currentMsg.value.thinkingContent = md.render(currentMsg.value.thinkingStreamedResponse || '');
           break;
         }
         if (currentMsg.value.completed === false && currentMsg.value.thinking === false) {
@@ -116,7 +127,8 @@ export function useChatMessageHandler(options: {
             break;
           }
 
-          currentMsg.value.messageContent += data;
+          currentMsg.value.messageStreamedResponse += data;
+          currentMsg.value.messageContent = md.render(currentMsg.value.messageStreamedResponse || '');
           break;
         }
         break;
