@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
-  ref, computed, onMounted, onUnmounted, watch
+  ref, computed, onMounted,
+  onBeforeUnmount
 } from 'vue';
 import { useStore } from 'vuex';
 
@@ -16,10 +17,6 @@ const props = defineProps({
     type:    String,
     default: '',
   },
-  completed: {
-    type:    Boolean,
-    default: false,
-  }
 });
 
 const dots = computed(() => {
@@ -34,13 +31,7 @@ onMounted(() => {
   }, 500);
 });
 
-watch(() => props.completed, (value) => {
-  if (!value && interval) {
-    clearInterval(interval);
-  }
-});
-
-onUnmounted(() => {
+onBeforeUnmount(() => {
   if (interval) {
     clearInterval(interval);
   }
@@ -53,7 +44,7 @@ onUnmounted(() => {
       {{ props.label || t('ai.message.assistant.thinking.inProgress') }}
     </span>
     <div class="dots">
-      <span v-if="!props.completed">
+      <span>
         {{ dots }}
       </span>
     </div>

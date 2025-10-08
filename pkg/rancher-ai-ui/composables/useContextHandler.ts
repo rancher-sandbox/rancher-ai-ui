@@ -14,9 +14,10 @@ export function useContextHandler() {
     const activeNamespaces = Object.keys(namespaces)
       .filter((k) => !!namespaces[k])
       .map((value) => ({
-        tag:  'namespace',
+        tag:         'namespace',
         value,
-        icon: 'icon-folder'
+        description: 'Namespace',
+        icon:        'icon-folder'
       }));
 
     return [

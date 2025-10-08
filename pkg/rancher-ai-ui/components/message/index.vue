@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import { computed, type PropType } from 'vue';
-import { Message, ContentType, Role as RoleEnum } from '../../types';
-import RcButton from '@components/RcButton/RcButton.vue';
+import { computed, nextTick, onBeforeUnmount, ref, type PropType } from 'vue';
+import { useStore } from 'vuex';
+import { Message, Role as RoleEnum } from '../../types';
 import Thinking from './Thinking.vue';
 import Action from './Action.vue';
+import UserAvatar from './avatar/UserAvatar.vue';
+import SystemAvatar from './avatar/SystemAvatar.vue';
+
+const store = useStore();
+const t = store.getters['i18n/t'];
 
 const props = defineProps({
   message: {
@@ -12,139 +17,326 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['update:message']);
+const emit = defineEmits(['update:message', 'enable:autoscroll']);
 
-const isThinking = computed(() => props.message.role === RoleEnum.Assistant && props.message.contentType === ContentType.Thinking);
+const isThinking = computed(() => props.message.role === RoleEnum.Assistant && props.message.thinking);
+const showCopySuccess = ref(false);
+const timeoutCopy = ref<any>(null);
+const timeoutAutoscroll = ref<any>(null);
 
-function toggleShowMessage(message: Message) {
-  message.isExpanded = !message.isExpanded;
-
-  emit('update:message', message);
+function handleCopy() {
+  if (!props.message.messageContent && !props.message.thinkingContent) {
+    return;
+  }
+  navigator.clipboard.writeText(props.message.messageContent || `${  props.message.thinkingContent  }`);
+  showCopySuccess.value = true;
+  if (timeoutCopy.value) {
+    clearTimeout(timeoutCopy.value);
+  }
+  timeoutCopy.value = setTimeout(() => {
+    showCopySuccess.value = false;
+  }, 1000);
 }
+
+function handleShowThinking(message: Message) {
+  message.showThinking = !message.showThinking;
+
+  emit('enable:autoscroll', false);
+  nextTick(() => {
+    emit('update:message', message);
+  });
+  if (timeoutAutoscroll.value) {
+    clearTimeout(timeoutAutoscroll.value);
+  }
+  timeoutAutoscroll.value = setTimeout(() => {
+    emit('enable:autoscroll', true);
+  }, 500);
+}
+
+onBeforeUnmount(() => {
+  if (timeoutCopy.value) {
+    clearTimeout(timeoutCopy.value);
+  }
+  if (timeoutAutoscroll.value) {
+    clearTimeout(timeoutAutoscroll.value);
+  }
+});
 </script>
 
 <template>
   <div
-    class="message-container"
+    class="chat-message"
     :class="[{
-      'user-message': props.message.role === RoleEnum.User,
-      'other-message': props.message.role !== RoleEnum.User,
-      'thinking-message': isThinking
+      'chat-message-user': props.message.role === RoleEnum.User,
     }]"
   >
-    <div
-      v-if="isThinking"
-      class="header"
-    >
-      <Thinking
-        :completed="props.message.completed"
-      />
-      <RcButton
-        small
-        ghost
-        class="expand-button"
-        @click="toggleShowMessage(props.message)"
-      >
-        <i
-          class="icon"
-          :class="{
-            ['icon-chevron-up']: props.message.isExpanded,
-            ['icon-chevron-down']: !props.message.isExpanded
-          }"
-        />
-      </RcButton>
-    </div>
-    <div
-      v-if="props.message.isExpanded || !isThinking"
-      class="body"
-      :class="{['expanded']: isThinking && props.message.isExpanded }"
-    >
-      <span
-        class="message-text"
-      >
-        {{ props.message.content }}
-      </span>
-
+    <component
+      :is="props.message.role === RoleEnum.User ? UserAvatar : SystemAvatar"
+      class="chat-msg-avatar"
+    />
+    <div class="chat-msg-content">
       <div
-        v-for="(action, index) in props.message.actions"
-        :key="index"
-        class="mt-2 message-actions"
+        class="chat-msg-bubble"
+        :class="[{
+          'chat-msg-bubble-user': props.message.role === RoleEnum.User,
+          'chat-msg-bubble-assistant': props.message.role !== RoleEnum.User,
+        }]"
       >
-        <Action
-          :value="action"
-        />
+        <div class="chat-msg-bubble-actions">
+          <button
+            v-if="props.message.role === RoleEnum.Assistant"
+            class="bubble-action-btn btn header-btn role-tertiary"
+            type="button"
+            role="button"
+            @click="handleShowThinking(props.message)"
+          >
+            <i class="icon icon-gear" />
+          </button>
+          <button
+            class="bubble-action-btn btn header-btn role-tertiary"
+            type="button"
+            role="button"
+            @click="handleCopy"
+          >
+            <i
+              :class="{
+                'icon icon-checkmark': showCopySuccess,
+                'icon icon-copy': !showCopySuccess
+              }"
+            />
+          </button>
+        </div>
+        <div class="chat-msg-text">
+          <div v-if="isThinking">
+            <Thinking />
+          </div>
+          <span v-if="props.message.showThinking">
+            <br v-if="isThinking">{{ props.message.thinkingContent }}<br><br>
+          </span>
+          <span v-if="props.message.completed && !props.message.thinking && props.message.actions?.length && props.message.messageContent">
+            {{ t('ai.message.assistant.contextResponse') }}<br><br>
+          </span>
+          <span>
+            {{ props.message.messageContent }}
+          </span>
+        </div>
       </div>
-
-      <span
-        v-if="props.message.timestamp"
-        class="message-timestamp"
+      <!-- TODO: replace with actual source when available -->
+      <div
+        v-if="props.message.source || (props.message.role === RoleEnum.Assistant && props.message.messageContent)"
+        class="chat-msg-section"
       >
-        {{ props.message.timestamp }}
-      </span>
+        <div class="chat-msg-section-title">
+          <i class="icon icon-document" />
+          <span>{{ t('ai.message.source.label') }}</span>
+        </div>
+        <div class="chat-msg-tags">
+          <span class="chat-tag">Cluster Management Guide</span>
+          <span class="chat-tag">Best Practices</span>
+        </div>
+      </div>
+      <div
+        v-if="props.message.actions?.length"
+        class="chat-msg-section"
+      >
+        <div class="chat-msg-section-title chat-msg-section-title-actions">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M13 10V3L4 14h7v7l9-11h-7Z"
+              fill="#3d98d3"
+            />
+          </svg>
+          <span>{{ t('ai.message.quickActions.label') }}</span>
+        </div>
+        <div class="chat-msg-tags chat-msg-section-tags-actions">
+          <div
+            v-for="(action, index) in props.message.actions"
+            :key="index"
+            class="mt-2 chat-msg-actions"
+          >
+            <Action
+              :value="action"
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        v-if="props.message.timestamp"
+        class="chat-msg-timestamp"
+      >
+        {{ props.message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}
+      </div>
     </div>
   </div>
 </template>
 
 <style lang='scss' scoped>
-.message-container {
+.chat-message {
+  display: flex;
+  gap: 8px;
+}
+
+.chat-msg-content {
+  margin-right: 40px;
+}
+
+.chat-message-user {
+  flex-direction: row-reverse;
+
+  .chat-msg-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin: 0;
+  }
+
+  .chat-msg-text {
+    color: #fff;
+  }
+}
+
+.chat-msg-bubble {
+  position: relative;
+  max-width: 450px;
+  background: var(--body-bg);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
+  padding: 12px;
+  font-size: 0.95rem;
   display: flex;
   flex-direction: column;
-  border-radius: 0.5rem;
-  padding: 0.75rem;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  gap: 6px;
+
+  /* Hide actions by default, show on hover */
+  &:hover .chat-msg-bubble-actions {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.chat-msg-bubble-user {
+  background: var(--primary);
+  color: #fff;
+  border: 1px solid #3d98d3;
+}
+
+.chat-msg-bubble-actions {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  display: flex;
+  gap: 5px;
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.bubble-action-btn {
+  background: #fff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 2px 4px;
+  box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
+  cursor: pointer;
+  transition: border 0.15s, box-shadow 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.bubble-action-btn .icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.bubble-action-btn.header-btn {
+  padding: 2px;
+  min-width: 20px;
+  min-height: 20px;
+  width: 25px;
+  height: 25px;
+}
+
+.bubble-action-btn.header-btn .icon {
+  font-size: 12px;
+  width: 12px;
+  height: 12px;
+}
+
+.bubble-action-btn:hover {
+  border-color: #3d98d3;
+  box-shadow: 0 2px 8px 0 rgba(61,152,211,0.10);
+}
+
+.chat-msg-text {
+  color: var(--body-text);
   word-break: break-word;
-  white-space: pre-wrap;
+  white-space: pre-line;
+}
 
-  .header {
-    display: flex;
-    align-items: center;
+.chat-msg-section {
+  margin-top: 8px;
+}
 
-    .expand-button {
-      min-height: 15px;
-    }
+.chat-msg-section-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #9fabc6;
+
+  span {
+    font: 9px sans-serif;
+    font-weight: 500;
   }
 
-  .body {
-    .message-text {
-      font-size: 0.875rem;
-      font-weight: 500;
-    }
-
-    .message-actions {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .message-timestamp {
-      font-size: 0.75rem;
-      text-align: right;
-      margin-top: 0.25rem;
-      opacity: 0.75;
-    }
-
-    &.expanded {
-      margin-top: 16px;
+  &.chat-msg-section-title-actions {
+    span {
+       color: var(--primary);
     }
   }
 }
 
-.user-message {
+.chat-msg-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.chat-msg-section-tags-actions {
+  margin-top: 4px;
+}
+
+.chat-tag {
+  background: #e0e7ef;
+  color: #334155;
+  border-radius: 8px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  border: 1px solid #cbd5e1;
+}
+
+.chat-msg-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.chat-msg-timestamp {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 8px;
   align-self: flex-end;
-  background-color: var(--primary);
-  color: white;
-  margin-left: auto;
-  border-top-right-radius: 0.1rem;
-}
-
-.other-message {
-  align-self: flex-start;
-  background-color: #374151;
-  color: white;
-  margin-right: auto;
-  border-top-left-radius: 0.1rem;
-}
-
-.thinking-message {
-  background-color: #676785;
 }
 </style>

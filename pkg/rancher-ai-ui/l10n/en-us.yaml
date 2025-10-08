@@ -1,22 +1,28 @@
 ai:
-  title: Rancher AI Assistant
+  title: AI Assistant
   action:
-    openChat: Rancher AI Assisstant
+    openChat: AI Assistant
   nonPrime:
     title: Rancher AI Assistant requires Rancher Prime
     message: The Rancher AI Assistant requires a Rancher Prime subscription. Please upgrade to Prime or uninstall this extension.
   message:
     system:
-      welcome: Hello! I am your Rancher AI Assistant. How can I help you today?
+      welcome: Hello! I am your AI Assistant. How can I help you today?
       disconnected: Connection closed.
     assistant:
       thinking:
         completed: Completed
         inProgress: Thinking
+      contextResponse: Use Quick Actions below to check the resources in Rancher.
+    source:
+      label: SOURCE
+    quickActions:
+      label: QUICK ACTIONS
   prompt:
     placeholder: Type your message...
     send: Send
   context:
+    label: CONTEXT
     add: Add Context
     none: No context
-
+  agent: Running {name} {version}

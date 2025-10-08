@@ -15,31 +15,31 @@ const props = defineProps({
 
 const emit = defineEmits(['update:message']);
 
-const messagesContainer = ref<HTMLDivElement | null>(null);
+const chatMessages = ref<HTMLDivElement | null>(null);
 const autoScrollEnabled = ref(true);
 
 const sortedMessages = computed(() => {
   return [...props.messages]
-    .filter((m) => m.content)
-    .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+    .filter((m) => m.messageContent || m.thinkingContent)
+    .sort((a, b) => (Number(a.timestamp) || 0) - (Number(b.timestamp) || 0));
 });
 
 function handleScroll() {
-  const container = messagesContainer.value;
+  const container = chatMessages.value;
 
   if (!container) {
     return;
   }
-  autoScrollEnabled.value =
-    container.scrollTop + container.clientHeight >= container.scrollHeight - 2;
+
+  autoScrollEnabled.value = container.scrollTop + container.clientHeight >= container.scrollHeight - 2;
 }
 
 watch(
   () => props.messages,
   () => {
     nextTick(() => {
-      if (messagesContainer.value && autoScrollEnabled.value) {
-        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+      if (chatMessages.value && autoScrollEnabled.value) {
+        chatMessages.value.scrollTop = chatMessages.value.scrollHeight;
       }
     });
   },
@@ -50,44 +50,41 @@ watch(
 );
 
 onMounted(() => {
-  if (messagesContainer.value) {
-    messagesContainer.value.addEventListener('scroll', handleScroll);
+  if (chatMessages.value) {
+    chatMessages.value.addEventListener('scroll', handleScroll);
   }
 });
 
 onBeforeUnmount(() => {
-  if (messagesContainer.value) {
-    messagesContainer.value.removeEventListener('scroll', handleScroll);
+  if (chatMessages.value) {
+    chatMessages.value.removeEventListener('scroll', handleScroll);
   }
 });
 </script>
 
 <template>
   <div
-    ref="messagesContainer"
-    class="messages-container"
+    ref="chatMessages"
+    class="chat-messages"
   >
     <MessageComponent
       v-for="(message, i) in sortedMessages"
       :key="i"
       :message="message"
       @update:message="emit('update:message', message)"
+      @enable:autoscroll="autoScrollEnabled = $event"
     />
   </div>
 </template>
 
 <style lang='scss' scoped>
-.messages-container {
+.chat-messages {
   flex: 1;
   overflow-y: auto;
+  padding: 16px 8px 0 8px;
+  background: #f3f4f6;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding-right: 0.5rem;
-}
-
-.messages-container::-webkit-scrollbar-thumb {
-  background-color: #4b5563;
-  border-radius: 4px;
+  gap: 16px;
 }
 </style>

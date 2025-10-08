@@ -67,7 +67,6 @@ function removeItem(item: Context) {
   selected.value = selected.value.filter((i) => _id(i) !== _id(item));
   emit('update', selected.value);
 }
-
 </script>
 
 <template>
@@ -122,13 +121,20 @@ function removeItem(item: Context) {
       </template>
     </rc-dropdown>
     <div class="tags">
-      <span
+      <div
         v-for="(item, index) in selected"
         :key="index"
         v-clean-tooltip="item.description"
         class="vs__selected tag"
       >
-        {{ item.tag }}:{{ item.value }}
+        <div class="tag-content">
+          <i
+            :class="item.icon"
+          />
+          <span>
+            {{ item.value }}
+          </span>
+        </div>
         <button
           type="button"
           class="vs__deselect"
@@ -142,7 +148,7 @@ function removeItem(item: Context) {
             </path>
           </svg>
         </button>
-      </span>
+      </div>
     </div>
   </div>
   <span
@@ -167,6 +173,9 @@ function removeItem(item: Context) {
 }
 
 .tag {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
   height: 25px;
   line-height: 1;
   margin-right: 5px;
@@ -175,5 +184,16 @@ function removeItem(item: Context) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  cursor: pointer;
+
+  .tag-content {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+  }
+
+  .vs__deselect {
+    margin: 0;
+  }
 }
 </style>

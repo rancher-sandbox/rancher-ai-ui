@@ -1,7 +1,7 @@
 import { ActionType, MessageAction, Tag } from '../types';
 import { validateActionResource } from './validator';
 
-export function formatMessageActions(value: string, actionType = ActionType.Link): MessageAction[] {
+export function formatMessageActions(value: string, actionType = ActionType.Button): MessageAction[] {
   value = value.replaceAll(Tag.McpResultStart, '').replaceAll(Tag.McpResultEnd, '').replace(/'/g, '"');
 
   if (value) {

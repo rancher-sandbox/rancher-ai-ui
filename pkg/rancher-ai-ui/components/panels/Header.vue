@@ -1,10 +1,18 @@
 <script lang="ts" setup>
-import { defineEmits } from 'vue';
+import { defineEmits, type PropType } from 'vue';
 import { useStore } from 'vuex';
+import { Agent } from '../../types';
 import RcButton from '@components/RcButton/RcButton.vue';
 
 const store = useStore();
 const t = store.getters['i18n/t'];
+
+const props = defineProps({
+  agent: {
+    type:     Object as PropType<Agent>,
+    required: true,
+  }
+});
 
 const emit = defineEmits([
   'close',
@@ -12,23 +20,27 @@ const emit = defineEmits([
 </script>
 
 <template>
-  <div
-    ref="headerContainer"
-    class="header-container"
-  >
-    <div class="tab-header">
-      <span
-        class="tab-label"
-      >
-        {{ t('ai.title') }}
-      </span>
+  <div class="chat-header">
+    <div class="chat-header-left">
+      <div>
+        <div class="chat-title">
+          <h2>
+            {{ t('ai.title') }}
+          </h2>
+        </div>
+        <div class="chat-subtitle">
+          <span>
+            {{ t('ai.agent', { name: props.agent.name, version: props.agent.version }, true) }}
+          </span>
+        </div>
+      </div>
     </div>
-    <div
-      class="actions"
-    >
+
+    <div class="chat-close-btn">
       <RcButton
         small
         ghost
+        class="btn-close"
         @click="emit('close')"
         @keydown.enter.stop="emit('close')"
         @keydown.space.enter.stop="emit('close')"
@@ -42,43 +54,50 @@ const emit = defineEmits([
 </template>
 
 <style lang="scss" scoped>
-.header-container {
+.chat-header {
+  background: var(--active-nav);
+  color: var(--on-active);
+  padding: 12px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 2px 8px 2px 0;
-  border-bottom: 1px solid var(--body-bg);
+}
 
-  .tab-header {
-    margin: 0 4px
-  }
+.chat-title {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 24px;
 
-  .tab-label {
-    padding: 0 4px;
-    font-size: 16px;
-    border-bottom: 1px solid var(--primary);
-    padding-bottom: 2px;
-  }
-
-  .actions {
-    padding-right: 4px;
+  h2 {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--on-active);
+    margin: 0;
   }
 }
 
-.resizer {
-  width: var(--wm-tab-height);
-  padding: 0 5px;
-  margin: 0 0 0 1px;
-  text-align: center;
-  border-left: 1px solid var(--wm-border);
-  border-right: 1px solid var(--wm-border);
-  line-height: var(--wm-tab-height);
-  height: calc(var(--wm-tab-height) + 1px);
-  flex-grow: 0;
-  cursor: col-resize;
-
-  &:hover {
-    background-color: var(--wm-closer-hover-bg);
+.chat-subtitle {
+  height: 18px;
+  margin: 2px 0 0 0;
+  span {
+    font-size: 0.8rem;
+    color: var(--on-active);
   }
+}
+
+.chat-close-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.2s;
+  .btn-close {
+    margin: 0 8px;
+  }
+}
+
+.chat-close-btn:hover {
+  background: var(--active-hover);
 }
 </style>
