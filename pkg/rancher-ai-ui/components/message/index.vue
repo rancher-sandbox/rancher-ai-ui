@@ -8,6 +8,8 @@ import Thinking from './Thinking.vue';
 import Action from './Action.vue';
 import UserAvatar from './avatar/UserAvatar.vue';
 import SystemAvatar from './avatar/SystemAvatar.vue';
+import IconOrSvg from '@shell/components/IconOrSvg';
+import iconDoc from '../../assets/explain.svg';
 
 const store = useStore();
 const t = store.getters['i18n/t'];
@@ -139,9 +141,14 @@ onBeforeUnmount(() => {
             />
             <br>
           </span>
-          <span v-if="props.message.completed && !props.message.thinking && props.message.actions?.length && props.message.messageContent">
-            {{ t('ai.message.assistant.contextResponse') }}
-          </span>
+          <div v-if="props.message.completed && !props.message.thinking && !props.message.messageContent">
+            <span v-if="props.message.actions?.length">
+              {{ t('ai.message.assistant.empty.messageActions') }}
+            </span>
+            <span v-else>
+              {{ t('ai.message.assistant.empty.messageNoActions') }}
+            </span>
+          </div>
           <span
             v-if="props.message.messageContent"
             v-clean-html="props.message.messageContent"
@@ -154,7 +161,10 @@ onBeforeUnmount(() => {
         class="chat-msg-section"
       >
         <div class="chat-msg-section-title">
-          <i class="icon icon-document" />
+          <IconOrSvg
+            :src="iconDoc"
+            class="icon icon-action-source"
+          />
           <span>{{ t('ai.message.source.label') }}</span>
         </div>
         <div class="chat-msg-tags">
@@ -309,6 +319,7 @@ onBeforeUnmount(() => {
   color: var(--body-text);
   word-break: break-word;
   white-space: pre-line;
+  list-style-position: inside;
 }
 
 .chat-msg-section {
@@ -366,5 +377,14 @@ onBeforeUnmount(() => {
   margin-top: 8px;
   margin-bottom: 8px;
   align-self: flex-end;
+}
+
+.icon-action-source {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  display: inline-block;
+  vertical-align: middle;
 }
 </style>

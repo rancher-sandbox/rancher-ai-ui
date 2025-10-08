@@ -13,7 +13,9 @@ ai:
       thinking:
         completed: Completed
         inProgress: Thinking
-      contextResponse: Use Quick Actions below to check the resources in Rancher.
+      empty:
+        messageActions: Use Quick Actions below to check the resources in Rancher.
+        messageNoActions: Thinking Message
     source:
       label: SOURCE
     quickActions:

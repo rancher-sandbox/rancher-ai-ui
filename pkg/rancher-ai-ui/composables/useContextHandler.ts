@@ -17,7 +17,7 @@ export function useContextHandler() {
         tag:         'namespace',
         value,
         description: 'Namespace',
-        icon:        'icon-folder'
+        icon:        'icon-namespace'
       }));
 
     return [
