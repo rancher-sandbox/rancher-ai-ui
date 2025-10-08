@@ -30,9 +30,24 @@ function handleCopy() {
   if (!props.message.messageContent && !props.message.thinkingContent) {
     return;
   }
-  navigator.clipboard.writeText(
-    (props.message.thinkingStreamedResponse || '') + (props.message.thinkingStreamedResponse || '')
-  );
+
+  let text = '';
+
+  switch (props.message.role) {
+  case RoleEnum.User:
+  case RoleEnum.System:
+    text = props.message.messageContent || '';
+    break;
+  case RoleEnum.Assistant:
+    if (props.message.showThinking) {
+      text = props.message.thinkingStreamedResponse || '';
+    }
+    text += (props.message.messageStreamedResponse || '');
+  default:
+    break;
+  }
+
+  navigator.clipboard.writeText(text);
   showCopySuccess.value = true;
   if (timeoutCopy.value) {
     clearTimeout(timeoutCopy.value);
@@ -89,6 +104,7 @@ onBeforeUnmount(() => {
         <div class="chat-msg-bubble-actions">
           <button
             v-if="props.message.role === RoleEnum.Assistant"
+            v-clean-tooltip="t('ai.message.actions.tooltip.showThinking')"
             class="bubble-action-btn btn header-btn role-tertiary"
             type="button"
             role="button"
@@ -97,6 +113,7 @@ onBeforeUnmount(() => {
             <i class="icon icon-gear" />
           </button>
           <button
+            v-clean-tooltip="t('ai.message.actions.tooltip.copy')"
             class="bubble-action-btn btn header-btn role-tertiary"
             type="button"
             role="button"
@@ -121,10 +138,9 @@ onBeforeUnmount(() => {
               v-clean-html="props.message.thinkingContent"
             />
             <br>
-            <br>
           </span>
           <span v-if="props.message.completed && !props.message.thinking && props.message.actions?.length && props.message.messageContent">
-            {{ t('ai.message.assistant.contextResponse') }}<br><br>
+            {{ t('ai.message.assistant.contextResponse') }}
           </span>
           <span
             v-if="props.message.messageContent"
@@ -348,6 +364,7 @@ onBeforeUnmount(() => {
   font-size: 0.75rem;
   color: #94a3b8;
   margin-top: 8px;
+  margin-bottom: 8px;
   align-self: flex-end;
 }
 </style>
