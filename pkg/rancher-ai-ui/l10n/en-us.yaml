@@ -18,6 +18,10 @@ ai:
       label: SOURCE
     quickActions:
       label: QUICK ACTIONS
+    actions:
+      tooltip:
+        copy: Copy to Clipboard
+        showThinking: Show Thinking Process
   prompt:
     placeholder: Type your message...
     send: Send

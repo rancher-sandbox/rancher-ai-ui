@@ -82,7 +82,7 @@ function removeItem(item: Context) {
         ghost
         small
       >
-        <span class="text-label mr-5">
+        <span class="text-label mr-5 ml-5">
           {{ t('ai.context.add') }}
         </span>
         <template #after>
