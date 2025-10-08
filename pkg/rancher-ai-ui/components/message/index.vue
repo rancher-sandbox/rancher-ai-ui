@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref, type PropType } from 'vue';
+import {
+  computed, nextTick, onBeforeUnmount, ref, type PropType
+} from 'vue';
 import { useStore } from 'vuex';
 import { Message, Role as RoleEnum } from '../../types';
 import Thinking from './Thinking.vue';
@@ -28,7 +30,9 @@ function handleCopy() {
   if (!props.message.messageContent && !props.message.thinkingContent) {
     return;
   }
-  navigator.clipboard.writeText(props.message.messageContent || `${  props.message.thinkingContent  }`);
+  navigator.clipboard.writeText(
+    (props.message.thinkingStreamedResponse || '') + (props.message.thinkingStreamedResponse || '')
+  );
   showCopySuccess.value = true;
   if (timeoutCopy.value) {
     clearTimeout(timeoutCopy.value);
@@ -111,14 +115,21 @@ onBeforeUnmount(() => {
             <Thinking />
           </div>
           <span v-if="props.message.showThinking">
-            <br v-if="isThinking">{{ props.message.thinkingContent }}<br><br>
+            <br v-if="isThinking">
+            <span
+              v-if="props.message.thinkingContent"
+              v-clean-html="props.message.thinkingContent"
+            />
+            <br>
+            <br>
           </span>
           <span v-if="props.message.completed && !props.message.thinking && props.message.actions?.length && props.message.messageContent">
             {{ t('ai.message.assistant.contextResponse') }}<br><br>
           </span>
-          <span>
-            {{ props.message.messageContent }}
-          </span>
+          <span
+            v-if="props.message.messageContent"
+            v-clean-html="props.message.messageContent"
+          />
         </div>
       </div>
       <!-- TODO: replace with actual source when available -->
