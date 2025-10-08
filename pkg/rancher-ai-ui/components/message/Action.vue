@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref, type PropType } from 'vue';
 import { useStore } from 'vuex';
+import RcButton from '@components/RcButton/RcButton.vue';
 import { MessageAction } from '../../types';
+import { ActionType } from '../../types';
 
 const store = useStore();
 
@@ -29,7 +31,17 @@ onMounted(async() => {
 </script>
 
 <template>
-  <span>
+  <div v-if="props.value.type === ActionType.Button">
+    <RcButton
+      small
+      secondary
+      :disabled="!to"
+      @click="goTo"
+    >
+      {{ props.value.resource.name }}
+    </RcButton>
+  </div>
+  <span v-if="props.value.type === ActionType.Link">
     <a
       v-if="to"
       class="link"

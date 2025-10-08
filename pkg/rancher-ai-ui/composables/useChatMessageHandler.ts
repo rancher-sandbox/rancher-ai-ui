@@ -1,9 +1,7 @@
 import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useContextHandler } from './useContextHandler';
-import {
-  Message, ContentType, Role, Tag, Context
-} from '../types';
+import { Message, Role, Tag, Context } from '../types';
 import { formatMessageActions } from '../utils/format';
 
 export function useChatMessageHandler(options: {
@@ -14,8 +12,7 @@ export function useChatMessageHandler(options: {
   const t = store.getters['i18n/t'];
 
   const messages = computed(() => Object.values(store.getters['rancher-ai-ui/chat/getMessages'](options.chatId)) as Message[]);
-  const currThinkingMsg = ref<Message>({} as Message);
-  const currResultMsg = ref<Message>({} as Message);
+  const currentMsg = ref<Message>({} as Message);
   const error = ref<object | null>(null);
 
   const { selectContext, selectedContext } = useContextHandler();
@@ -25,8 +22,8 @@ export function useChatMessageHandler(options: {
       ws.send(formatMessage(prompt, selectedContext.value));
 
       addMessage({
-        role:    Role.User,
-        content: prompt,
+        role:           Role.User,
+        messageContent: prompt,
       });
     }
   }
@@ -66,8 +63,8 @@ export function useChatMessageHandler(options: {
 
   function onopen() {
     addMessage({
-      role:    Role.System,
-      content: t('ai.message.system.welcome'),
+      role:           Role.System,
+      messageContent: t('ai.message.system.welcome'),
     });
   }
 
@@ -77,57 +74,49 @@ export function useChatMessageHandler(options: {
     try {
       switch (data) {
       case Tag.MessageStart:
-        break;
-      case Tag.ThinkingStart: {
-        const thinkingMsgId = await addMessage({
-          role:        Role.Assistant,
-          content:     '',
-          contentType: ContentType.Thinking,
-          isExpanded:  options.expandThinking,
-          completed:   false
+        const msgId = await addMessage({
+          role:            Role.Assistant,
+          messageContent:     '',
+          thinkingContent:    '',
+          showThinking:    options.expandThinking,
+          thinking:        false,
+          completed:       false
         });
 
-        currThinkingMsg.value = getMessage(thinkingMsgId);
+        currentMsg.value = getMessage(msgId);
+        break;
+      case Tag.ThinkingStart: {
+        currentMsg.value.thinking = true;
         break;
       }
       case Tag.ThinkingEnd: {
-        currThinkingMsg.value.content = currThinkingMsg.value.content?.replace(/[\r\n]+$/, '');
-        currThinkingMsg.value.completed = true;
-        const resultMsgId = await addMessage({
-          role:        Role.Assistant,
-          content:     '',
-          contentType: ContentType.Result,
-          completed:   false
-        });
-
-        currResultMsg.value = getMessage(resultMsgId);
+        currentMsg.value.thinking = false;
         break;
       }
       case Tag.MessageEnd:
-        currResultMsg.value.content = currResultMsg.value.content?.replace(/[\r\n]+$/, '');
-        currResultMsg.value.completed = true;
+        currentMsg.value.messageContent = currentMsg.value.messageContent?.replace(/[\r\n]+$/, '');
+        currentMsg.value.thinking = false;
+        currentMsg.value.completed = true;
         break;
       default:
-        if (currThinkingMsg.value.completed === false) {
-          if (!currThinkingMsg.value.content && data.trim() === '') {
+        if (currentMsg.value.completed === false && currentMsg.value.thinking === true) {
+          if (!currentMsg.value.thinkingContent && data.trim() === '') {
             break;
           }
-          currThinkingMsg.value.content += data;
+          currentMsg.value.thinkingContent += data;
           break;
         }
-        if (currResultMsg.value.completed === false) {
-          if (!currResultMsg.value.content && data.trim() === '') {
+        if (currentMsg.value.completed === false && currentMsg.value.thinking === false) {
+          if (!currentMsg.value.messageContent && data.trim() === '') {
             break;
           }
 
           if (data.startsWith(Tag.McpResultStart) && data.endsWith(Tag.McpResultEnd)) {
-            currResultMsg.value.actions = formatMessageActions(data);
-
-            currResultMsg.value.content += 'List of resources: \n';
+            currentMsg.value.actions = formatMessageActions(data);
             break;
           }
 
-          currResultMsg.value.content += data;
+          currentMsg.value.messageContent += data;
           break;
         }
         break;
@@ -141,8 +130,8 @@ export function useChatMessageHandler(options: {
 
   async function onclose() {
     addMessage({
-      role:    Role.System,
-      content: t('ai.message.system.disconnected'),
+      role:           Role.System,
+      messageContent: t('ai.message.system.disconnected'),
     });
   }
 

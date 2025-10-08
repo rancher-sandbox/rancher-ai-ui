@@ -38,6 +38,8 @@ const mutations = {
 
     const msgId = ++state.chats[chatId].msgIdCnt;
 
+    message.timestamp = message.timestamp || new Date();
+
     state.chats[chatId].messages[msgId] = {
       ...message,
       id: msgId

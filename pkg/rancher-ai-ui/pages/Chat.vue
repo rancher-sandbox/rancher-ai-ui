@@ -11,7 +11,9 @@ import { useContextHandler } from '../composables/useContextHandler';
 import { useHeaderHandler } from '../composables/useHeaderHandler';
 import Header from '../components/panels/Header.vue';
 import Messages from '../components/panels/Messages.vue';
+import Context from '../components/panels/Context.vue';
 import Input from '../components/panels/Input.vue';
+import Banner from '@components/Banner/Banner.vue';
 
 const chatPanelId = PRODUCT_NAME;
 const chatId = 'default';
@@ -71,29 +73,41 @@ function unmount() {
 </script>
 
 <template>
-  <div class="panel-container">
+  <div class="chat-container">
     <div
       class="resize-bar"
       @mousedown.prevent.stop="resize"
       @touchstart.prevent.stop="resize"
     />
-    <div class="chat-container">
+    <div class="chat-panel">
       <Header
+        :agent="{
+          name: AI_AGENT_NAME,
+          version: AI_AGENT_VERSION
+        }"
         @close="close"
       />
       <Messages
         :messages="messages"
         @update:message="updateMessage"
       />
+      <div
+        v-if="wsError || chatError"
+        class="errors"
+      >
+        <Banner
+          color="error"
+          :label="wsError || chatError"
+        />
+      </div>
+      <Context
+        :value="context"
+        :disabled="!!wsError || !!chatError"
+        @select="selectContext"
+      />
       <Input
-        :context="context"
-        :agent="{
-          name: AI_AGENT_NAME,
-          version: AI_AGENT_VERSION
-        }"
         :disabled="!ws || ws.readyState === 3 || !!wsError || !!chatError"
-        :error="wsError || chatError"
-        @select:context="selectContext"
+        :error="{ message: 'testetstets'}"
         @input:content="sendMessage($event, ws)"
       />
     </div>
@@ -101,52 +115,43 @@ function unmount() {
 </template>
 
 <style lang='scss' scoped>
-.panel-container {
+.chat-container {
   display: flex;
   flex-direction: row;
   height: calc(100vh - 55px);
+  position: relative;
+  z-index: 20;
 }
 
-.chat-container {
+.chat-panel {
+  width: 100%;
+  background: #f3f4f6;
+  /* box-shadow: 0 4px 24px 0 rgba(0,0,0,0.10); */
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  width: 100%;
-  padding: 16px;
-}
-
-.chat-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  max-width: 100%;
-  align-items: center;
-  overflow-x: auto;
-  padding-bottom: 4px;
-}
-
-.tag {
-  max-width: 200px;
-  height: 25px;
-  line-height: 1;
-  padding: 0 5px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  background: #f2f6fa;
-  border-radius: 4px;
+  margin: 0 auto;
+  font-family: 'Inter', Arial, sans-serif;
 }
 
 .resize-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 4px;
   height: 100%;
   cursor: ew-resize;
   background: transparent;
   transition: background 0.2s;
-  z-index: 10;
+  z-index: 20;
+  opacity: 0;
 
   &:hover {
     background: var(--primary);
+    opacity: 1;
   }
+}
+
+.errors {
+  margin: 0 12px;
 }
 </style>

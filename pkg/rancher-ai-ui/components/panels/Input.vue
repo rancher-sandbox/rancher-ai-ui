@@ -1,26 +1,25 @@
 <script lang="ts" setup>
 import {
   ref, computed, defineProps, defineEmits, nextTick,
-  onMounted
+  onMounted, type PropType
 } from 'vue';
 import { useStore } from 'vuex';
-import { Agent } from '../../types';
 import RcButton from '@components/RcButton/RcButton.vue';
-import Banner from '@components/Banner/Banner.vue';
-import SelectContext from '../context/SelectContext.vue';
-import { Context } from '../../types';
-
 const store = useStore();
 const t = store.getters['i18n/t'];
 
-const props = defineProps<{
-  context?: Context[],
-  agent: Agent,
-  disabled?: boolean,
-  error?: object
-}>();
+const props = defineProps({
+  disabled: {
+    type:    Boolean,
+    default: false,
+  },
+  error: {
+    type:    [Object, String] as PropType<object | string>,
+    default: null,
+  },
+});
 
-const emit = defineEmits(['input:content', 'select:context']);
+const emit = defineEmits(['input:content']);
 
 const message = ref('');
 const promptTextarea = ref<HTMLTextAreaElement | null>(null);
@@ -61,7 +60,7 @@ function sendContent(event: Event) {
   message.value = '';
 
   nextTick(() => {
-    autoResizePrompt(18);
+    autoResizePrompt(36);
   });
 }
 
@@ -76,27 +75,10 @@ function autoResizePrompt(height?: number) {
 </script>
 
 <template>
-  <div class="input-container">
-    <div
-      v-if="!!props.error"
-      class="errors"
-    >
-      <Banner
-        color="error"
-        :label="props.error"
-      />
-    </div>
-    <div class="context-panel">
-      <SelectContext
-        v-if="!props.disabled"
-        :options="context"
-        :auto-select="context"
-        @update="emit('select:context', $event)"
-      />
-    </div>
+  <div class="chat-input-row">
     <textarea
       ref="promptTextarea"
-      class="prompt-panel"
+      class="chat-input"
       rows="1"
       :value="props.disabled ? '' : message"
       :placeholder="props.disabled ? '' : t('ai.prompt.placeholder')"
@@ -106,71 +88,76 @@ function autoResizePrompt(height?: number) {
       @keydown="handleTextareaKeydown"
     ></textarea>
     <div
-      class="console-panel"
       :class="{
         disabled: props.disabled
       }"
     >
-      <div class="options">
-        <!-- Future options can be added here -->
-        <div class="agent-model text-label">
-          <span>{{ props.agent.name }} {{ props.agent.version }}</span>
-          <!-- <i class="icon icon-sort-down" /> -->
-        </div>
-      </div>
-      <div class="send">
-        <RcButton
-          small
-          secondary
-          :disabled="!cleanMessage || props.disabled"
-          @click="sendContent"
-          @keydown.enter="sendContent"
+      <RcButton
+        small
+        :disabled="!cleanMessage || props.disabled"
+        @click="sendContent"
+        @keydown.enter="sendContent"
+      >
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
         >
-          {{ t('ai.prompt.send') }}
-        </RcButton>
-      </div>
+          <rect
+            x="0"
+            y="0"
+            width="24"
+            height="24"
+            rx="8"
+            fill="#2563eb"
+          />
+          <path
+            d="M3 11.5L20 4L12 21L10.5 14.5L3 11.5Z"
+            stroke="#fff"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            fill="none"
+          />
+        </svg>
+      </RcButton>
     </div>
   </div>
 </template>
 
 <style lang='scss' scoped>
-.input-container {
+.chat-input-row {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  border: 1px solid var(--border);
-  background-color: var(--body-bg);
-  border-radius: var(--border-radius);
-  padding: 8px 12px 12px 12px;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #fff;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  border-top: 1px solid #e5e7eb;
+  min-height: 70px;
+}
 
-  .context-panel {
-    display: flex;
-    flex-direction: row;
-    margin-bottom: 8px;
-  }
+.chat-input {
+  flex: 1;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  outline: none;
+  background: #f8fafc;
+  color: #334155;
+  transition: border 0.2s;
+  width: auto;
+  outline-offset: 0;
+  resize: none;
+  overflow: hidden;
+  max-height: 200px;
+}
 
-  .prompt-panel {
-    border: none;
-    width: auto;
-    padding: 0;
-    outline-offset: 0;
-    resize: none;
-    overflow: hidden;
-    max-height: 200px;
-  }
-
-  .console-panel {
-    display: flex;
-    justify-content: space-between;
-    align-items: end;
-    margin-top: 8px;
-    padding-top: 2px;
-
-    .options {
-      display: flex;
-      align-items: center;
-    }
-  }
+.chat-input:focus {
+  border: 1.5px solid #3d98d3;
+  background: #fff;
 }
 
 .disabled {

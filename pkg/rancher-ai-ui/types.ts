@@ -38,11 +38,6 @@ export const enum Role {
   System = 'system',
 }
 
-export const enum ContentType {
-  Thinking = 'thinking',
-  Result = 'result',
-}
-
 export const enum ActionType {
   Link = 'link',
   Button = 'button',
@@ -67,12 +62,14 @@ export interface MessageAction {
 export interface Message {
   id?: number | string;
   role: Role;
-  content?: string;
-  contentType?: ContentType;
+  messageContent?: string;
+  thinkingContent?: string;
+  thinking?: boolean;
   completed?: boolean;
-  timestamp?: number;
-  isExpanded?: boolean;
+  timestamp?: Date;
+  showThinking?: boolean;
   context?: Context[];
+  source?: object;
   actions?: MessageAction[];
 }
 
