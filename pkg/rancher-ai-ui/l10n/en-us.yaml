@@ -22,7 +22,9 @@ ai:
     actions:
       tooltip:
         copy: Copy to Clipboard
-        showThinking: Show Thinking Process
+        showThinking: Show Thinking
+        hideThinking: Hide Thinking
+      hideThinking: Hide Thinking
     error:
       processing: Error processing messages. Please close the chat and try again.
   prompt:

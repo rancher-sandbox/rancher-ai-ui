@@ -8,8 +8,7 @@ import Thinking from './Thinking.vue';
 import Action from './Action.vue';
 import UserAvatar from './avatar/UserAvatar.vue';
 import SystemAvatar from './avatar/SystemAvatar.vue';
-import IconOrSvg from '@shell/components/IconOrSvg';
-import iconDoc from '../../assets/explain.svg';
+import RcButton from '@components/RcButton/RcButton.vue';
 
 const store = useStore();
 const t = store.getters['i18n/t'];
@@ -57,6 +56,7 @@ function handleCopy() {
 
 function handleShowThinking() {
   props.message.showThinking = !props.message.showThinking;
+
   emit('enable:autoscroll', false);
   nextTick(() => {
     emit('update:message', props.message);
@@ -82,10 +82,10 @@ onBeforeUnmount(() => {
 <template>
   <div
     class="chat-message"
-    :class="[{
+    :class="{
       'chat-message-user': props.message.role === RoleEnum.User,
       disabled: props.disabled
-    }]"
+    }"
   >
     <component
       :is="props.message.role === RoleEnum.User ? UserAvatar : SystemAvatar"
@@ -94,11 +94,11 @@ onBeforeUnmount(() => {
     <div class="chat-msg-content">
       <div
         class="chat-msg-bubble"
-        :class="[{
+        :class="{
           'chat-msg-bubble-user': props.message.role === RoleEnum.User,
           'chat-msg-bubble-assistant': props.message.role !== RoleEnum.User,
           'chat-msg-bubble-error': props.message.isError
-        }]"
+        }"
       >
         <div
           v-if="!props.disabled"
@@ -106,13 +106,13 @@ onBeforeUnmount(() => {
         >
           <button
             v-if="props.message.role === RoleEnum.Assistant"
-            v-clean-tooltip="t('ai.message.actions.tooltip.showThinking')"
+            v-clean-tooltip="props.message.showThinking ? t('ai.message.actions.tooltip.hideThinking') : t('ai.message.actions.tooltip.showThinking')"
             class="bubble-action-btn btn header-btn role-tertiary"
             type="button"
             role="button"
             @click="handleShowThinking"
           >
-            <i class="icon icon-gear" />
+            <i class="icon icon-thinking-process" />
           </button>
           <button
             v-clean-tooltip="t('ai.message.actions.tooltip.copy')"
@@ -154,6 +154,15 @@ onBeforeUnmount(() => {
             v-clean-html="props.message.formattedMessageContent"
           />
         </div>
+        <RcButton
+          v-if="props.message.role === RoleEnum.Assistant && props.message.thinkingContent && props.message.showThinking"
+          class="button-hide-thinking"
+          small
+          ghost
+          @click="handleShowThinking"
+        >
+          <a>{{ t('ai.message.actions.hideThinking') }}</a>
+        </RcButton>
       </div>
       <!-- TODO: replace with actual source when available -->
       <div
@@ -161,10 +170,7 @@ onBeforeUnmount(() => {
         class="chat-msg-section"
       >
         <div class="chat-msg-section-title">
-          <IconOrSvg
-            :src="iconDoc"
-            class="icon icon-action-source"
-          />
+          <i class="icon icon-sources" />
           <span>{{ t('ai.message.source.label') }}</span>
         </div>
         <div class="chat-msg-tags">
@@ -177,16 +183,7 @@ onBeforeUnmount(() => {
         class="chat-msg-section"
       >
         <div class="chat-msg-section-title chat-msg-section-title-actions">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M13 10V3L4 14h7v7l9-11h-7Z"
-              fill="#3d98d3"
-            />
-          </svg>
+          <i class="icon icon-quick-action" />
           <span>{{ t('ai.message.quickActions.label') }}</span>
         </div>
         <div class="chat-msg-tags chat-msg-section-tags-actions">
@@ -390,5 +387,15 @@ onBeforeUnmount(() => {
   min-height: 16px;
   display: inline-block;
   vertical-align: middle;
+}
+
+.button-hide-thinking {
+  margin-left: auto;
+  height: 15px;
+  min-height: 15px;
+}
+
+.icon-quick-action {
+  color: var(--primary);
 }
 </style>

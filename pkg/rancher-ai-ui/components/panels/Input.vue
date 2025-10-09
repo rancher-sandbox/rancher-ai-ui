@@ -93,28 +93,7 @@ function autoResizePrompt(height?: number) {
         @click="sendContent"
         @keydown.enter="sendContent"
       >
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-        >
-          <rect
-            x="0"
-            y="0"
-            width="24"
-            height="24"
-            rx="8"
-            fill="#2563eb"
-          />
-          <path
-            d="M3 11.5L20 4L12 21L10.5 14.5L3 11.5Z"
-            stroke="#fff"
-            stroke-width="2.2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            fill="none"
-          />
-        </svg>
+        <i class="icon icon-lg icon-send" />
       </RcButton>
     </div>
   </div>
