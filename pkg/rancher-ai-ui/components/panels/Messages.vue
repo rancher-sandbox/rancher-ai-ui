@@ -28,7 +28,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:message']);
 
-const chatMessages = ref<HTMLDivElement | null>(null);
+const messagesView = ref<HTMLDivElement | null>(null);
 const autoScrollEnabled = ref(true);
 
 const md = new MarkdownIt({
@@ -64,7 +64,7 @@ const errorMessage = computed<FormattedMessage | null>(() => {
 });
 
 function handleScroll() {
-  const container = chatMessages.value;
+  const container = messagesView.value;
 
   if (!container) {
     return;
@@ -77,8 +77,24 @@ watch(
   () => props.messages,
   () => {
     nextTick(() => {
-      if (chatMessages.value && autoScrollEnabled.value) {
-        chatMessages.value.scrollTop = chatMessages.value.scrollHeight;
+      if (messagesView.value && autoScrollEnabled.value) {
+        messagesView.value.scrollTop = messagesView.value.scrollHeight;
+      }
+    });
+  },
+  {
+    immediate: true,
+    deep:      true
+  }
+);
+
+const stopErrorWatcher = watch(
+  () => props.error,
+  (val) => {
+    nextTick(() => {
+      if (messagesView.value && val) {
+        messagesView.value.scrollTop = messagesView.value.scrollHeight;
+        stopErrorWatcher();
       }
     });
   },
@@ -89,21 +105,21 @@ watch(
 );
 
 onMounted(() => {
-  if (chatMessages.value) {
-    chatMessages.value.addEventListener('scroll', handleScroll);
+  if (messagesView.value) {
+    messagesView.value.addEventListener('scroll', handleScroll);
   }
 });
 
 onBeforeUnmount(() => {
-  if (chatMessages.value) {
-    chatMessages.value.removeEventListener('scroll', handleScroll);
+  if (messagesView.value) {
+    messagesView.value.removeEventListener('scroll', handleScroll);
   }
 });
 </script>
 
 <template>
   <div
-    ref="chatMessages"
+    ref="messagesView"
     class="chat-messages"
   >
     <MessageComponent
