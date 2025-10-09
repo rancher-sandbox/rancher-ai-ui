@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { onMounted, onBeforeUnmount } from 'vue';
 import {
-  AGENT_NAME, AGENT_NAMESPACE, AGENT_API_PATH, AI_AGENT_NAME, AI_AGENT_VERSION,
+  AGENT_NAME, AGENT_NAMESPACE, AGENT_API_PATH,
   PANEL_POSITION,
   PRODUCT_NAME
 } from '../product';
@@ -9,6 +9,7 @@ import { useConnectionHandler } from '../composables/useConnectionHandler';
 import { useChatMessageHandler } from '../composables/useChatMessageHandler';
 import { useContextHandler } from '../composables/useContextHandler';
 import { useHeaderHandler } from '../composables/useHeaderHandler';
+import { useAgentHandler } from '../composables/useAgentHandler';
 import Header from '../components/panels/Header.vue';
 import Messages from '../components/panels/Messages.vue';
 import Context from '../components/panels/Context.vue';
@@ -18,6 +19,8 @@ import Banner from '@components/Banner/Banner.vue';
 const chatPanelId = PRODUCT_NAME;
 const chatId = 'default';
 const expandThinking = false;
+
+const { agent } = useAgentHandler();
 
 const {
   messages,
@@ -81,10 +84,7 @@ function unmount() {
     />
     <div class="chat-panel">
       <Header
-        :agent="{
-          name: AI_AGENT_NAME,
-          version: AI_AGENT_VERSION
-        }"
+        :agent="agent"
         @close="close"
       />
       <Messages

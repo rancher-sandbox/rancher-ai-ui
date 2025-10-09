@@ -31,4 +31,10 @@ ai:
     label: CONTEXT
     add: Add Context
     none: No context
-  agent: Running {name} {version}
+  agent:
+    label: Running {name} {model}{separator}{version}
+    models:
+      ollama: Ollama
+      openai: ChatGPT
+      gemini: Gemini
+    unknown: Unknown Agent

@@ -9,8 +9,8 @@ const t = store.getters['i18n/t'];
 
 const props = defineProps({
   agent: {
-    type:     Object as PropType<Agent>,
-    required: true,
+    type:     Object as PropType<Agent | null>,
+    default:  null,
   }
 });
 
@@ -29,8 +29,16 @@ const emit = defineEmits([
           </h2>
         </div>
         <div class="chat-subtitle">
-          <span>
-            {{ t('ai.agent', { name: props.agent.name, version: props.agent.version }, true) }}
+          <span v-if="props.agent">
+            {{ t('ai.agent.label', {
+              name: props.agent.name,
+              model: props.agent.model,
+              separator: props.agent.model && props.agent.version ? ':' : '',
+              version: props.agent.version
+            }, true) }}
+          </span>
+          <span v-else>
+            {{ t('ai.agent.unknown') }}
           </span>
         </div>
       </div>
