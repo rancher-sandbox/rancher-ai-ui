@@ -8,7 +8,6 @@ ai:
   message:
     system:
       welcome: Hello! I am your AI Assistant. How can I help you today?
-      disconnected: Connection closed.
     assistant:
       thinking:
         completed: Completed
@@ -24,6 +23,8 @@ ai:
       tooltip:
         copy: Copy to Clipboard
         showThinking: Show Thinking Process
+    error:
+      processing: Error processing messages. Please close the chat and try again.
   prompt:
     placeholder: Type your message...
     send: Send
@@ -38,3 +39,10 @@ ai:
       openai: ChatGPT
       gemini: Gemini
     unknown: Unknown Agent
+  error:
+    message:
+      processing: Error processing messages. Please close the chat and try again.
+    websocket:
+      generic: WebSocket error occurred. Please try again later.
+      connection: Failed to connect to Rancher AI Agent. Please try again later.
+      disconnected: Connection closed.

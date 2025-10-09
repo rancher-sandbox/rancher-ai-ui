@@ -25,17 +25,17 @@ export function useHeaderHandler(props: { panelId: string, panelPosition: any })
 
   function close() {
     onTabClose(props.panelId);
-    store.commit('wm/setLockedPositions', []);
-    setDefaultPosition();
+    restoreWindowManager();
   }
 
-  function setDefaultPosition() {
+  function restoreWindowManager() {
+    store.commit('wm/setLockedPositions', []);
     store.commit('wm/setUserPin', BOTTOM);
   }
 
   return {
     resize,
     close,
-    setDefaultPosition
+    restoreWindowManager
   };
 }

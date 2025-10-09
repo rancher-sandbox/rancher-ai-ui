@@ -1,10 +1,15 @@
 /* eslint-disable no-unused-vars */
 
-interface Error {
+export interface ChatError {
+  key:     string;
   message: string;
 }
 
-export interface ConnectionError extends Error {
+export interface ConnectionError extends ChatError {
+  code?: number;
+}
+
+export interface MessageError extends ChatError {
   code?: number;
 }
 
@@ -71,6 +76,7 @@ export interface Message {
   context?: Context[];
   source?: object;
   actions?: MessageAction[];
+  isError?: boolean;
 }
 
 export interface FormattedMessage extends Message {

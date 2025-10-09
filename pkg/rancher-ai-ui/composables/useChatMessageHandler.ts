@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useContextHandler } from './useContextHandler';
 import { Message, Role, Tag, Context } from '../types';
@@ -11,9 +11,9 @@ export function useChatMessageHandler(options: {
   const store = useStore();
   const t = store.getters['i18n/t'];
 
-  const messages = computed(() => Object.values(store.getters['rancher-ai-ui/chat/getMessages'](options.chatId)) as Message[]);
+  const messages = computed(() => Object.values(store.getters['rancher-ai-ui/chat/messages'](options.chatId)) as Message[]);
   const currentMsg = ref<Message>({} as Message);
-  const error = ref<object | null>(null);
+  const error = computed(() => store.getters['rancher-ai-ui/chat/error'](options.chatId));
 
   const { selectContext, selectedContext } = useContextHandler();
 
@@ -55,7 +55,7 @@ export function useChatMessageHandler(options: {
   }
 
   function getMessage(messageId: string) {
-    return store.getters['rancher-ai-ui/chat/getMessage']({
+    return store.getters['rancher-ai-ui/chat/message']({
       chatId: options.chatId,
       messageId
     });
@@ -124,26 +124,33 @@ export function useChatMessageHandler(options: {
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('Error processing messages:', err);
-      error.value = { message: 'Error processing messages. Please close the chat and try again.' };
+      store.commit('rancher-ai-ui/chat/setError', {
+        chatId: options.chatId,
+        error:  { key: 'ai.error.message.processing' }
+      });
     }
   }
 
-  async function onclose() {
-    addMessage({
-      role:           Role.System,
-      messageContent: t('ai.message.system.disconnected'),
+  function resetChatError() {
+    store.commit('rancher-ai-ui/chat/setError', {
+      chatId: options.chatId,
+      error:  null
     });
   }
 
+  onMounted(() => {
+    store.commit('rancher-ai-ui/chat/initChat', options.chatId);
+  });
+
   return {
     onopen,
-    onclose,
     onmessage,
     messages,
     sendMessage,
     addMessage,
     updateMessage,
     selectContext,
+    resetChatError,
     error
   };
 }
