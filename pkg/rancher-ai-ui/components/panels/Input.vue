@@ -105,22 +105,20 @@ function autoResizePrompt(height?: number) {
   align-items: center;
   gap: 8px;
   padding: 12px 16px;
-  background: #fff;
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--border);
   min-height: 70px;
 }
 
 .chat-input {
   flex: 1;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 8px 16px;
   font-size: 1rem;
   outline: none;
-  background: #f8fafc;
-  color: #334155;
+  color: var(--input-text);
   transition: border 0.2s;
   width: auto;
   outline-offset: 0;
@@ -131,7 +129,6 @@ function autoResizePrompt(height?: number) {
 }
 
 .chat-input:focus {
-  border: 1.5px solid #3d98d3;
-  background: #fff;
+  border: solid 1.5px var(--secondary-border, var(--primary));
 }
 </style>

@@ -16,12 +16,12 @@ import iconSuse from '../../../assets/suse-avatar.svg';
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--body-bg);
+  border: 1px solid var(--border);
   color: #22c55e;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border: 1px solid #e5e7eb;
 }
 </style>

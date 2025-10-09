@@ -91,7 +91,10 @@ function removeItem(item: Context) {
           v-if="!props.disabled"
           class="icon icon-pin-outlined"
         />
-        <span class="text-label mr-5">
+        <span
+          class="text-label mr-5"
+          :class="{ 'ml-5': props.disabled }"
+        >
           {{ t('ai.context.add') }}
         </span>
         <template #after>
@@ -167,6 +170,11 @@ function removeItem(item: Context) {
   max-width: 100%;
   align-items: center;
   gap: 5px;
+  color: var(--on-secondary);
+}
+
+.context-select {
+  gap: 10px;
 }
 
 .no-context {
@@ -198,7 +206,12 @@ function removeItem(item: Context) {
   }
 }
 
+.vs__selected {
+  border: solid 1px var(--secondary-border, var(--primary));
+  color: var(--on-secondary, var(--primary));
+}
+
 .icon-pin-outlined {
-  color: var(--primary);
+  color: var(--on-secondary);
 }
 </style>
