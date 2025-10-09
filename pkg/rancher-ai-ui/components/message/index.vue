@@ -26,7 +26,10 @@ const props = defineProps({
 
 const emit = defineEmits(['update:message', 'enable:autoscroll']);
 
-const isThinking = computed(() => props.message.role === RoleEnum.Assistant && props.message.thinking);
+const isThinking = computed(() => props.message.role === RoleEnum.Assistant &&
+  !props.message.completed &&
+  (props.message.thinking || !props.message.formattedMessageContent)
+);
 const showCopySuccess = ref(false);
 const timeoutCopy = ref<any>(null);
 const timeoutAutoscroll = ref<any>(null);
@@ -141,14 +144,6 @@ onBeforeUnmount(() => {
             />
             <br>
           </span>
-          <div v-if="props.message.completed && !props.message.thinking && !props.message.formattedMessageContent">
-            <span v-if="props.message.actions?.length">
-              {{ t('ai.message.assistant.empty.messageActions') }}
-            </span>
-            <span v-else>
-              {{ t('ai.message.assistant.empty.messageNoActions') }}
-            </span>
-          </div>
           <span
             v-if="props.message.formattedMessageContent"
             v-clean-html="props.message.formattedMessageContent"
