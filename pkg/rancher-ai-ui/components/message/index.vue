@@ -237,6 +237,8 @@ onBeforeUnmount(() => {
   position: relative;
   max-width: 450px;
   background: var(--body-bg);
+  color: var(--body-text);
+  border: 1px solid var(--border);
   border-radius: 12px;
   box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
   padding: 12px;
@@ -254,12 +256,13 @@ onBeforeUnmount(() => {
 
 .chat-msg-bubble-user {
   background: var(--primary);
-  color: #fff;
-  border: 1px solid #3d98d3;
+  border: 1px solid var(--primary);
 }
 
 .chat-msg-bubble-error {
-  border: 1px solid #F64747;
+  background: var(--error-banner-bg);
+  border-color: var(--error);
+  color: var(--error-banner-text, var(--error));
 }
 
 .chat-msg-bubble-actions {
@@ -275,8 +278,8 @@ onBeforeUnmount(() => {
 }
 
 .bubble-action-btn {
-  background: #fff;
-  border: 1.5px solid #e5e7eb;
+  background: var(--body-bg);
+  border: 1.5px solid var(--border);
   border-radius: 8px;
   padding: 2px 4px;
   box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
@@ -312,12 +315,11 @@ onBeforeUnmount(() => {
 }
 
 .bubble-action-btn:hover {
-  border-color: #3d98d3;
+  border: solid 1px var(--secondary-border, var(--primary));
   box-shadow: 0 2px 8px 0 rgba(61,152,211,0.10);
 }
 
 .chat-msg-text {
-  color: var(--body-text);
   word-break: break-word;
   white-space: pre-line;
   list-style-position: inside;
@@ -339,9 +341,7 @@ onBeforeUnmount(() => {
   }
 
   &.chat-msg-section-title-actions {
-    span {
-       color: var(--primary);
-    }
+    color: var(--on-secondary);
   }
 }
 
@@ -357,12 +357,11 @@ onBeforeUnmount(() => {
 }
 
 .chat-tag {
-  background: #e0e7ef;
-  color: #334155;
+  color: #9fabc6;
   border-radius: 8px;
   padding: 2px 8px;
   font-size: 0.75rem;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #9fabc6;
 }
 
 .chat-msg-actions {
@@ -393,9 +392,5 @@ onBeforeUnmount(() => {
   margin-left: auto;
   height: 15px;
   min-height: 15px;
-}
-
-.icon-quick-action {
-  color: var(--primary);
 }
 </style>

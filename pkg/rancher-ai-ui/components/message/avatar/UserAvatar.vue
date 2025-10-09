@@ -35,13 +35,13 @@ const userIcon = computed(() => {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--body-bg);
+  border: 1px solid var(--border);
   color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border: 1px solid #e5e7eb;
 }
 
 .round-avatar {
