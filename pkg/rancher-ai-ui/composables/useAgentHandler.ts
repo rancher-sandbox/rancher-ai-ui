@@ -1,39 +1,67 @@
-import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
-import type { Context } from '../types';
+import { onMounted, ref } from 'vue';
+import { base64Decode } from '@shell/utils/crypto';
+import YAML from 'yaml';
+import { AGENT_NAMESPACE, AGENT_CONFIG_SECRET_NAME } from '../product';
+import { SECRET } from '@shell/config/types';
+import { Agent } from '../types';
 
 export function useAgentHandler() {
   const store = useStore();
+  const t = store.getters['i18n/t'];
 
-  const context = computed(() => {
-    // Get default context from v-ui-context directives
-    const defaultContext = store.getters['ui-context/all'] || [];
+  const agent = ref<Agent | null>(null);
 
-    // Get active namespaces from the store as context options
-    const namespaces = store.getters['namespaces']() || {};
-    const activeNamespaces = Object.keys(namespaces)
-      .filter((k) => !!namespaces[k])
-      .map((value) => ({
-        tag:  'namespace',
-        value,
-        icon: 'icon-folder'
-      }));
+  function decodeAgentConfigs(data: any): Agent | null {
+    const agent = {} as Agent;
 
-    return [
-      ...defaultContext,
-      ...(activeNamespaces?.[0] ? [activeNamespaces[0]] : []), // To fix, we are limiting results, it should include all active namespaces
-    ];
-  });
+    const {
+      OLLAMA_URL,
+      GOOGLE_API_KEY,
+      OPENAI_API_KEY,
+      MODEL
+    } = data;
 
-  const selectedContext = ref<Context[]>([]);
+    if (OLLAMA_URL) {
+      agent.name = t('ai.agent.models.ollama');
+    } else if (GOOGLE_API_KEY) {
+      agent.name = t('ai.agent.models.google');
+    } else if (OPENAI_API_KEY) {
+      agent.name = t('ai.agent.models.openai');
+    }
 
-  function selectContext(context: Context[]) {
-    selectedContext.value = context;
+    if (agent.name) {
+      try {
+        const parsedModel = YAML.parse(base64Decode(MODEL || ''));
+
+        const parts = parsedModel?.split(':') || [];
+
+        if (parts.length > 1) {
+          agent.model =   parts[0];
+          agent.version = parts[1];
+        }
+      } catch (err) {
+        console.error('Error parsing agent model version', err); // eslint-disable-line no-console
+      }
+
+      return agent;
+    }
+
+    return null;
   }
 
-  return {
-    context,
-    selectContext,
-    selectedContext
-  };
+  async function getConfigs() {
+    const secret = await store.dispatch('management/find', {
+      type:    SECRET,
+      id:      `${ AGENT_NAMESPACE }/${ AGENT_CONFIG_SECRET_NAME }`
+    });
+
+    if (secret?.data) {
+      agent.value = decodeAgentConfigs(secret.data);
+    }
+  }
+
+  onMounted(getConfigs);
+
+  return { agent };
 }

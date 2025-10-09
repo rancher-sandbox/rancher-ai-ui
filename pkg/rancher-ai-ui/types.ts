@@ -81,6 +81,7 @@ export interface FormattedMessage extends Message {
 export interface Agent {
   id?: string;
   name: string;
+  model: string;
   version: string;
 }
 
