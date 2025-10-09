@@ -62,10 +62,8 @@ export interface MessageAction {
 export interface Message {
   id?: number | string;
   role: Role;
-  thinkingStreamedResponse?: string;
-  messageStreamedResponse?: string;
-  messageContent?: string;
   thinkingContent?: string;
+  messageContent?: string;
   thinking?: boolean;
   completed?: boolean;
   timestamp?: Date;
@@ -73,6 +71,11 @@ export interface Message {
   context?: Context[];
   source?: object;
   actions?: MessageAction[];
+}
+
+export interface FormattedMessage extends Message {
+  formattedThinkingContent?: string;
+  formattedMessageContent?: string;
 }
 
 export interface Agent {

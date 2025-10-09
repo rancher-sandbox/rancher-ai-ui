@@ -54,7 +54,7 @@ const mutations = {
     }
 
     if (state.chats[chatId].messages[message.id]) {
-      state.chats[chatId].messages[message.id] = message;
+      Object.assign(state.chats[chatId].messages[message.id], message);
     }
   }
 };
