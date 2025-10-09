@@ -18,6 +18,10 @@ const props = defineProps({
   message: {
     type:    Object as PropType<FormattedMessage>,
     default: () => ({} as FormattedMessage),
+  },
+  disabled: {
+    type:    Boolean,
+    default: false,
   }
 });
 
@@ -51,12 +55,11 @@ function handleCopy() {
   }, 1000);
 }
 
-function handleShowThinking(message: FormattedMessage) {
-  message.showThinking = !message.showThinking;
-
+function handleShowThinking() {
+  props.message.showThinking = !props.message.showThinking;
   emit('enable:autoscroll', false);
   nextTick(() => {
-    emit('update:message', message);
+    emit('update:message', props.message);
   });
   if (timeoutAutoscroll.value) {
     clearTimeout(timeoutAutoscroll.value);
@@ -81,6 +84,7 @@ onBeforeUnmount(() => {
     class="chat-message"
     :class="[{
       'chat-message-user': props.message.role === RoleEnum.User,
+      disabled: props.disabled
     }]"
   >
     <component
@@ -93,16 +97,20 @@ onBeforeUnmount(() => {
         :class="[{
           'chat-msg-bubble-user': props.message.role === RoleEnum.User,
           'chat-msg-bubble-assistant': props.message.role !== RoleEnum.User,
+          'chat-msg-bubble-error': props.message.isError
         }]"
       >
-        <div class="chat-msg-bubble-actions">
+        <div
+          v-if="!props.disabled"
+          class="chat-msg-bubble-actions"
+        >
           <button
             v-if="props.message.role === RoleEnum.Assistant"
             v-clean-tooltip="t('ai.message.actions.tooltip.showThinking')"
             class="bubble-action-btn btn header-btn role-tertiary"
             type="button"
             role="button"
-            @click="handleShowThinking(props.message)"
+            @click="handleShowThinking"
           >
             <i class="icon icon-gear" />
           </button>
@@ -251,6 +259,10 @@ onBeforeUnmount(() => {
   background: var(--primary);
   color: #fff;
   border: 1px solid #3d98d3;
+}
+
+.chat-msg-bubble-error {
+  border: 1px solid #F64747;
 }
 
 .chat-msg-bubble-actions {

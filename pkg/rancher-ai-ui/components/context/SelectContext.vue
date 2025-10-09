@@ -15,9 +15,6 @@ function _id(item: Context) {
 const store = useStore();
 const t = store.getters['i18n/t'];
 
-const selected = ref<Context[]>([]);
-const isOpen = ref(false);
-
 const props = defineProps({
   options: {
     type: Array as PropType<Context[]>,
@@ -31,7 +28,14 @@ const props = defineProps({
       return [];
     },
   },
+  disabled: {
+    type:    Boolean,
+    default: false,
+  },
 });
+
+const selected = ref<Context[]>([]);
+const isOpen = ref(false);
 
 const emit = defineEmits([
   'update',
@@ -81,6 +85,7 @@ function removeItem(item: Context) {
       <rc-dropdown-trigger
         ghost
         small
+        :disabled="props.disabled"
       >
         <span class="text-label mr-5 ml-5">
           {{ t('ai.context.add') }}

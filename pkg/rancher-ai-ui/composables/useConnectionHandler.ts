@@ -5,7 +5,7 @@ import { useStore } from 'vuex';
 export function useConnectionHandler(options: {
   onopen: () => void
   onmessage: (event: MessageEvent) => Promise<void>, // eslint-disable-line no-unused-vars
-  onclose: (event: CloseEvent) => void, // eslint-disable-line no-unused-vars
+  onclose?: (event: CloseEvent) => void, // eslint-disable-line no-unused-vars
 }) {
   const store = useStore();
 
@@ -25,7 +25,9 @@ export function useConnectionHandler(options: {
       url,
       onopen,
       onmessage,
-      onclose
+      onclose: onclose || (() => {
+        store.commit('rancher-ai-ui/connection/setError', { key: 'ai.error.websocket.disconnected' });
+      })
     });
   }
 

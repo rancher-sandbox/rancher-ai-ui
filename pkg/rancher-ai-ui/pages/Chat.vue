@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, onBeforeUnmount } from 'vue';
+import { onMounted, onBeforeUnmount, computed } from 'vue';
 import {
   AGENT_NAME, AGENT_NAMESPACE, AGENT_API_PATH,
   PANEL_POSITION,
@@ -14,7 +14,6 @@ import Header from '../components/panels/Header.vue';
 import Messages from '../components/panels/Messages.vue';
 import Context from '../components/panels/Context.vue';
 import Input from '../components/panels/Input.vue';
-import Banner from '@components/Banner/Banner.vue';
 
 const chatPanelId = PRODUCT_NAME;
 const chatId = 'default';
@@ -26,11 +25,11 @@ const {
   messages,
   onopen,
   onmessage,
-  onclose,
   sendMessage,
   updateMessage,
   selectContext,
-  error: chatError
+  resetChatError,
+  error: messageError
 } = useChatMessageHandler({
   chatId,
   expandThinking
@@ -44,19 +43,25 @@ const {
 } = useConnectionHandler({
   onopen,
   onmessage,
-  onclose,
 });
 
 const { context } = useContextHandler();
 
 const {
   resize,
-  close,
-  setDefaultPosition,
+  close: closePanel,
+  restoreWindowManager,
 } = useHeaderHandler({
   panelId:       chatPanelId,
   panelPosition: PANEL_POSITION
 });
+
+const error = computed(() => wsError.value || messageError.value);
+
+function close() {
+  resetChatError();
+  closePanel();
+}
 
 onMounted(() => {
   connect(AGENT_NAMESPACE, AGENT_NAME, AGENT_API_PATH);
@@ -71,7 +76,7 @@ onBeforeUnmount(() => {
 
 function unmount() {
   disconnect();
-  setDefaultPosition();
+  restoreWindowManager();
 }
 </script>
 
@@ -89,25 +94,17 @@ function unmount() {
       />
       <Messages
         :messages="messages"
+        :disabled="!!error"
+        :error="error"
         @update:message="updateMessage"
       />
-      <div
-        v-if="wsError || chatError"
-        class="errors"
-      >
-        <Banner
-          color="error"
-          :label="wsError || chatError"
-        />
-      </div>
       <Context
         :value="context"
-        :disabled="!!wsError || !!chatError"
+        :disabled="!!error"
         @select="selectContext"
       />
       <Input
-        :disabled="!ws || ws.readyState === 3 || !!wsError || !!chatError"
-        :error="{ message: 'testetstets'}"
+        :disabled="!ws || ws.readyState === 3 || !!error"
         @input:content="sendMessage($event, ws)"
       />
     </div>
@@ -150,8 +147,11 @@ function unmount() {
     opacity: 1;
   }
 }
+</style>
 
-.errors {
-  margin: 0 12px;
+<style lang='scss'>
+.disabled {
+  opacity: 0.5;
+  pointer-events: none;
 }
 </style>

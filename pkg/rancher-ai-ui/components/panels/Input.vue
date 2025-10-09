@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import {
   ref, computed, defineProps, defineEmits, nextTick,
-  onMounted, type PropType
+  onMounted
 } from 'vue';
 import { useStore } from 'vuex';
 import RcButton from '@components/RcButton/RcButton.vue';
@@ -12,10 +12,6 @@ const props = defineProps({
   disabled: {
     type:    Boolean,
     default: false,
-  },
-  error: {
-    type:    [Object, String] as PropType<object | string>,
-    default: null,
   },
 });
 
@@ -60,7 +56,7 @@ function sendContent(event: Event) {
   message.value = '';
 
   nextTick(() => {
-    autoResizePrompt(36);
+    autoResizePrompt();
   });
 }
 
@@ -75,7 +71,10 @@ function autoResizePrompt(height?: number) {
 </script>
 
 <template>
-  <div class="chat-input-row">
+  <div
+    class="chat-input-row"
+    :class="{ disabled: props.disabled }"
+  >
     <textarea
       ref="promptTextarea"
       class="chat-input"
@@ -87,11 +86,7 @@ function autoResizePrompt(height?: number) {
       @input="onInputMessage"
       @keydown="handleTextareaKeydown"
     ></textarea>
-    <div
-      :class="{
-        disabled: props.disabled
-      }"
-    >
+    <div class="chat-input-console">
       <RcButton
         small
         :disabled="!cleanMessage || props.disabled"
@@ -152,16 +147,12 @@ function autoResizePrompt(height?: number) {
   outline-offset: 0;
   resize: none;
   overflow: hidden;
+  min-height: 36px;
   max-height: 200px;
 }
 
 .chat-input:focus {
   border: 1.5px solid #3d98d3;
   background: #fff;
-}
-
-.disabled {
-  opacity: 0.5;
-  pointer-events: none;
 }
 </style>

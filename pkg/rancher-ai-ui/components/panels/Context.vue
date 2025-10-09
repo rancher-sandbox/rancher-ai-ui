@@ -18,11 +18,14 @@ const emit = defineEmits(['select']);
 </script>
 
 <template>
-  <div class="chat-context">
+  <div
+    class="chat-context"
+    :class="{ disabled: props.disabled }"
+  >
     <SelectContext
-      v-if="!props.disabled"
-      :options="value"
-      :auto-select="value"
+      :options="props.value"
+      :auto-select="props.value"
+      :disabled="props.disabled"
       @update="emit('select', $event)"
     />
   </div>

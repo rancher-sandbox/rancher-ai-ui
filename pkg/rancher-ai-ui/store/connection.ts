@@ -24,7 +24,10 @@ const mutations = {
       state.ws.close();
     }
     state.ws = null;
-  }
+  },
+  setError(state: State, error: ConnectionError | null) {
+    state.error = error;
+  },
 };
 
 const actions = {
@@ -46,14 +49,15 @@ const actions = {
       ws.onerror = (e) => {
         // eslint-disable-next-line no-console
         console.error('WebSocket error: ', e);
-        state.error = { message: 'WebSocket error occurred. Please try again later.' };
+        commit('setError', { key: 'ai.error.websocket.generic' });
       };
 
       commit('open', ws);
+      commit('setError', null);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error('WebSocket connection error: ', e);
-      state.error = { message: 'Failed to connect to Rancher AI Agent. Please try again later.' };
+      commit('setError', { key: 'ai.error.websocket.connection' } );
     }
   },
 

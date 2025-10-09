@@ -1,11 +1,12 @@
 import { PRODUCT_NAME } from '../product';
 import { CoreStoreSpecifics, CoreStoreConfig } from '@shell/core/types';
-import { Message } from '../types';
+import { Message, MessageError } from '../types';
 
 interface Chat {
   id: string;
   messages: Record<string, Message>;
   msgIdCnt?: number;
+  error?: MessageError | null;
 }
 
 interface State {
@@ -13,23 +14,34 @@ interface State {
 }
 
 const getters = {
-  getMessages: (state: State) => (chatId: string) => {
+  messages: (state: State) => (chatId: string) => {
     return state.chats[chatId]?.messages || {};
   },
-  getMessage: (state: State) => ({ chatId, messageId }: { chatId: string; messageId: number | string }) => {
+  message: (state: State) => ({ chatId, messageId }: { chatId: string; messageId: number | string }) => {
     return state.chats[chatId]?.messages[messageId] || null;
+  },
+  error: (state: State) => (chatId: string) => {
+    return state.chats[chatId]?.error || null;
   }
 };
 
 const mutations = {
+  initChat(state: State, chatId: string) {
+    if (!chatId || state.chats[chatId]) {
+      return;
+    }
+
+    state.chats[chatId] = {
+      id:       chatId,
+      messages: {},
+    };
+  },
+
   addMessage(state: State, args: { chatId: string; message: Message }) {
     const { chatId, message } = args;
 
-    if (!state.chats[chatId]) {
-      state.chats[chatId] = {
-        id:       chatId,
-        messages: {},
-      };
+    if (!chatId || !state.chats[chatId]) {
+      return;
     }
 
     if (state.chats[chatId].msgIdCnt === undefined) {
@@ -49,13 +61,23 @@ const mutations = {
   updateMessage(state: State, args: { chatId: string; message: Message }) {
     const { chatId, message } = args;
 
-    if (!state.chats[chatId] || !message.id) {
+    if (!chatId || !state.chats[chatId] || !message.id) {
       return;
     }
 
     if (state.chats[chatId].messages[message.id]) {
       Object.assign(state.chats[chatId].messages[message.id], message);
     }
+  },
+
+  setError(state: State, args: { chatId: string; error: MessageError | null }) {
+    const { chatId, error } = args;
+
+    if (!chatId || !state.chats[chatId]) {
+      return;
+    }
+
+    state.chats[chatId].error = error;
   }
 };
 
