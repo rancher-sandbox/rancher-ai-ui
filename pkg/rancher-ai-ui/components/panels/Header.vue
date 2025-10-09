@@ -108,4 +108,12 @@ const emit = defineEmits([
 .chat-close-btn:hover {
   background: var(--active-hover);
 }
+
+.btn-close {
+  margin: 0 !important;
+}
+
+.icon-close {
+  width: 32px;
+}
 </style>

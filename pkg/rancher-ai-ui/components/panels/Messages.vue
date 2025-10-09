@@ -125,7 +125,7 @@ onBeforeUnmount(() => {
 .chat-messages {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 8px 0 8px;
+  padding: 16px 10px 0 8px;
   background: #f3f4f6;
   display: flex;
   flex-direction: column;
