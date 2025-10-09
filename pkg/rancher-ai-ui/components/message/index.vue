@@ -3,7 +3,7 @@ import {
   computed, nextTick, onBeforeUnmount, ref, type PropType
 } from 'vue';
 import { useStore } from 'vuex';
-import { Message, Role as RoleEnum } from '../../types';
+import { FormattedMessage, Role as RoleEnum } from '../../types';
 import Thinking from './Thinking.vue';
 import Action from './Action.vue';
 import UserAvatar from './avatar/UserAvatar.vue';
@@ -16,8 +16,8 @@ const t = store.getters['i18n/t'];
 
 const props = defineProps({
   message: {
-    type:    Object as PropType<Message>,
-    default: () => ({} as Message),
+    type:    Object as PropType<FormattedMessage>,
+    default: () => ({} as FormattedMessage),
   }
 });
 
@@ -35,19 +35,11 @@ function handleCopy() {
 
   let text = '';
 
-  switch (props.message.role) {
-  case RoleEnum.User:
-  case RoleEnum.System:
-    text = props.message.messageContent || '';
-    break;
-  case RoleEnum.Assistant:
-    if (props.message.showThinking) {
-      text = props.message.thinkingStreamedResponse || '';
-    }
-    text += (props.message.messageStreamedResponse || '');
-  default:
-    break;
+  if (RoleEnum.Assistant && props.message.showThinking) {
+    text = props.message.thinkingContent || '';
   }
+
+  text += (props.message.messageContent || '');
 
   navigator.clipboard.writeText(text);
   showCopySuccess.value = true;
@@ -59,7 +51,7 @@ function handleCopy() {
   }, 1000);
 }
 
-function handleShowThinking(message: Message) {
+function handleShowThinking(message: FormattedMessage) {
   message.showThinking = !message.showThinking;
 
   emit('enable:autoscroll', false);
@@ -136,12 +128,12 @@ onBeforeUnmount(() => {
           <span v-if="props.message.showThinking">
             <br v-if="isThinking">
             <span
-              v-if="props.message.thinkingContent"
-              v-clean-html="props.message.thinkingContent"
+              v-if="props.message.formattedThinkingContent"
+              v-clean-html="props.message.formattedThinkingContent"
             />
             <br>
           </span>
-          <div v-if="props.message.completed && !props.message.thinking && !props.message.messageContent">
+          <div v-if="props.message.completed && !props.message.thinking && !props.message.formattedMessageContent">
             <span v-if="props.message.actions?.length">
               {{ t('ai.message.assistant.empty.messageActions') }}
             </span>
@@ -150,14 +142,14 @@ onBeforeUnmount(() => {
             </span>
           </div>
           <span
-            v-if="props.message.messageContent"
-            v-clean-html="props.message.messageContent"
+            v-if="props.message.formattedMessageContent"
+            v-clean-html="props.message.formattedMessageContent"
           />
         </div>
       </div>
       <!-- TODO: replace with actual source when available -->
       <div
-        v-if="props.message.source || (props.message.role === RoleEnum.Assistant && props.message.messageContent)"
+        v-if="props.message.source || (props.message.role === RoleEnum.Assistant && props.message.formattedMessageContent)"
         class="chat-msg-section"
       >
         <div class="chat-msg-section-title">

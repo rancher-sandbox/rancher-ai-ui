@@ -3,7 +3,8 @@ import {
   ref, computed, watch, nextTick, onMounted, onBeforeUnmount
 } from 'vue';
 import type { PropType } from 'vue';
-import { Message } from '../../types';
+import MarkdownIt from 'markdown-it';
+import { Message, FormattedMessage, Role } from '../../types';
 import MessageComponent from '../message/index.vue';
 
 const props = defineProps({
@@ -18,10 +19,22 @@ const emit = defineEmits(['update:message']);
 const chatMessages = ref<HTMLDivElement | null>(null);
 const autoScrollEnabled = ref(true);
 
-const sortedMessages = computed(() => {
+const md = new MarkdownIt({
+  html:        true,
+  breaks:      true,
+  linkify:     true,
+  typographer: true,
+});
+
+const formattedMessages = computed<FormattedMessage[]>(() => {
   return [...props.messages]
     .filter((m) => m.messageContent || m.thinkingContent)
-    .sort((a, b) => (Number(a.timestamp) || 0) - (Number(b.timestamp) || 0));
+    .map((m) => ({
+      ...m,
+      formattedMessageContent:  m.role === Role.Assistant ? md.render(m.messageContent || '') : m.messageContent,
+      formattedThinkingContent: m.role === Role.Assistant ? md.render(m.thinkingContent || '') : '',
+    }))
+    .sort((a, b) => ((Number(a.timestamp) || 0) - (Number(b.timestamp) || 0)) || (`${ a.id  }`).localeCompare(`${ b.id  }`));
 });
 
 function handleScroll() {
@@ -68,7 +81,7 @@ onBeforeUnmount(() => {
     class="chat-messages"
   >
     <MessageComponent
-      v-for="(message, i) in sortedMessages"
+      v-for="(message, i) in formattedMessages"
       :key="i"
       :message="message"
       @update:message="emit('update:message', message)"
