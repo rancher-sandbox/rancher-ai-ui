@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref, watch, type PropType } from 'vue';
 import { useStore } from 'vuex';
+import { Context } from '../../types';
 import {
   RcDropdown,
   RcDropdownTrigger,
   RcDropdownItem,
 } from '@components/RcDropdown';
-import { Context } from '../../types';
+import RcButton from '@components/RcButton/RcButton.vue';
 
 function _id(item: Context) {
   return `${ item.tag  }_${  item.value }`;
@@ -71,6 +72,11 @@ function removeItem(item: Context) {
   selected.value = selected.value.filter((i) => _id(i) !== _id(item));
   emit('update', selected.value);
 }
+
+function reset() {
+  selected.value = props.options;
+  emit('update', selected.value);
+}
 </script>
 
 <template>
@@ -79,6 +85,7 @@ function removeItem(item: Context) {
     class="context-select"
   >
     <rc-dropdown
+      class="context-dropdown"
       placement="top-end"
       @update:open="isOpen = $event"
     >
@@ -153,6 +160,19 @@ function removeItem(item: Context) {
           @click="removeItem(item)"
         />
       </div>
+    </div>
+    <div
+      v-if="options.length !== selected.length"
+      class="context-reset"
+    >
+      <RcButton
+        small
+        tertiary
+        @click="reset"
+      >
+        <i class="icon icon-refresh mr-5" />
+        {{ t('ai.context.reset') }}
+      </RcButton>
     </div>
   </div>
   <span
