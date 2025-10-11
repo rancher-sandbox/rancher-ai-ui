@@ -13,7 +13,7 @@ onMounted(() => {
 <template>
   <div class="chat-config">
     <h1 class="content">
-      Rancher AI Config page
+      Rancher AI Settings
     </h1>
   </div>
 </template>
