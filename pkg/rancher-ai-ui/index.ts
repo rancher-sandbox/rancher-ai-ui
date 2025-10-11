@@ -4,8 +4,7 @@ import { ActionLocation, IPlugin } from '@shell/core/types';
 import extensionRouting from './routing/extension-routing';
 import connectionStore from './store/connection';
 import chatStore from './store/chat';
-import { WORKLOAD_TYPES } from '@shell/config/types';
-import { AGENT_NAME, AGENT_NAMESPACE, PRODUCT_NAME, PANEL_POSITION } from './product';
+import { PRODUCT_NAME, PANEL_POSITION } from './product';
 import { NotificationLevel } from '@shell/types/notifications';
 import { BOTTOM, LEFT, RIGHT } from '@shell/utils/position';
 import { Layout } from '@shell/types/window-manager';
@@ -54,21 +53,6 @@ export default function(plugin: IPlugin, { store }: any): void {
       tooltipKey: 'ai.action.openChat',
       shortcut: 'i',
       svg: require('./assets/chat-icon.svg'),
-      enabled:    async () => {
-        if (store.getters['management/schemaFor'](WORKLOAD_TYPES.DEPLOYMENT)) {
-          try {
-            const agent = await store.dispatch('management/find', { type: WORKLOAD_TYPES.DEPLOYMENT, id: `${ AGENT_NAMESPACE }/${ AGENT_NAME }` });
-
-            return agent && agent.state === 'active';
-          } catch (error) {
-            console.warn('[Rancher AI]: \'rancher-ai-agent\' deployment not found');
-          }
-        } else {
-          console.warn('[Rancher AI]: Deployment schema not found');
-        }
-
-        return false;
-      },
       invoke() {
         const tabs = [...store.getters['wm/tabs']].filter((tab: any) => tab.id !== PRODUCT_NAME);
 
