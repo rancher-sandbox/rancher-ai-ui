@@ -3,6 +3,7 @@
 export interface ChatError {
   key?:     string;
   message?: string;
+  action?:  MessageAction;
 }
 
 export interface ConnectionError extends ChatError {
@@ -50,11 +51,12 @@ export const enum ActionType {
 }
 
 export interface ActionResource {
-  kind: string;
-  type: string;
-  name: string;
-  namespace: string;
-  cluster: string;
+  kind?: string;
+  type?: string;
+  name?: string;
+  namespace?: string;
+  cluster?: string;
+  detailLocation?: object;
 }
 
 export interface MessageAction {
@@ -73,15 +75,14 @@ export interface Message {
   completed?: boolean;
   timestamp?: Date;
   showThinking?: boolean;
-  context?: Context[];
-  source?: object;
   actions?: MessageAction[];
-  isError?: boolean;
+  source?: object;
 }
 
 export interface FormattedMessage extends Message {
   formattedThinkingContent?: string;
   formattedMessageContent?: string;
+  isError?: boolean;
 }
 
 export interface Agent {

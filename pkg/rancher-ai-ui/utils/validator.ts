@@ -6,7 +6,7 @@
  * @returns True if the value is a valid MCP action resource, false otherwise
  */
 export function validateActionResource(value: any): boolean {
-  const requiredFields = ['kind', 'namespace', 'name', 'cluster'];
+  const requiredFields = ['kind', 'namespace', 'name', 'cluster', 'type'];
 
   if (!value || typeof value !== 'object') {
     console.warn('[Rancher AI] Invalid MCP resource format:', value); /* eslint-disable-line no-console */
