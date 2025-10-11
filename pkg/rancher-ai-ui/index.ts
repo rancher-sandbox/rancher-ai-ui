@@ -57,9 +57,9 @@ export default function(plugin: IPlugin, { store }: any): void {
       enabled:    async () => {
         if (store.getters['management/schemaFor'](WORKLOAD_TYPES.DEPLOYMENT)) {
           try {
-            const aiAgent = await store.dispatch('management/find', { type: WORKLOAD_TYPES.DEPLOYMENT, id: `${ AGENT_NAMESPACE }/${ AGENT_NAME }` });
+            const agent = await store.dispatch('management/find', { type: WORKLOAD_TYPES.DEPLOYMENT, id: `${ AGENT_NAMESPACE }/${ AGENT_NAME }` });
 
-            return !!aiAgent;
+            return agent && agent.state === 'active';
           } catch (error) {
             console.warn('[Rancher AI]: \'rancher-ai-agent\' deployment not found');
           }
