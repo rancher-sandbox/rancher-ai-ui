@@ -19,7 +19,7 @@ const chatPanelId = PRODUCT_NAME;
 const chatId = 'default';
 const expandThinking = false;
 
-const { agent } = useAgentHandler();
+const { agent, error: agentError } = useAgentHandler();
 
 const {
   messages,
@@ -56,7 +56,16 @@ const {
   panelPosition: PANEL_POSITION
 });
 
-const error = computed(() => wsError.value || messageError.value);
+const errors = computed(() => {
+  if (agentError.value) {
+    return [agentError.value];
+  } else {
+    return [
+      wsError.value,
+      messageError.value
+    ].filter((e) => e);
+  }
+});
 
 function close() {
   resetChatError();
@@ -94,17 +103,16 @@ function unmount() {
       />
       <Messages
         :messages="messages"
-        :disabled="!!error"
-        :error="error"
+        :errors="errors"
         @update:message="updateMessage"
       />
       <Context
         :value="context"
-        :disabled="!!error"
+        :disabled="errors.length > 0"
         @select="selectContext"
       />
       <Input
-        :disabled="!ws || ws.readyState === 3 || !!error"
+        :disabled="!ws || ws.readyState === 3 || errors.length > 0"
         @input:content="sendMessage($event, ws)"
       />
     </div>

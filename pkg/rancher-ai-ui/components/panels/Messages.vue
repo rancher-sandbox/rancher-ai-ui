@@ -16,13 +16,9 @@ const props = defineProps({
     type:    Array as PropType<Message[]>,
     default: () => [],
   },
-  disabled: {
-    type:    Boolean,
-    default: false,
-  },
-  error: {
-    type:    Object as PropType<ChatError | null>,
-    default: null,
+  errors: {
+    type:    Array as PropType<ChatError[]>,
+    default: () => [],
   }
 });
 
@@ -49,19 +45,17 @@ const formattedMessages = computed<FormattedMessage[]>(() => {
     .sort((a, b) => ((Number(a.timestamp) || 0) - (Number(b.timestamp) || 0)) || (`${ a.id  }`).localeCompare(`${ b.id  }`));
 });
 
-const errorMessage = computed<FormattedMessage | null>(() => {
-  if (props.error) {
-    return {
-      role:                    Role.System,
-      formattedMessageContent: t(props.error.key),
-      timestamp:               new Date(),
-      completed:               true,
-      isError:                 true,
-    };
-  }
-
-  return null;
+const errorMessages = computed<FormattedMessage[]>(() => {
+  return props.errors.map((error) => ({
+    role:                    Role.System,
+    formattedMessageContent: t(error.key),
+    timestamp:               new Date(),
+    completed:               true,
+    isError:                 true,
+  }));
 });
+
+const disabled = computed(() => props.errors.length > 0);
 
 function handleScroll() {
   const container = messagesView.value;
@@ -89,10 +83,10 @@ watch(
 );
 
 const stopErrorWatcher = watch(
-  () => props.error,
-  (val) => {
+  () => props.errors,
+  (neu, old) => {
     nextTick(() => {
-      if (messagesView.value && val) {
+      if (messagesView.value && (neu || []).length > (old || []).length) {
         messagesView.value.scrollTop = messagesView.value.scrollHeight;
         stopErrorWatcher();
       }
@@ -131,8 +125,9 @@ onBeforeUnmount(() => {
       @enable:autoscroll="autoScrollEnabled = $event"
     />
     <MessageComponent
-      v-if="errorMessage"
-      :message="errorMessage"
+      v-for="(error, i) in errorMessages"
+      :key="i"
+      :message="error"
     />
   </div>
 </template>

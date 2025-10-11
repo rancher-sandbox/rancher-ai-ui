@@ -9,14 +9,14 @@ export function validateActionResource(value: any): boolean {
   const requiredFields = ['kind', 'namespace', 'name', 'cluster'];
 
   if (!value || typeof value !== 'object') {
-    console.warn('Invalid MCP resource format:', value); /* eslint-disable-line no-console */
+    console.warn('[Rancher AI] Invalid MCP resource format:', value); /* eslint-disable-line no-console */
 
     return false;
   }
 
   for (const field of requiredFields) {
     if (value[field] === undefined || value[field] === null) {
-      console.warn(`Missing required field '${ field }' in MCP response:`, value); /* eslint-disable-line no-console */
+      console.warn(`[Rancher AI]Missing required field '${ field }' in MCP response:`, value); /* eslint-disable-line no-console */
 
       return false;
     }

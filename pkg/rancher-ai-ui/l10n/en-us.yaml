@@ -46,3 +46,6 @@ ai:
       generic: WebSocket error occurred. Please try again later.
       connection: Failed to connect to Rancher AI Agent. Please try again later.
       disconnected: Connection closed.
+    agent:
+      notFound: Rancher AI Agent not found. Please ensure the agent is deployed.
+      notActive: Rancher AI Agent is not active. Please ensure the agent is running properly.

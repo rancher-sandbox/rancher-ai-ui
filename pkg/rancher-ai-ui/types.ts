@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-vars */
 
 export interface ChatError {
-  key:     string;
-  message: string;
+  key?:     string;
+  message?: string;
 }
 
 export interface ConnectionError extends ChatError {

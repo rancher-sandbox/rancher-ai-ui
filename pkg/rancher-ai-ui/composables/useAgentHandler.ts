@@ -2,15 +2,16 @@ import { useStore } from 'vuex';
 import { onMounted, ref } from 'vue';
 import { base64Decode } from '@shell/utils/crypto';
 import YAML from 'yaml';
-import { AGENT_NAMESPACE, AGENT_CONFIG_SECRET_NAME } from '../product';
-import { SECRET } from '@shell/config/types';
-import { Agent } from '../types';
+import { AGENT_NAMESPACE, AGENT_NAME, AGENT_CONFIG_SECRET_NAME } from '../product';
+import { SECRET, WORKLOAD_TYPES } from '@shell/config/types';
+import { Agent, ChatError } from '../types';
 
 export function useAgentHandler() {
   const store = useStore();
   const t = store.getters['i18n/t'];
 
   const agent = ref<Agent | null>(null);
+  const error = ref<ChatError | null>(null);
 
   function decodeAgentConfigs(data: any): Agent | null {
     const agent = {} as Agent;
@@ -50,18 +51,48 @@ export function useAgentHandler() {
     return null;
   }
 
-  async function getConfigs() {
-    const secret = await store.dispatch('management/find', {
-      type:    SECRET,
-      id:      `${ AGENT_NAMESPACE }/${ AGENT_CONFIG_SECRET_NAME }`
-    });
+  async function checkAgentAvailability() {
+    if (store.getters['management/schemaFor'](WORKLOAD_TYPES.DEPLOYMENT)) {
+      try {
+        const agent = await store.dispatch('management/find', {
+          type: WORKLOAD_TYPES.DEPLOYMENT,
+          id:   `${ AGENT_NAMESPACE }/${ AGENT_NAME }`
+        });
 
-    if (secret?.data) {
-      agent.value = decodeAgentConfigs(secret.data);
+        if (!agent || agent.state !== 'active') {
+          error.value = { key: 'ai.error.agent.notActive' };
+        }
+      } catch (e) {
+        console.warn('[Rancher AI] \'rancher-ai-agent\' deployment not found', e); // eslint-disable-line no-console
+        error.value = { key: 'ai.error.agent.notFound' };
+      }
+    } else {
+      console.warn('[Rancher AI] Deployment schema not found'); // eslint-disable-line no-console
     }
   }
 
-  onMounted(getConfigs);
+  async function getAgentConfigs() {
+    try {
+      const secret = await store.dispatch('management/find', {
+        type:    SECRET,
+        id:      `${ AGENT_NAMESPACE }/${ AGENT_CONFIG_SECRET_NAME }`
+      });
 
-  return { agent };
+      if (secret?.data) {
+        agent.value = decodeAgentConfigs(secret.data);
+      }
+    } catch (e) {
+      console.warn('[Rancher AI] Error fetching agent configuration:', e); // eslint-disable-line no-console
+    }
+  }
+
+  onMounted(() => {
+    checkAgentAvailability();
+    getAgentConfigs();
+  });
+
+  return {
+    agent,
+    error
+  };
 }
