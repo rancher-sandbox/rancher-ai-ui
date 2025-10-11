@@ -39,6 +39,11 @@ ai:
       openai: ChatGPT
       gemini: Gemini
     unknown: Unknown Agent
+    goToInstall: Install Agent
+    goToDeployment: View Deployment
+  settings:
+    title: AI Assistant
+    goToSettings: Settings
   error:
     message:
       processing: Error processing messages. Please close the chat and try again.
@@ -47,5 +52,6 @@ ai:
       connection: Failed to connect to Rancher AI Agent. Please try again later.
       disconnected: Connection closed.
     agent:
-      notFound: Rancher AI Agent not found. Please ensure the agent is deployed.
+      notFound: Rancher AI Agent not found. Please ensure the agent chart is installed.
       notActive: Rancher AI Agent is not active. Please ensure the agent is running properly.
+      missingConfig: Rancher AI Agent configuration is missing. Please go to Global [Settings > AI Assistant] and configure the agent.

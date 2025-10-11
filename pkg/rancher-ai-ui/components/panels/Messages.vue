@@ -52,6 +52,7 @@ const errorMessages = computed<FormattedMessage[]>(() => {
     timestamp:               new Date(),
     completed:               true,
     isError:                 true,
+    actions:                 error.action ? [error.action] : []
   }));
 });
 

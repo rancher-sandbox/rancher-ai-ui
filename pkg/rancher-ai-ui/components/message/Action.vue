@@ -21,11 +21,19 @@ function goTo() {
 }
 
 onMounted(async() => {
-  to.value = await store.dispatch('management/find', {
-    cluster: props.value.resource.cluster,
-    type:    props.value.resource.type,
-    id:      `${ props.value.resource.namespace }/${ props.value.resource.name }`
-  });
+  if (!!props.value.resource.detailLocation) {
+    to.value = props.value.resource;
+  } else {
+    const {
+      cluster, type, namespace, name
+    } = props.value.resource;
+
+    to.value = await store.dispatch('management/find', {
+      cluster,
+      type,
+      id: `${ namespace }/${ name }`
+    });
+  }
 });
 
 </script>
@@ -38,7 +46,7 @@ onMounted(async() => {
       :disabled="!to"
       @click="goTo"
     >
-      {{ props.value.resource.name }}
+      {{ props.value.label }}
     </RcButton>
   </div>
   <span v-if="props.value.type === ActionType.Link">
@@ -47,10 +55,10 @@ onMounted(async() => {
       class="link"
       @click="goTo"
     >
-      {{ props.value.resource.name }}
+      {{ props.value.label }}
     </a>
     <span v-else>
-      {{ props.value.resource.name }}
+      {{ props.value.label }}
       <template v-if="!props.value">
         <span class="text-muted">&mdash;</span>
       </template>

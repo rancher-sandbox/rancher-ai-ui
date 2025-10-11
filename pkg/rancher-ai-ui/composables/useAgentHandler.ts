@@ -2,9 +2,9 @@ import { useStore } from 'vuex';
 import { onMounted, ref } from 'vue';
 import { base64Decode } from '@shell/utils/crypto';
 import YAML from 'yaml';
-import { AGENT_NAMESPACE, AGENT_NAME, AGENT_CONFIG_SECRET_NAME } from '../product';
+import { AGENT_NAMESPACE, AGENT_NAME, AGENT_CONFIG_SECRET_NAME, PRODUCT_NAME } from '../product';
 import { SECRET, WORKLOAD_TYPES } from '@shell/config/types';
-import { Agent, ChatError } from '../types';
+import { ActionType, Agent, ChatError } from '../types';
 
 export function useAgentHandler() {
   const store = useStore();
@@ -59,16 +59,37 @@ export function useAgentHandler() {
           id:   `${ AGENT_NAMESPACE }/${ AGENT_NAME }`
         });
 
-        if (!agent || agent.state !== 'active') {
-          error.value = { key: 'ai.error.agent.notActive' };
+        if (agent && agent.state !== 'active') {
+          error.value = {
+            key:    'ai.error.agent.notActive',
+            action: {
+              label:    t('ai.agent.goToDeployment'),
+              type:     ActionType.Button,
+              resource: {
+                cluster:   'local',
+                type:      WORKLOAD_TYPES.DEPLOYMENT,
+                namespace: AGENT_NAMESPACE,
+                name:      AGENT_NAME
+              }
+            }
+          };
         }
       } catch (e) {
         console.warn('[Rancher AI] \'rancher-ai-agent\' deployment not found', e); // eslint-disable-line no-console
-        error.value = { key: 'ai.error.agent.notFound' };
+        error.value = {
+          key:    'ai.error.agent.notFound',
+          action: {
+            label:    t('ai.agent.goToInstall'),
+            type:     ActionType.Button,
+            resource: { detailLocation: { name: 'c-cluster-apps-charts' } } // TODO: add params to open AI chart directly
+          }
+        };
       }
     } else {
       console.warn('[Rancher AI] Deployment schema not found'); // eslint-disable-line no-console
     }
+
+    return !error.value;
   }
 
   async function getAgentConfigs() {
@@ -82,13 +103,27 @@ export function useAgentHandler() {
         agent.value = decodeAgentConfigs(secret.data);
       }
     } catch (e) {
-      console.warn('[Rancher AI] Error fetching agent configuration:', e); // eslint-disable-line no-console
+      console.warn('[Rancher AI] Error fetching agent configuration secret:', e); // eslint-disable-line no-console
+    }
+
+    if (!agent.value) {
+      error.value = {
+        key:    'ai.error.agent.missingConfig',
+        action: {
+          label:    t('ai.settings.goToSettings'),
+          type:     ActionType.Button,
+          resource: { detailLocation: { name: `c-cluster-settings-${ PRODUCT_NAME }` } }
+        }
+      };
     }
   }
 
-  onMounted(() => {
-    checkAgentAvailability();
-    getAgentConfigs();
+  onMounted(async() => {
+    const available = await checkAgentAvailability();
+
+    if (available) {
+      getAgentConfigs();
+    }
   });
 
   return {
