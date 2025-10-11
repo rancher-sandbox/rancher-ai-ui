@@ -1,4 +1,4 @@
-import Settings from '../pages/Settings.vue';
+import Settings from '../pages/settings/Settings.vue';
 import { PRODUCT_NAME } from '../product';
 
 const routes = [
