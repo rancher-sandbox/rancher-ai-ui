@@ -1,10 +1,11 @@
 {
   "name": "rancher-ai-ui",
-  "description": "rancher-ai-ui plugin",
+  "description": "AI Assistant extension",
   "version": "0.1.0",
   "private": false,
   "rancher": {
     "annotations": {
+      "catalog.cattle.io/display-name": "AI Assistant",
       "catalog.cattle.io/rancher-version": ">= 2.12.0",
       "catalog.cattle.io/ui-extensions-version": ">= 3.0.0 < 4.0.0"
     }
