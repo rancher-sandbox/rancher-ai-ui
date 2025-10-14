@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue';
+import { ref, computed, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 import type { Context } from '../types';
 
@@ -7,7 +7,7 @@ export function useContextHandler() {
 
   const context = computed(() => {
     // Get default context from v-ui-context directives
-    const defaultContext = store.getters['ui-context/all'] || [];
+    const defaultContext = store.getters['rancher-ai-ui/context/all'];
 
     // Get active namespaces from the store as context options
     const namespaces = store.getters['namespaces']() || {};
@@ -31,6 +31,10 @@ export function useContextHandler() {
   function selectContext(context: Context[]) {
     selectedContext.value = context;
   }
+
+  onBeforeUnmount(() => {
+    store.commit('rancher-ai-ui/context/reset');
+  });
 
   return {
     context,

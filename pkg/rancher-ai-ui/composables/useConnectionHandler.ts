@@ -1,6 +1,6 @@
-import { PANEL_POSITION } from '../product';
 import { computed } from 'vue';
 import { useStore } from 'vuex';
+import Chat from '../handlers/chat';
 
 export function useConnectionHandler(options: {
   onopen: () => void
@@ -33,7 +33,7 @@ export function useConnectionHandler(options: {
 
   function disconnect() {
     // Clear connection when websocket is disconnected and chat is manually closed
-    if (!store.getters['wm/isOpen'](PANEL_POSITION) && ws.value?.readyState !== WebSocket.OPEN) {
+    if (!Chat.isOpen(store) && ws.value?.readyState !== WebSocket.OPEN) {
       store.commit('rancher-ai-ui/connection/close');
     }
   }

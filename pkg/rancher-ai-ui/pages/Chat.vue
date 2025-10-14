@@ -1,10 +1,6 @@
 <script lang="ts" setup>
 import { onMounted, onBeforeUnmount, computed } from 'vue';
-import {
-  AGENT_NAME, AGENT_NAMESPACE, AGENT_API_PATH,
-  PANEL_POSITION,
-  PRODUCT_NAME
-} from '../product';
+import { AGENT_NAME, AGENT_NAMESPACE, AGENT_API_PATH } from '../product';
 import { useConnectionHandler } from '../composables/useConnectionHandler';
 import { useChatMessageHandler } from '../composables/useChatMessageHandler';
 import { useContextHandler } from '../composables/useContextHandler';
@@ -15,7 +11,6 @@ import Messages from '../components/panels/Messages.vue';
 import Context from '../components/panels/Context.vue';
 import Input from '../components/panels/Input.vue';
 
-const chatPanelId = PRODUCT_NAME;
 const chatId = 'default';
 const expandThinking = false;
 
@@ -50,11 +45,7 @@ const { context } = useContextHandler();
 const {
   resize,
   close: closePanel,
-  restoreWindowManager,
-} = useHeaderHandler({
-  panelId:       chatPanelId,
-  panelPosition: PANEL_POSITION
-});
+} = useHeaderHandler();
 
 const errors = computed(() => {
   if (agentError.value) {
@@ -85,7 +76,7 @@ onBeforeUnmount(() => {
 
 function unmount() {
   disconnect();
-  restoreWindowManager();
+  closePanel();
 }
 </script>
 

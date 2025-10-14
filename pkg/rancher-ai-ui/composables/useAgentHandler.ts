@@ -2,6 +2,7 @@ import { useStore } from 'vuex';
 import { onMounted, ref } from 'vue';
 import { base64Decode } from '@shell/utils/crypto';
 import YAML from 'yaml';
+import { warn } from '../utils/log';
 import { AGENT_NAMESPACE, AGENT_NAME, AGENT_CONFIG_SECRET_NAME, PRODUCT_NAME } from '../product';
 import { SECRET, WORKLOAD_TYPES } from '@shell/config/types';
 import { ActionType, Agent, ChatError } from '../types';
@@ -42,7 +43,7 @@ export function useAgentHandler() {
           agent.version = parts[1];
         }
       } catch (err) {
-        console.error('Error parsing agent model version', err); // eslint-disable-line no-console
+        warn('Error parsing agent model version', err);
       }
 
       return agent;
@@ -75,7 +76,7 @@ export function useAgentHandler() {
           };
         }
       } catch (e) {
-        console.warn('[Rancher AI] \'rancher-ai-agent\' deployment not found', e); // eslint-disable-line no-console
+        warn('\'rancher-ai-agent\' deployment not found', e);
         error.value = {
           key:    'ai.error.agent.notFound',
           action: {
@@ -86,7 +87,7 @@ export function useAgentHandler() {
         };
       }
     } else {
-      console.warn('[Rancher AI] Deployment schema not found'); // eslint-disable-line no-console
+      warn('Deployment schema not found');
     }
 
     return !error.value;
@@ -103,7 +104,7 @@ export function useAgentHandler() {
         agent.value = decodeAgentConfigs(secret.data);
       }
     } catch (e) {
-      console.warn('[Rancher AI] Error fetching agent configuration secret:', e); // eslint-disable-line no-console
+      warn('Error fetching agent configuration secret:', e);
     }
 
     if (!agent.value) {
