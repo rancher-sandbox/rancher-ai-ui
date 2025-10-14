@@ -26,7 +26,7 @@ export function useAgentHandler() {
     if (OLLAMA_URL) {
       agent.name = t('ai.agent.models.ollama');
     } else if (GOOGLE_API_KEY) {
-      agent.name = t('ai.agent.models.google');
+      agent.name = t('ai.agent.models.gemini');
     } else if (OPENAI_API_KEY) {
       agent.name = t('ai.agent.models.openai');
     }
