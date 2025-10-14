@@ -1,10 +1,13 @@
 <script lang="ts" setup>
 import {
   ref, computed, defineProps, defineEmits, nextTick,
-  onMounted
+  onMounted,
+  watch
 } from 'vue';
 import { useStore } from 'vuex';
 import RcButton from '@components/RcButton/RcButton.vue';
+import { useInputHandler } from '../../composables/useInputHandler';
+
 const store = useStore();
 const t = store.getters['i18n/t'];
 
@@ -17,27 +20,22 @@ const props = defineProps({
 
 const emit = defineEmits(['input:content']);
 
-const message = ref('');
+const {
+  inputText, updateInput, cleanInput, clearInput
+} = useInputHandler();
+
 const promptTextarea = ref<HTMLTextAreaElement | null>(null);
 
-onMounted(() => {
-  nextTick(() => {
-    if (promptTextarea.value) {
-      promptTextarea.value.focus();
-    }
-  });
-});
+const text = computed(() => {
+  if (props.disabled) {
+    return '';
+  }
 
-const cleanMessage = computed(() => {
-  return (message.value || '')
-    .split('\n')
-    .filter((line) => line.trim() !== '')
-    .join('\n')
-    .trim();
+  return inputText.value;
 });
 
 function onInputMessage(event: Event) {
-  message.value = (event?.target as HTMLTextAreaElement)?.value;
+  updateInput(event);
   autoResizePrompt();
 }
 
@@ -51,13 +49,9 @@ function sendContent(event: Event) {
   event.preventDefault();
   event.stopPropagation();
 
-  emit('input:content', cleanMessage.value);
+  emit('input:content', cleanInput(text.value));
 
-  message.value = '';
-
-  nextTick(() => {
-    autoResizePrompt();
-  });
+  clearInput();
 }
 
 function autoResizePrompt(height?: number) {
@@ -68,6 +62,20 @@ function autoResizePrompt(height?: number) {
     textarea.style.height = `${ height || textarea.scrollHeight }px`;
   }
 }
+
+watch(() => text.value, () => {
+  nextTick(() => {
+    autoResizePrompt();
+  });
+}, {});
+
+onMounted(() => {
+  nextTick(() => {
+    if (promptTextarea.value) {
+      promptTextarea.value.focus();
+    }
+  });
+});
 </script>
 
 <template>
@@ -79,7 +87,7 @@ function autoResizePrompt(height?: number) {
       ref="promptTextarea"
       class="chat-input"
       rows="1"
-      :value="props.disabled ? '' : message"
+      :value="text"
       :placeholder="props.disabled ? '' : t('ai.prompt.placeholder')"
       :disabled="props.disabled"
       autocomplete="off"
@@ -89,7 +97,7 @@ function autoResizePrompt(height?: number) {
     <div class="chat-input-console">
       <RcButton
         small
-        :disabled="!cleanMessage || props.disabled"
+        :disabled="!text || props.disabled"
         @click="sendContent"
         @keydown.enter="sendContent"
       >

@@ -94,7 +94,8 @@ export interface Agent {
 
 export interface Context {
   tag: string;
-  value: string;
+  value: string | object | null;
+  hookId?: string;
   description?: string;
   icon?: string;
 }

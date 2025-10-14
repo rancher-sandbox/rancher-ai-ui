@@ -1,5 +1,5 @@
 import { useStore } from 'vuex';
-import { BOTTOM } from '@shell/utils/position';
+import Chat from '../handlers/chat';
 // @ts-expect-error missing shell export
 import useTabsHandler from '@shell/components/nav/WindowManager/composables/useTabsHandler.ts';
 // @ts-expect-error missing shell export
@@ -7,15 +7,15 @@ import useDimensionsHandler from '@shell/components/nav/WindowManager/composable
 // @ts-expect-error missing shell export
 import useResizeHandler from '@shell/components/nav/WindowManager/composables/useResizeHandler.ts';
 
-export function useHeaderHandler(props: { panelId: string, panelPosition: any }) {
+export function useHeaderHandler() {
   const store = useStore();
 
   const { onTabClose } = useTabsHandler();
 
-  const { setDimensions } = useDimensionsHandler({ position: props.panelPosition });
+  const { setDimensions } = useDimensionsHandler({ position: Chat.panelPosition });
 
   const { mouseResizeXStart } = useResizeHandler({
-    position: props.panelPosition,
+    position: Chat.panelPosition,
     setDimensions
   });
 
@@ -24,18 +24,12 @@ export function useHeaderHandler(props: { panelId: string, panelPosition: any })
   }
 
   function close() {
-    onTabClose(props.panelId);
-    restoreWindowManager();
-  }
-
-  function restoreWindowManager() {
-    store.commit('wm/setLockedPositions', []);
-    store.commit('wm/setUserPin', BOTTOM);
+    onTabClose(Chat.panelId);
+    Chat.close(store);
   }
 
   return {
     resize,
     close,
-    restoreWindowManager
   };
 }

@@ -1,18 +1,21 @@
 import { defineAsyncComponent } from 'vue';
 import { importTypes } from '@rancher/auto-import';
 import { ActionLocation, IPlugin } from '@shell/core/types';
+import { warn } from './utils/log';
 import extensionRouting from './routing/extension-routing';
 import connectionStore from './store/connection';
 import chatStore from './store/chat';
-import { PRODUCT_NAME, PANEL_POSITION } from './product';
+import inputStore from './store/input';
+import contextStore from './store/context';
+import Chat from './handlers/chat';
+import Hooks from './handlers/hooks/index';
+import BadgeOverlay from './handlers/hooks/overlay/badge';
 import { NotificationLevel } from '@shell/types/notifications';
-import { BOTTOM, LEFT, RIGHT } from '@shell/utils/position';
-import { Layout } from '@shell/types/window-manager';
 
 // Init the package
 export default function(plugin: IPlugin, { store }: any): void {
   if (!plugin.environment.isPrime) {
-    console.warn('[Rancher AI]: Rancher Prime subscription required'); //eslint-disable-line no-console
+    warn('Rancher Prime subscription required');
 
     plugin.addNavHooks({
       onLogin: async(store: any) => {
@@ -33,7 +36,6 @@ export default function(plugin: IPlugin, { store }: any): void {
   importTypes(plugin);
 
   // Provide extension metadata from package.json
-  // it will grab information such as `name` and `description`
   plugin.metadata = require('./package.json');
 
   // Load a product
@@ -53,34 +55,17 @@ export default function(plugin: IPlugin, { store }: any): void {
       tooltipKey: 'ai.action.openChat',
       shortcut: 'i',
       svg: require('./assets/chat-icon.svg'),
-      invoke() {
-        const tabs = [...store.getters['wm/tabs']].filter((tab: any) => tab.id !== PRODUCT_NAME);
-
-        tabs.forEach((tab) => {
-          store.commit('wm/switchTab', { tabId: tab.id, targetPosition: BOTTOM });
-        });
-
-        store.commit('wm/setPanelWidth', { position: PANEL_POSITION, width: window.innerWidth / 3 });
-
-        store.dispatch('wm/open', {
-          id:            PRODUCT_NAME,
-          extensionId:   PRODUCT_NAME,
-          label:         'Chat',
-          component:     'ChatComponent',
-          position:      PANEL_POSITION,
-          layouts:       [
-            Layout.default,
-            Layout.home
-          ],
-          showHeader:    false,
-        }, { root: true });
-
-        store.commit('wm/setLockedPositions', [RIGHT, LEFT, BOTTOM ]);
-      }
+      invoke: () => Chat.open(store),
     }
   );
 
   // Add stores
   plugin.addDashboardStore(connectionStore.config.namespace, connectionStore.specifics, connectionStore.config);
   plugin.addDashboardStore(chatStore.config.namespace, chatStore.specifics, chatStore.config);
+  plugin.addDashboardStore(inputStore.config.namespace, inputStore.specifics, inputStore.config);
+  plugin.addDashboardStore(contextStore.config.namespace, contextStore.specifics, contextStore.config);
+
+  // Inject hooks in the main window
+  Hooks.inject(BadgeOverlay, store);
+  // Add more overlays here
 }

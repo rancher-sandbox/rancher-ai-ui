@@ -41,6 +41,21 @@ ai:
     unknown: Unknown Agent
     goToInstall: Install Agent
     goToDeployment: View Deployment
+  hooks:
+    menu:
+      header:
+        title: AI Assistant
+      items:
+        troubleshoot: Explain
+        inspect: Show me the log details
+        recover: Try to recover
+        explain: Explain Error
+      itemMessages:
+        troubleshoot: Explain me why the {kind} {name} is in error state
+        inspect: Show me the log details of {kind} {name}
+        recover: Try to recover {kind} {name}
+        explain: Explain Error "{error}"
+
   settings:
     title: AI Assistant
     goToSettings: Settings
