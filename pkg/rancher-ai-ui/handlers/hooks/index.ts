@@ -13,13 +13,18 @@ class HooksHandler {
   private overlays: HooksOverlay[] = [];
 
   private static initialized = false;
-  private static ctrlPressed = false;
+
+  private static modifierKey = 'Control';
+  private static modifierKeyPressed = false;
+
+  private getOverlayHTMLElement(target: HTMLElement, overlay: HooksOverlay) {
+    return target.classList.contains(overlay.getSelector()) ? target : (target.querySelector(`.${ overlay.getSelector() }`) as HTMLElement);
+  }
 
   private toggleOverlays(store: Store<any>, target: HTMLElement, ctx: Context, show: boolean) {
     this.overlays.forEach((overlay) => {
       // Get the first element with the overlay selector class, including the target itself
-      const el =
-        target.classList.contains(overlay.getSelector()) ? target : (target.querySelector(`.${ overlay.getSelector() }`) as HTMLElement);
+      const el = this.getOverlayHTMLElement(target, overlay);
 
       if (!el) {
         return;
@@ -27,15 +32,8 @@ class HooksHandler {
 
       if (show) {
         overlay.create(store, target, el, ctx);
-
-        el.style.position = 'relative';
-        el.style.boxShadow = '0 0 0 1px var(--on-secondary)';
-        el.style.borderRadius = '4px';
-      } else if (!HooksHandler.ctrlPressed) {
-        overlay.remove();
-
-        el.style.boxShadow = '';
-        el.style.borderRadius = '';
+      } else if (!(el.matches(':hover') || (el.querySelector(':hover') !== null))) {
+        overlay.destroy(target);
       }
     });
   }
@@ -56,11 +54,15 @@ class HooksHandler {
             });
 
             target.addEventListener('mouseenter', () => {
-              this.toggleOverlays(store, target, ctx, true);
+              if (!HooksHandler.modifierKeyPressed) {
+                this.toggleOverlays(store, target, ctx, true);
+              }
             });
 
             target.addEventListener('mouseleave', () => {
-              this.toggleOverlays(store, target, ctx, false);
+              if (!HooksHandler.modifierKeyPressed) {
+                this.toggleOverlays(store, target, ctx, false);
+              }
             });
           }
         });
@@ -71,16 +73,28 @@ class HooksHandler {
       },
     );
 
+    watch(() => store.getters['prefs/theme'], (newTheme) => {
+      this.targets.forEach(({ target }) => {
+        this.overlays.forEach((overlay) => {
+          const el = this.getOverlayHTMLElement(target, overlay);
+
+          overlay.setTheme(el, newTheme);
+        });
+      });
+    });
+
     window.addEventListener('keydown', (e) => {
-      if (e.ctrlKey) {
-        HooksHandler.ctrlPressed = true;
+      if (e.key === HooksHandler.modifierKey) {
+        HooksHandler.modifierKeyPressed = true;
+        HooksOverlay.setModifierKeyPressed(true);
         this.targets.forEach(({ target, ctx }) => this.toggleOverlays(store, target, ctx, true));
       }
     });
 
     window.addEventListener('keyup', (e) => {
-      if (!e.ctrlKey) {
-        HooksHandler.ctrlPressed = false;
+      if (e.key === HooksHandler.modifierKey) {
+        HooksHandler.modifierKeyPressed = false;
+        HooksOverlay.setModifierKeyPressed(false);
         this.targets.forEach(({ target, ctx }) => this.toggleOverlays(store, target, ctx, false));
       }
     });

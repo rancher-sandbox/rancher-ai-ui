@@ -9,7 +9,7 @@ import inputStore from './store/input';
 import contextStore from './store/context';
 import Chat from './handlers/chat';
 import Hooks from './handlers/hooks/index';
-import BadgeOverlay from './handlers/hooks/overlay/badge';
+import BadgeSlidingOverlay from './handlers/hooks/overlay/badge-sliding';
 import { NotificationLevel } from '@shell/types/notifications';
 
 // Init the package
@@ -66,6 +66,6 @@ export default function(plugin: IPlugin, { store }: any): void {
   plugin.addDashboardStore(contextStore.config.namespace, contextStore.specifics, contextStore.config);
 
   // Inject hooks in the main window
-  Hooks.inject(BadgeOverlay, store);
+  Hooks.inject(BadgeSlidingOverlay, store);
   // Add more overlays here
 }

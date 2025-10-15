@@ -6,7 +6,7 @@ import chatIcon from '../../../assets/suse-avatar.svg';
 import MenuFactory from '../factory/menu';
 import { HooksOverlay } from './index';
 
-class BadgeOverlay extends HooksOverlay {
+class BadgeButtonOverlay extends HooksOverlay {
   constructor(selector: string) {
     super();
     this.selector = selector;
@@ -34,60 +34,60 @@ class BadgeOverlay extends HooksOverlay {
     overlayBtn.style.alignItems = 'center';
     overlayBtn.style.padding = '0';
     overlayBtn.style.zIndex = '10';
+    overlayBtn.style.right = '';
+    overlayBtn.style.transform = '';
 
     if (badge) {
       const badgeRect = badge.getBoundingClientRect();
 
       overlayBtn.style.left = `${ badgeRect.right - 2 }px`;
       overlayBtn.style.top = `${ badgeRect.top + (badgeRect.height / 2) - (overlayBtnHeight / 2) }px`;
-      overlayBtn.style.right = '';
-      overlayBtn.style.transform = '';
-    } else {
-      overlayBtn.style.top = '50%';
-      overlayBtn.style.right = '-24px';
-      overlayBtn.style.left = '';
-      overlayBtn.style.transform = 'translateY(-50%)';
     }
 
     target.appendChild(overlayBtn);
 
-    overlayBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
+    overlayBtn.addEventListener('click', (e) => this.action(store, e, overlayBtn, ctx));
+  }
 
-      const menu = MenuFactory.build(store, ctx);
+  action(store: Store<any>, e: Event, overlay: HTMLElement, ctx: Context) {
+    e.stopPropagation();
 
-      const btnRect = overlayBtn.getBoundingClientRect();
+    const menu = MenuFactory.build(store, ctx);
 
-      menu.style.position = 'absolute';
-      menu.style.top = `${ btnRect.top }px`;
-      menu.style.left = `${ btnRect.left }px`;
-      menu.style.display = 'block';
+    const btnRect = overlay.getBoundingClientRect();
 
-      document.body.appendChild(menu);
+    menu.style.position = 'absolute';
+    menu.style.top = `${ btnRect.top }px`;
+    menu.style.left = `${ btnRect.left }px`;
+    menu.style.display = 'block';
 
-      const hideMenu = (ev: MouseEvent) => {
-        if (menu && !menu.contains(ev.target as Node) && ev.target !== overlayBtn) {
-          menu.style.display = 'none';
-          document.body.removeEventListener('mousedown', hideMenu);
-          if (menu.parentElement) {
-            menu.parentElement.removeChild(menu);
-          }
+    document.body.appendChild(menu);
+
+    const hideMenu = (ev: MouseEvent) => {
+      if (menu && !menu.contains(ev.target as Node) && ev.target !== overlay) {
+        menu.style.display = 'none';
+        document.body.removeEventListener('mousedown', hideMenu);
+        if (menu.parentElement) {
+          menu.parentElement.removeChild(menu);
         }
-      };
+      }
+    };
 
-      nextTick(() => {
-        document.body.addEventListener('mousedown', hideMenu);
-      });
+    nextTick(() => {
+      document.body.addEventListener('mousedown', hideMenu);
     });
   }
 
-  remove() {
+  destroy() {
     document.querySelectorAll(`.${ HooksOverlay.defaultClassPrefix }-${ this.getSelector() }`).forEach((btn) => {
-      if (btn) {
+      if (btn && !(btn.matches(':hover') || (btn.querySelector(':hover') !== null))) {
         btn.remove();
       }
     });
   }
+
+  setTheme() {
+  }
 }
 
-export default new BadgeOverlay('badge-state');
+export default new BadgeButtonOverlay('badge-state');

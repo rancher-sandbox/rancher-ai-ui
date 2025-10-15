@@ -55,6 +55,9 @@ ai:
         inspect: Show me the log details of {kind} {name}
         recover: Try to recover {kind} {name}
         explain: Explain Error "{error}"
+    overlay:
+      badgeSliding:
+        label: Send this to Liz
 
   settings:
     title: AI Assistant
