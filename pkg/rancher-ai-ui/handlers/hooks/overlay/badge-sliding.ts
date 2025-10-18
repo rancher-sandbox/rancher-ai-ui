@@ -36,7 +36,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
 
         switch (classId) {
         case 'success':
-          out.overlay.background = getComputedStyle(document.body).getPropertyValue('--success');
+          out.overlay.background = '#459067';
           out.badge.background = `color-mix(in srgb, ${ out.overlay.background } ${ opacity }, ${ bgColor })`;
           break;
         case 'warning':
@@ -57,7 +57,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
           }
           break;
         case 'info':
-          out.overlay.background = getComputedStyle(document.body).getPropertyValue('--info');
+          out.overlay.background = '#5F88CD';
           out.badge.background = `color-mix(in srgb, ${ out.overlay.background } ${ opacity }, ${ bgColor })`;
           break;
         default:
@@ -85,7 +85,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
     overlay.classList.add(`${ HooksOverlay.defaultClassPrefix }-${ this.getSelector() }`);
     overlay.style.zIndex = '10';
     overlay.style.backgroundColor = overlayProps.background;
-    overlay.style.color = overlayProps.color;
+    overlay.style.color = 'transparent';
     overlay.style.position = 'fixed';
     overlay.style.top = `${ badgeRect.top }px`;
     overlay.style.left = `${ badgeRect.right - (badgeRect.width * 0.2) }px`;
@@ -141,6 +141,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
 
     overlay.addEventListener('mouseenter', () => {
       overlay.style.width = `${ parseInt(overlay.style.width) + 100 + (badgeRect.width * 0.1) }px`;
+      overlay.style.color = overlayProps.color;
     });
 
     overlay.addEventListener('mouseleave', () => {
