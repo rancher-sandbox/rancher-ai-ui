@@ -3,7 +3,7 @@ import { Store } from 'vuex';
 import { nextTick } from 'vue';
 // @ts-expect-error missing icon
 import chatIcon from '../../../assets/suse-avatar.svg';
-import MenuFactory from '../factory/menu';
+import MenuFactory from '../menu';
 import { HooksOverlay } from './index';
 
 class BadgeButtonOverlay extends HooksOverlay {

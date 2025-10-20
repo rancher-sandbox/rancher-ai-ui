@@ -1,7 +1,7 @@
 import { Context } from '../../types';
 import { Store } from 'vuex';
 import { watch } from 'vue';
-import { HooksOverlay } from './overlay/index';
+import { HooksOverlay } from './overlay';
 
 interface Target {
   target: HTMLElement;

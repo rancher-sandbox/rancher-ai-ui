@@ -3,7 +3,7 @@ import { Store } from 'vuex';
 import { nextTick } from 'vue';
 // @ts-expect-error missing icon
 import chatIcon from '../../../assets/chat-icon.svg';
-import MenuFactory from '../factory/menu';
+import MenuFactory from '../menu';
 import { HooksOverlay } from './index';
 
 const enum Theme {
@@ -44,16 +44,13 @@ class BadgeSlidingOverlay extends HooksOverlay {
           out.badge.background = `color-mix(in srgb, ${ out.overlay.background } ${ opacity }, ${ bgColor })`;
           break;
         case 'error':
-          const clr = getComputedStyle(document.body).getPropertyValue('--error');
+          const defColor = getComputedStyle(document.body).getPropertyValue('--error');
 
-          out.overlay.border = `1px solid ${ clr }`;
-          if (theme === Theme.Dark) {
-            out.overlay.background = '#fff';
-            out.overlay.color = clr;
-          } else {
-            out.overlay.background = `color-mix(in srgb, ${ clr } ${ opacity }, ${ bgColor })`;
-            out.overlay.color = clr;
-            out.badge.background = clr;
+          out.overlay.border = `0.5px solid ${ defColor }`;
+          out.overlay.background = '#E7A3A3';
+
+          if (theme === Theme.Light) {
+            out.badge.background = defColor;
           }
           break;
         case 'info':
@@ -81,6 +78,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
     const overlay = badge.cloneNode(true) as HTMLElement;
 
     const badgeRect = badge.getBoundingClientRect();
+    const badgeStyle = getComputedStyle(badge);
 
     overlay.classList.add(`${ HooksOverlay.defaultClassPrefix }-${ this.getSelector() }`);
     overlay.style.zIndex = '10';
@@ -88,12 +86,10 @@ class BadgeSlidingOverlay extends HooksOverlay {
     overlay.style.color = 'transparent';
     overlay.style.position = 'fixed';
     overlay.style.top = `${ badgeRect.top }px`;
-    overlay.style.left = `${ badgeRect.right - (badgeRect.width * 0.2) }px`;
+    overlay.style.left = `${ badgeRect.left + 2 }px`;
     overlay.style.height = `${ badgeRect.height }px`;
-    overlay.style.borderTopLeftRadius = `0px`;
-    overlay.style.borderBottomLeftRadius = `0px`;
     overlay.style.border = overlayProps.border || overlay.style.border;
-    overlay.style.width = `15px`;
+    overlay.style.width = `${ badgeRect.width - 2 - parseFloat(badgeStyle.marginRight) - parseFloat(badgeStyle.marginLeft) }px`;
     overlay.style.paddingRight = '3px';
     overlay.style.transition = 'width 0.6s cubic-bezier(0.4,0,0.2,1)';
     overlay.style.cursor = 'pointer';
@@ -116,23 +112,14 @@ class BadgeSlidingOverlay extends HooksOverlay {
     icon.style.verticalAlign = 'middle';
     icon.style.marginLeft = `${ 6 + (badgeRect.width * 0.05) }px`;
     icon.style.marginRight = '4px';
-    icon.style.color = 'var(--primary-text)';
 
     overlay.appendChild(icon);
 
-    // // Insert the cloned badge AFTER the original badge
-    // if (badge.parentElement) {
-    //   if (badge.nextSibling) {
-    //     badge.parentElement.insertBefore(overlay, badge.nextSibling);
-    //   } else {
-    //     badge.parentElement.appendChild(overlay);
-    //   }
-    // }
     ((target.parentElement || target) as HTMLElement).appendChild(overlay);
 
     // Animate width expansion after a short delay
     setTimeout(() => {
-      overlay.style.width = `${ parseInt(overlay.style.width) + 20 + (badgeRect.width * 0.1) }px`;
+      overlay.style.width = `${ parseInt(overlay.style.width) + 30 }px`;
     }, 10);
 
     overlay.addEventListener('click', (e) => {
@@ -140,7 +127,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
     });
 
     overlay.addEventListener('mouseenter', () => {
-      overlay.style.width = `${ parseInt(overlay.style.width) + 100 + (badgeRect.width * 0.1) }px`;
+      overlay.style.width = `${ parseInt(overlay.style.width) + 100 + (badgeRect.width * 0.05) + parseFloat(badgeStyle.marginRight) + parseFloat(badgeStyle.marginLeft) }px`;
       overlay.style.color = overlayProps.color;
     });
 
@@ -148,7 +135,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
       if (!HooksOverlay.modifierKeyPressed) {
         this.destroy(target);
       } else {
-        overlay.style.width = `${ parseInt(overlay.style.width) - (100 + (badgeRect.width * 0.1)) }px`;
+        overlay.style.width = `${ parseInt(overlay.style.width) - 100 + (badgeRect.width * 0.05) + parseFloat(badgeStyle.marginRight) + parseFloat(badgeStyle.marginLeft) }px`;
       }
     });
   }
