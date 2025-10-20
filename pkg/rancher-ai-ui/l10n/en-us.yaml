@@ -32,6 +32,9 @@ ai:
     add: Context
     none: No context
     reset: Reset
+    resources:
+      cluster: Cluster
+      namespace: Namespace
   agent:
     label: Running {name} {model}{separator}{version}
     models:

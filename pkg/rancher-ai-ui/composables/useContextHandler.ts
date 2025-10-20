@@ -2,27 +2,46 @@ import { ref, computed, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 import type { Context } from '../types';
 
+const enum ContextTag {
+  CLUSTER   = 'cluster', // eslint-disable-line no-unused-vars
+  NAMESPACE = 'namespace', // eslint-disable-line no-unused-vars
+}
+
 export function useContextHandler() {
   const store = useStore();
+  const t = store.getters['i18n/t'];
 
   const context = computed(() => {
-    // Get default context from v-ui-context directives
-    const defaultContext = store.getters['rancher-ai-ui/context/all'];
+    // Get current cluster from the store
+    const currentCluster = store.getters['currentCluster'];
 
-    // Get active namespaces from the store as context options
+    const activeCluster = currentCluster ? [{
+      tag:         ContextTag.CLUSTER,
+      value:       currentCluster.name,
+      description: t('ai.context.resources.cluster'),
+      icon:        'icon-cluster'
+    }] : [];
+
+    // Get active namespaces from the store
     const namespaces = store.getters['namespaces']() || {};
     const activeNamespaces = Object.keys(namespaces)
       .filter((k) => !!namespaces[k])
       .map((value) => ({
-        tag:         'namespace',
+        tag:         ContextTag.NAMESPACE,
         value,
-        description: 'Namespace',
+        description: t('ai.context.resources.namespace'),
         icon:        'icon-namespace'
       }));
 
+    // Get current page context from the store
+    const currentPageContext = (store.getters['rancher-ai-ui/context/all'] || []).filter((ctx: Context) => {
+      return ctx.tag !== ContextTag.CLUSTER && ctx.tag !== ContextTag.NAMESPACE;
+    });
+
     return [
-      ...defaultContext,
+      ...activeCluster,
       ...(activeNamespaces?.[0] ? [activeNamespaces[0]] : []), // To fix, we are limiting results, it should include all active namespaces
+      ...currentPageContext,
     ];
   });
 
