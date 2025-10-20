@@ -45,6 +45,7 @@ const { context } = useContextHandler();
 const {
   resize,
   close: closePanel,
+  restore,
 } = useHeaderHandler();
 
 const errors = computed(() => {
@@ -76,7 +77,7 @@ onBeforeUnmount(() => {
 
 function unmount() {
   disconnect();
-  closePanel();
+  restore();
 }
 </script>
 

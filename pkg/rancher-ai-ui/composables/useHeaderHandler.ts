@@ -28,8 +28,13 @@ export function useHeaderHandler() {
     Chat.close(store);
   }
 
+  function restore() {
+    Chat.restoreDefaultPositions(store);
+  }
+
   return {
     resize,
     close,
+    restore
   };
 }

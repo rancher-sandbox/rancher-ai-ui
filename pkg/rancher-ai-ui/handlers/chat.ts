@@ -44,6 +44,10 @@ class ChatHandler {
 
   close(store: Store<any>, id = PRODUCT_NAME) {
     store.commit('wm/closeTab', { id });
+    this.restoreDefaultPositions(store);
+  }
+
+  restoreDefaultPositions(store: Store<any>) {
     store.commit('wm/setLockedPositions', []);
     store.commit('wm/setUserPin', BOTTOM);
   }
