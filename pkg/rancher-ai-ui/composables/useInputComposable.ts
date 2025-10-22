@@ -1,7 +1,7 @@
 import { useStore } from 'vuex';
 import { computed, onBeforeUnmount, ref } from 'vue';
 
-export function useInputHandler() {
+export function useInputComposable() {
   const store = useStore();
 
   const promptText = ref('');

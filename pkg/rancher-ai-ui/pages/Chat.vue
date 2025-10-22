@@ -1,18 +1,18 @@
 <script lang="ts" setup>
 import { onMounted, onBeforeUnmount, computed } from 'vue';
 import { AGENT_NAME, AGENT_NAMESPACE, AGENT_API_PATH } from '../product';
-import { useConnectionHandler } from '../composables/useConnectionHandler';
-import { useChatMessageHandler } from '../composables/useChatMessageHandler';
-import { useContextHandler } from '../composables/useContextHandler';
-import { useHeaderHandler } from '../composables/useHeaderHandler';
-import { useAgentHandler } from '../composables/useAgentHandler';
+import { useConnectionComposable } from '../composables/useConnectionComposable';
+import { useChatMessageComposable } from '../composables/useChatMessageComposable';
+import { useContextComposable } from '../composables/useContextComposable';
+import { useHeaderComposable } from '../composables/useHeaderComposable';
+import { useAgentComposable } from '../composables/useAgentComposable';
 import Header from '../components/panels/Header.vue';
 import Messages from '../components/panels/Messages.vue';
 import Context from '../components/panels/Context.vue';
 import Input from '../components/panels/Input.vue';
 import { defaultModifierKey } from '../handlers/hooks';
 
-const { agent, error: agentError } = useAgentHandler();
+const { agent, error: agentError } = useAgentComposable();
 
 const {
   messages,
@@ -24,25 +24,25 @@ const {
   selectContext,
   resetChatError,
   error: messageError
-} = useChatMessageHandler();
+} = useChatMessageComposable();
 
 const {
   ws,
   connect,
   disconnect,
   error: wsError
-} = useConnectionHandler({
+} = useConnectionComposable({
   onopen,
   onmessage,
 });
 
-const { context } = useContextHandler();
+const { context } = useContextComposable();
 
 const {
   resize,
   close: closePanel,
   restore,
-} = useHeaderHandler();
+} = useHeaderComposable();
 
 // Agent errors are priority over websocket and message errors
 const errors = computed(() => {

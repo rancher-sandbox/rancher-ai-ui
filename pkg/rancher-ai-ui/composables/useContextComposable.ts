@@ -7,7 +7,7 @@ const enum ContextTag {
   NAMESPACE = 'namespace', // eslint-disable-line no-unused-vars
 }
 
-export function useContextHandler() {
+export function useContextComposable() {
   const store = useStore();
   const t = store.getters['i18n/t'];
 

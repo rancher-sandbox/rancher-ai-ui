@@ -1,13 +1,13 @@
 import { ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
-import { useContextHandler } from './useContextHandler';
+import { useContextComposable } from './useContextComposable';
 import { Message, Role, Tag, Context } from '../types';
 import { formatMessageLinkActions, formatConfirmationAction } from '../utils/format';
 
 const CHAT_ID = 'default';
 const EXPAND_THINKING = false;
 
-export function useChatMessageHandler() {
+export function useChatMessageComposable() {
   const store = useStore();
   const t = store.getters['i18n/t'];
 
@@ -15,7 +15,7 @@ export function useChatMessageHandler() {
   const currentMsg = ref<Message>({} as Message);
   const error = computed(() => store.getters['rancher-ai-ui/chat/error'](CHAT_ID));
 
-  const { selectContext, selectedContext } = useContextHandler();
+  const { selectContext, selectedContext } = useContextComposable();
 
   function sendMessage(prompt: string, ws: WebSocket) {
     if (prompt) {

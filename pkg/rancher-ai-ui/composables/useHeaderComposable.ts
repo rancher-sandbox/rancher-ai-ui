@@ -7,7 +7,7 @@ import useDimensionsHandler from '@shell/components/nav/WindowManager/composable
 // @ts-expect-error missing shell export
 import useResizeHandler from '@shell/components/nav/WindowManager/composables/useResizeHandler.ts';
 
-export function useHeaderHandler() {
+export function useHeaderComposable() {
   const store = useStore();
 
   const { onTabClose } = useTabsHandler();

@@ -7,7 +7,7 @@ import { AGENT_NAMESPACE, AGENT_NAME, AGENT_CONFIG_SECRET_NAME, PRODUCT_NAME } f
 import { SECRET, WORKLOAD_TYPES } from '@shell/config/types';
 import { ActionType, Agent, ChatError } from '../types';
 
-export function useAgentHandler() {
+export function useAgentComposable() {
   const store = useStore();
   const t = store.getters['i18n/t'];
 

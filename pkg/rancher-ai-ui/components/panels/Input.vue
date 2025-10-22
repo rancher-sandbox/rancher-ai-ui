@@ -6,7 +6,7 @@ import {
 } from 'vue';
 import { useStore } from 'vuex';
 import RcButton from '@components/RcButton/RcButton.vue';
-import { useInputHandler } from '../../composables/useInputHandler';
+import { useInputComposable } from '../../composables/useInputComposable';
 
 const store = useStore();
 const t = store.getters['i18n/t'];
@@ -22,7 +22,7 @@ const emit = defineEmits(['input:content']);
 
 const {
   inputText, updateInput, cleanInput, clearInput
-} = useInputHandler();
+} = useInputComposable();
 
 const promptTextarea = ref<HTMLTextAreaElement | null>(null);
 

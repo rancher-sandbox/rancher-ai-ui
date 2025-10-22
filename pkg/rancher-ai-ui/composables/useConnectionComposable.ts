@@ -2,7 +2,7 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 import Chat from '../handlers/chat';
 
-export function useConnectionHandler(options: {
+export function useConnectionComposable(options: {
   onopen: () => void
   onmessage: (event: MessageEvent) => Promise<void>, // eslint-disable-line no-unused-vars
   onclose?: (event: CloseEvent) => void, // eslint-disable-line no-unused-vars
