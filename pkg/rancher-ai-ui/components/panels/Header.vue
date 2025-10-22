@@ -22,25 +22,13 @@ const emit = defineEmits([
 <template>
   <div class="chat-header">
     <div class="chat-header-left">
-      <div>
-        <div class="chat-title">
-          <h2>
-            {{ t('ai.title') }}
-          </h2>
-        </div>
-        <div class="chat-subtitle">
-          <span v-if="props.agent">
-            {{ t('ai.agent.label', {
-              name: props.agent.name,
-              model: props.agent.model,
-              separator: props.agent.model && props.agent.version ? ':' : '',
-              version: props.agent.version
-            }, true) }}
-          </span>
-          <span v-else>
-            {{ t('ai.agent.unknown') }}
-          </span>
-        </div>
+      <div class="chat-title">
+        <span class="chat-name">
+          {{ t('ai.title') }}
+        </span>
+        <span class="chat-model">
+          {{ !!props.agent ? t('ai.agent.label', { name: props.agent.name, model: props.agent.model }, true) : t('ai.agent.unknown') }}
+        </span>
       </div>
     </div>
 
@@ -72,23 +60,19 @@ const emit = defineEmits([
 }
 
 .chat-title {
-  display: inline-flex;
-  flex-direction: column;
-  justify-content: center;
-  height: 24px;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 6px;
 
-  h2 {
+  .chat-name {
     font-weight: 600;
     font-size: 1rem;
     color: var(--on-active);
     margin: 0;
   }
-}
 
-.chat-subtitle {
-  height: 18px;
-  margin: 2px 0 0 0;
-  span {
+  .chat-model {
     font-size: 0.8rem;
     color: var(--on-active);
   }

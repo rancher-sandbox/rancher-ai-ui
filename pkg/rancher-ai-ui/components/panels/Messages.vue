@@ -22,7 +22,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['update:message']);
+const emit = defineEmits(['update:message', 'confirm:message']);
 
 const messagesView = ref<HTMLDivElement | null>(null);
 const autoScrollEnabled = ref(true);
@@ -36,7 +36,7 @@ const md = new MarkdownIt({
 
 const formattedMessages = computed<FormattedMessage[]>(() => {
   return [...props.messages]
-    .filter((m) => m.messageContent || m.thinkingContent)
+    .filter((m) => m.messageContent || m.thinkingContent || m.confirmationAction)
     .map((m) => ({
       ...m,
       formattedMessageContent:  m.role === Role.Assistant ? md.render(m.messageContent || '') : m.messageContent,
@@ -123,6 +123,7 @@ onBeforeUnmount(() => {
       :message="message"
       :disabled="disabled"
       @update:message="emit('update:message', message)"
+      @confirm:message="emit('confirm:message', $event)"
       @enable:autoscroll="autoScrollEnabled = $event"
     />
     <MessageComponent

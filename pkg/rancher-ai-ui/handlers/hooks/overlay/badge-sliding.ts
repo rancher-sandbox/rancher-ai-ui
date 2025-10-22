@@ -21,9 +21,8 @@ class BadgeSlidingOverlay extends HooksOverlay {
     const out = {
       badge:   { background: '' },
       overlay: {
-        background: '',
+        background: '#496192',
         color:      'var(--primary-text)',
-        border:     '',
       },
     };
 
@@ -33,31 +32,16 @@ class BadgeSlidingOverlay extends HooksOverlay {
     badge.classList.forEach((c) => {
       if (c.startsWith('bg-')) {
         const classId = c.replaceAll('bg-', '');
+        const classBgColor = getComputedStyle(document.body).getPropertyValue(`--${ classId }`);
 
         switch (classId) {
-        case 'success':
-          out.overlay.background = '#459067';
-          out.badge.background = `color-mix(in srgb, ${ out.overlay.background } ${ opacity }, ${ bgColor })`;
-          break;
-        case 'warning':
-          out.overlay.background = getComputedStyle(document.body).getPropertyValue('--warning');
-          out.badge.background = `color-mix(in srgb, ${ out.overlay.background } ${ opacity }, ${ bgColor })`;
-          break;
         case 'error':
-          const defColor = getComputedStyle(document.body).getPropertyValue('--error');
-
-          out.overlay.border = `0.5px solid ${ defColor }`;
-          out.overlay.background = '#E7A3A3';
-
           if (theme === Theme.Light) {
-            out.badge.background = defColor;
+            out.badge.background = classBgColor;
           }
           break;
-        case 'info':
-          out.overlay.background = '#5F88CD';
-          out.badge.background = `color-mix(in srgb, ${ out.overlay.background } ${ opacity }, ${ bgColor })`;
-          break;
         default:
+          out.badge.background = `color-mix(in srgb, ${ classBgColor } ${ opacity }, ${ bgColor })`;
           break;
         }
       }
@@ -85,13 +69,13 @@ class BadgeSlidingOverlay extends HooksOverlay {
     overlay.style.backgroundColor = overlayProps.background;
     overlay.style.color = 'transparent';
     overlay.style.position = 'fixed';
+    overlay.style.fontSize = badgeStyle.fontSize;
     overlay.style.top = `${ badgeRect.top }px`;
     overlay.style.left = `${ badgeRect.left + 2 }px`;
     overlay.style.height = `${ badgeRect.height }px`;
-    overlay.style.border = overlayProps.border || overlay.style.border;
     overlay.style.width = `${ badgeRect.width - 2 - parseFloat(badgeStyle.marginRight) - parseFloat(badgeStyle.marginLeft) }px`;
     overlay.style.paddingRight = '3px';
-    overlay.style.transition = 'width 0.6s cubic-bezier(0.4,0,0.2,1)';
+    overlay.style.transition = 'width 0.2s cubic-bezier(0.4,0,0.2,1)';
     overlay.style.cursor = 'pointer';
     overlay.textContent = t('ai.hooks.overlay.badgeSliding.label');
     overlay.style.display = 'flex';
@@ -110,7 +94,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
     icon.style.height = `${ badgeRect.height - 5 }px`;
     icon.style.width = '15px';
     icon.style.verticalAlign = 'middle';
-    icon.style.marginLeft = `${ 6 + (badgeRect.width * 0.05) }px`;
+    icon.style.marginLeft = '8px';
     icon.style.marginRight = '4px';
 
     overlay.appendChild(icon);
@@ -127,7 +111,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
     });
 
     overlay.addEventListener('mouseenter', () => {
-      overlay.style.width = `${ parseInt(overlay.style.width) + 100 + (badgeRect.width * 0.05) + parseFloat(badgeStyle.marginRight) + parseFloat(badgeStyle.marginLeft) }px`;
+      overlay.style.width = `${ parseInt(overlay.style.width) + (55 + parseInt(badgeStyle.fontSize) * 3 + parseFloat(badgeStyle.marginRight) + parseFloat(badgeStyle.marginLeft)) }px`;
       overlay.style.color = overlayProps.color;
     });
 
@@ -135,7 +119,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
       if (!HooksOverlay.modifierKeyPressed) {
         this.destroy(target);
       } else {
-        overlay.style.width = `${ parseInt(overlay.style.width) - 100 + (badgeRect.width * 0.05) + parseFloat(badgeStyle.marginRight) + parseFloat(badgeStyle.marginLeft) }px`;
+        overlay.style.width = `${ parseInt(overlay.style.width) - (55 + parseInt(badgeStyle.fontSize) * 3 + parseFloat(badgeStyle.marginRight) + parseFloat(badgeStyle.marginLeft)) }px`;
       }
     });
   }
@@ -173,7 +157,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
     (target.parentElement as HTMLElement).querySelectorAll(`.${ HooksOverlay.defaultClassPrefix }-${ this.getSelector() }`).forEach((overlay: any) => {
       if (overlay && !(overlay.matches(':hover') || (overlay.querySelector(':hover') !== null))) {
         // Animate width shrink before removing
-        overlay.style.transition = 'width 0.6s cubic-bezier(0.4,0,0.2,1), opacity 0.3s';
+        overlay.style.transition = 'width 0.2s cubic-bezier(0.4,0,0.2,1), opacity 0.3s';
         overlay.style.width = `${ 0 }px`;
         overlay.style.opacity = '0';
 

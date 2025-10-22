@@ -2,19 +2,20 @@
 import { onMounted, ref, type PropType } from 'vue';
 import { useStore } from 'vuex';
 import RcButton from '@components/RcButton/RcButton.vue';
-import { MessageAction } from '../../types';
-import { ActionType } from '../../types';
+import { MessageActionLink } from '../../../types';
+import { ActionType } from '../../../types';
 
 const store = useStore();
 
 const props = defineProps({
   value: {
-    type:    Object as PropType<MessageAction>,
-    default: () => ({} as MessageAction),
+    type:    Object as PropType<MessageActionLink>,
+    default: () => ({} as MessageActionLink),
   }
 });
 
 const to = ref<any>(null);
+const tooltip = ref<string>('');
 
 function goTo() {
   (store as any).$router.push(to.value.detailLocation);
@@ -34,6 +35,16 @@ onMounted(async() => {
       id: `${ namespace }/${ name }`
     });
   }
+
+  // if (to.value) {
+  //   const {
+  //     namespace, name, kind
+  //   } = to.value;
+
+  //   tooltip.value = t('ai.message.relatedResources.tooltip', { kind, name, namespace, cluster: props.value.resource.cluster }, true);
+
+  //   console.log('tooltip', tooltip.value);
+  // }
 });
 
 </script>
@@ -41,6 +52,7 @@ onMounted(async() => {
 <template>
   <div v-if="props.value.type === ActionType.Button">
     <RcButton
+      v-clean-tooltip="tooltip"
       small
       secondary
       :disabled="!to"
@@ -52,6 +64,7 @@ onMounted(async() => {
   <span v-if="props.value.type === ActionType.Link">
     <a
       v-if="to"
+      v-clean-tooltip="tooltip"
       class="link"
       @click="goTo"
     >

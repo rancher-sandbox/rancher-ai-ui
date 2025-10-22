@@ -122,9 +122,9 @@ function reset() {
         >
           {{ opt.tag }}:{{ opt.value }}
           <i
-            v-if="selected.find((s) => _id(s) === _id(opt))"
+            v-if="selected.find((s: Context) => _id(s) === _id(opt))"
             :class="{
-              'icon icon-close': selected.find((s) => _id(s) === _id(opt)),
+              'icon icon-close': selected.find((s: Context) => _id(s) === _id(opt)),
             }"
           />
           <template
@@ -190,7 +190,7 @@ function reset() {
   max-width: 100%;
   align-items: center;
   gap: 5px;
-  color: var(--on-secondary);
+  color: var(--active-nav);
 }
 
 .context-select {
@@ -227,11 +227,11 @@ function reset() {
 }
 
 .vs__selected {
-  border: solid 1px var(--secondary-border, var(--primary));
-  color: var(--on-secondary, var(--primary));
+  border: solid 1px var(--active-nav);
+  color: var(--active-nav);
 }
 
 .icon-pin-outlined {
-  color: var(--on-secondary);
+  color: var(--active-nav);
 }
 </style>

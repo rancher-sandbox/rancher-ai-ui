@@ -10,6 +10,7 @@ import Header from '../components/panels/Header.vue';
 import Messages from '../components/panels/Messages.vue';
 import Context from '../components/panels/Context.vue';
 import Input from '../components/panels/Input.vue';
+import { defaultModifierKey } from '../handlers/hooks';
 
 const chatId = 'default';
 const expandThinking = false;
@@ -22,6 +23,7 @@ const {
   onmessage,
   sendMessage,
   updateMessage,
+  confirmMessage,
   selectContext,
   resetChatError,
   error: messageError
@@ -48,6 +50,7 @@ const {
   restore,
 } = useHeaderHandler();
 
+// Agent errors are priority over websocket and message errors
 const errors = computed(() => {
   if (agentError.value) {
     return [agentError.value];
@@ -62,6 +65,13 @@ const errors = computed(() => {
 function close() {
   resetChatError();
   closePanel();
+}
+
+function handleKeydown(event: KeyboardEvent) {
+  if (event.key === defaultModifierKey) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
 }
 
 onMounted(() => {
@@ -82,7 +92,11 @@ function unmount() {
 </script>
 
 <template>
-  <div class="chat-container">
+  <div
+    class="chat-container"
+    tabindex="0"
+    @keydown="handleKeydown"
+  >
     <div
       class="resize-bar"
       @mousedown.prevent.stop="resize"
@@ -97,6 +111,7 @@ function unmount() {
         :messages="messages"
         :errors="errors"
         @update:message="updateMessage"
+        @confirm:message="confirmMessage($event, ws)"
       />
       <Context
         :value="context"

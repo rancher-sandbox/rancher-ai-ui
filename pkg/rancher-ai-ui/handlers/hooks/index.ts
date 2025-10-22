@@ -3,6 +3,8 @@ import { Store } from 'vuex';
 import { watch } from 'vue';
 import { HooksOverlay } from './overlay';
 
+export const defaultModifierKey = 'Control';
+
 interface Target {
   target: HTMLElement;
   ctx: Context;
@@ -14,7 +16,7 @@ class HooksHandler {
 
   private static initialized = false;
 
-  private static modifierKey = 'Control';
+  private static modifierKey = defaultModifierKey;
   private static modifierKeyPressed = false;
 
   private getOverlayHTMLElement(target: HTMLElement, overlay: HooksOverlay) {

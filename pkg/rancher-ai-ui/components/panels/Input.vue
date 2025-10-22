@@ -139,4 +139,10 @@ onMounted(() => {
 .chat-input:focus {
   border: solid 1.5px var(--secondary-border, var(--primary));
 }
+
+.chat-input-console {
+  .btn {
+    height: 36px;
+  }
+}
 </style>

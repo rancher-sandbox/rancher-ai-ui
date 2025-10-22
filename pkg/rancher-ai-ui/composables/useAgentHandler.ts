@@ -36,12 +36,7 @@ export function useAgentHandler() {
       try {
         const parsedModel = YAML.parse(base64Decode(MODEL || ''));
 
-        const parts = parsedModel?.split(':') || [];
-
-        if (parts.length > 1) {
-          agent.model =   parts[0];
-          agent.version = parts[1];
-        }
+        agent.model = parsedModel || 'unknown';
       } catch (err) {
         warn('Error parsing agent model version', err);
       }

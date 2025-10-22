@@ -2,7 +2,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useContextHandler } from './useContextHandler';
 import { Message, Role, Tag, Context } from '../types';
-import { formatMessageActions } from '../utils/format';
+import { formatMessageLinkActions, formatConfirmationAction } from '../utils/format';
 
 export function useChatMessageHandler(options: {
   chatId: string,
@@ -52,6 +52,12 @@ export function useChatMessageHandler(options: {
       chatId: options.chatId,
       message
     });
+  }
+
+  function confirmMessage(confirmed: boolean, ws: WebSocket) {
+    const msg = JSON.stringify({ prompt: confirmed ? 'yes' : 'no' });
+
+    ws.send(msg);
   }
 
   function getMessage(messageId: string) {
@@ -112,7 +118,14 @@ export function useChatMessageHandler(options: {
           }
 
           if (data.startsWith(Tag.McpResultStart) && data.endsWith(Tag.McpResultEnd)) {
-            currentMsg.value.actions = formatMessageActions(data);
+            currentMsg.value.linkActions = formatMessageLinkActions(data);
+            break;
+          }
+
+          if (data.startsWith(Tag.ConfirmationStart) && data.endsWith(Tag.ConfirmationEnd)) {
+            currentMsg.value.confirmationAction = formatConfirmationAction(data);
+            currentMsg.value.thinking = false;
+            currentMsg.value.completed = true;
             break;
           }
 
@@ -149,6 +162,7 @@ export function useChatMessageHandler(options: {
     sendMessage,
     addMessage,
     updateMessage,
+    confirmMessage,
     selectContext,
     resetChatError,
     error

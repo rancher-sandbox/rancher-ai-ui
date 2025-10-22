@@ -5,7 +5,9 @@ import {
 import { useStore } from 'vuex';
 import { FormattedMessage, Role as RoleEnum } from '../../types';
 import Thinking from './Thinking.vue';
-import Action from './Action.vue';
+import Actions from './action/index.vue';
+import Source from './source/index.vue';
+import Confirmation from './confirmation/index.vue';
 import UserAvatar from './avatar/UserAvatar.vue';
 import SystemAvatar from './avatar/SystemAvatar.vue';
 import RcButton from '@components/RcButton/RcButton.vue';
@@ -24,7 +26,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['update:message', 'enable:autoscroll']);
+const emit = defineEmits(['update:message', 'confirm:message', 'enable:autoscroll']);
 
 const isThinking = computed(() => props.message.role === RoleEnum.Assistant &&
   !props.message.completed &&
@@ -108,7 +110,7 @@ onBeforeUnmount(() => {
           class="chat-msg-bubble-actions"
         >
           <button
-            v-if="props.message.role === RoleEnum.Assistant"
+            v-if="props.message.role === RoleEnum.Assistant && !!props.message.thinkingContent"
             v-clean-tooltip="props.message.showThinking ? t('ai.message.actions.tooltip.hideThinking') : t('ai.message.actions.tooltip.showThinking')"
             class="bubble-action-btn btn header-btn role-tertiary"
             type="button"
@@ -149,8 +151,14 @@ onBeforeUnmount(() => {
             v-clean-html="props.message.formattedMessageContent"
           />
         </div>
+        <div v-if="props.message.confirmationAction">
+          <Confirmation
+            :value="props.message.confirmationAction"
+            @confirm="emit('confirm:message', $event)"
+          />
+        </div>
         <RcButton
-          v-if="props.message.role === RoleEnum.Assistant && props.message.thinkingContent && props.message.showThinking"
+          v-if="props.message.role === RoleEnum.Assistant && !!props.message.thinkingContent && props.message.showThinking"
           class="button-hide-thinking"
           small
           ghost
@@ -164,34 +172,15 @@ onBeforeUnmount(() => {
         v-if="props.message.source || (props.message.role === RoleEnum.Assistant && props.message.formattedMessageContent)"
         class="chat-msg-section"
       >
-        <div class="chat-msg-section-title">
-          <i class="icon icon-sources" />
-          <span>{{ t('ai.message.source.label') }}</span>
-        </div>
-        <div class="chat-msg-tags">
-          <span class="chat-tag">Cluster Management Guide</span>
-          <span class="chat-tag">Best Practices</span>
-        </div>
+        <Source />
       </div>
       <div
-        v-if="props.message.actions?.length"
+        v-if="props.message.linkActions?.length"
         class="chat-msg-section"
       >
-        <div class="chat-msg-section-title chat-msg-section-title-actions">
-          <i class="icon icon-quick-action" />
-          <span>{{ t('ai.message.quickActions.label') }}</span>
-        </div>
-        <div class="chat-msg-tags chat-msg-section-tags-actions">
-          <div
-            v-for="(action, index) in props.message.actions"
-            :key="index"
-            class="mt-2 chat-msg-actions"
-          >
-            <Action
-              :value="action"
-            />
-          </div>
-        </div>
+        <Actions
+          :actions="props.message.linkActions"
+        />
       </div>
       <div
         v-if="props.message.timestamp"
@@ -322,48 +311,6 @@ onBeforeUnmount(() => {
 
 .chat-msg-section {
   margin-top: 8px;
-}
-
-.chat-msg-section-title {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: #9fabc6;
-
-  span {
-    font: 9px sans-serif;
-    font-weight: 500;
-  }
-
-  &.chat-msg-section-title-actions {
-    color: var(--on-secondary);
-  }
-}
-
-.chat-msg-tags {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-  margin-top: 6px;
-}
-
-.chat-msg-section-tags-actions {
-  margin-top: 4px;
-}
-
-.chat-tag {
-  color: #9fabc6;
-  border-radius: 8px;
-  padding: 2px 8px;
-  font-size: 0.75rem;
-  border: 1px solid #9fabc6;
-}
-
-.chat-msg-actions {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-top: 2px;
 }
 
 .chat-msg-timestamp {

@@ -1,21 +1,22 @@
 ai:
-  title: AI Assistant
+  title: Liz
   action:
-    openChat: AI Assistant
+    openChat: Ask Liz
   nonPrime:
     title: Rancher AI Assistant requires Rancher Prime
     message: The Rancher AI Assistant requires a Rancher Prime subscription. Please upgrade to Prime or uninstall this extension.
   message:
     system:
-      welcome: Hello! I am your AI Assistant. How can I help you today?
+      welcome: Hello! I am Liz, your AI assistant. How can I help you today?
     assistant:
       thinking:
         completed: Completed
         inProgress: Thinking
     source:
       label: SOURCE
-    quickActions:
-      label: QUICK ACTIONS
+    relatedResources:
+      label: RELATED RESOURCES
+      tooltip: '{kind}: {namespace}/{name} in {cluster} cluster'
     actions:
       tooltip:
         copy: Copy to Clipboard
@@ -25,7 +26,7 @@ ai:
     error:
       processing: Error processing messages. Please close the chat and try again.
   prompt:
-    placeholder: Type your message...
+    placeholder: Ask Liz...
     send: Send
   context:
     label: CONTEXT
@@ -36,7 +37,7 @@ ai:
       cluster: Cluster
       namespace: Namespace
   agent:
-    label: Running {name} {model}{separator}{version}
+    label: running {name} {model}
     models:
       ollama: Ollama
       openai: ChatGPT
@@ -47,7 +48,7 @@ ai:
   hooks:
     menu:
       header:
-        title: AI Assistant
+        title: Ask Liz
       items:
         troubleshoot: Explain
         inspect: Show me the log details
@@ -61,10 +62,13 @@ ai:
     overlay:
       badgeSliding:
         label: Send this to Liz
-
   settings:
     title: AI Assistant
     goToSettings: Settings
+  confirmation:
+    message: Are you sure you want to proceed with this action?
+    yes: Confirm
+    no: Cancel
   error:
     message:
       processing: Error processing messages. Please close the chat and try again.
