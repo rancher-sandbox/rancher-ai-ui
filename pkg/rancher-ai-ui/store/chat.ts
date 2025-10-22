@@ -26,7 +26,7 @@ const getters = {
 };
 
 const mutations = {
-  initChat(state: State, chatId: string) {
+  init(state: State, chatId: string) {
     if (!chatId || state.chats[chatId]) {
       return;
     }
@@ -82,6 +82,19 @@ const mutations = {
 };
 
 const actions = {
+  init({ commit }: { commit: Function }, { chatId, messages }: { chatId: string; messages: Message[] }) {
+    commit('init', chatId);
+
+    if (messages && messages.length) {
+      messages.forEach((message) => {
+        commit('addMessage', {
+          chatId,
+          message
+        });
+      });
+    }
+  },
+
   async addMessage({ commit, state }: { commit: Function; state: State }, { chatId, message }: { chatId: string; message: Message }) {
     commit('addMessage', {
       chatId,

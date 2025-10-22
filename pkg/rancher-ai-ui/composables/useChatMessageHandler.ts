@@ -4,16 +4,16 @@ import { useContextHandler } from './useContextHandler';
 import { Message, Role, Tag, Context } from '../types';
 import { formatMessageLinkActions, formatConfirmationAction } from '../utils/format';
 
-export function useChatMessageHandler(options: {
-  chatId: string,
-  expandThinking: boolean
-}) {
+const CHAT_ID = 'default';
+const EXPAND_THINKING = false;
+
+export function useChatMessageHandler() {
   const store = useStore();
   const t = store.getters['i18n/t'];
 
-  const messages = computed(() => Object.values(store.getters['rancher-ai-ui/chat/messages'](options.chatId)) as Message[]);
+  const messages = computed(() => Object.values(store.getters['rancher-ai-ui/chat/messages'](CHAT_ID)) as Message[]);
   const currentMsg = ref<Message>({} as Message);
-  const error = computed(() => store.getters['rancher-ai-ui/chat/error'](options.chatId));
+  const error = computed(() => store.getters['rancher-ai-ui/chat/error'](CHAT_ID));
 
   const { selectContext, selectedContext } = useContextHandler();
 
@@ -42,14 +42,14 @@ export function useChatMessageHandler(options: {
 
   async function addMessage(message: Message) {
     return await store.dispatch('rancher-ai-ui/chat/addMessage', {
-      chatId: options.chatId,
+      chatId: CHAT_ID,
       message
     });
   }
 
   function updateMessage(message: Message) {
     store.commit('rancher-ai-ui/chat/updateMessage', {
-      chatId: options.chatId,
+      chatId: CHAT_ID,
       message
     });
   }
@@ -62,12 +62,16 @@ export function useChatMessageHandler(options: {
 
   function getMessage(messageId: string) {
     return store.getters['rancher-ai-ui/chat/message']({
-      chatId: options.chatId,
+      chatId: CHAT_ID,
       messageId
     });
   }
 
   function onopen() {
+    if (messages.value.length > 0) {
+      return;
+    }
+
     addMessage({
       role:           Role.System,
       messageContent: t('ai.message.system.welcome'),
@@ -84,7 +88,7 @@ export function useChatMessageHandler(options: {
           role:                     Role.Assistant,
           thinkingContent: '',
           messageContent:  '',
-          showThinking:             options.expandThinking,
+          showThinking:             EXPAND_THINKING,
           thinking:                 false,
           completed:                false
         });
@@ -138,7 +142,7 @@ export function useChatMessageHandler(options: {
       // eslint-disable-next-line no-console
       console.error('Error processing messages:', err);
       store.commit('rancher-ai-ui/chat/setError', {
-        chatId: options.chatId,
+        chatId: CHAT_ID,
         error:  { key: 'ai.error.message.processing' }
       });
     }
@@ -146,13 +150,13 @@ export function useChatMessageHandler(options: {
 
   function resetChatError() {
     store.commit('rancher-ai-ui/chat/setError', {
-      chatId: options.chatId,
+      chatId: CHAT_ID,
       error:  null
     });
   }
 
   onMounted(() => {
-    store.commit('rancher-ai-ui/chat/initChat', options.chatId);
+    store.commit('rancher-ai-ui/chat/init', CHAT_ID);
   });
 
   return {

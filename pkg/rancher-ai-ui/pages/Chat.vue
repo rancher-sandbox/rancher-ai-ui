@@ -12,9 +12,6 @@ import Context from '../components/panels/Context.vue';
 import Input from '../components/panels/Input.vue';
 import { defaultModifierKey } from '../handlers/hooks';
 
-const chatId = 'default';
-const expandThinking = false;
-
 const { agent, error: agentError } = useAgentHandler();
 
 const {
@@ -27,10 +24,7 @@ const {
   selectContext,
   resetChatError,
   error: messageError
-} = useChatMessageHandler({
-  chatId,
-  expandThinking
-});
+} = useChatMessageHandler();
 
 const {
   ws,
