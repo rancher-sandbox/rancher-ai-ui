@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, toValue } from 'vue';
+import { ref, watch, toValue, computed } from 'vue';
 import { useStore } from 'vuex';
 import { cloneDeep } from 'lodash';
 
@@ -14,6 +14,7 @@ import { _EDIT } from '@shell/config/query-params';
 import AsyncButton from '@shell/components/AsyncButton.vue';
 import AdvancedSection from '@shell/components/AdvancedSection.vue';
 import Loading from '@shell/components/Loading.vue';
+import Password from '@shell/components/form/Password.vue';
 import ToggleGroup from '../../components/toggle/toggle-group.vue';
 import { Settings, FormData } from './types';
 
@@ -73,6 +74,10 @@ const resource = useFetch(async() => {
 const formData = ref<FormData>({});
 const modelOptions = ref(models.Local);
 const chatbotConfigKey = ref<Settings.OLLAMA_URL | Settings.GOOGLE_API_KEY | Settings.OPENAI_API_KEY>(Settings.OLLAMA_URL);
+
+const chatbotConfigComponent = computed(() => {
+  return chatbotConfigKey.value === Settings.OLLAMA_URL ? LabeledInput : Password;
+});
 
 /**
  * Updates the form configuration based on the selected chatbot.
@@ -199,7 +204,8 @@ const save = async(btnCB: (arg: boolean) => void) => {
       </banner>
 
       <div class="form-field">
-        <labeled-input
+        <component
+          :is="chatbotConfigComponent"
           :value="formData[chatbotConfigKey]"
           :label="t(`aiConfig.form.${ chatbotConfigKey }.label`)"
           @update:value="(val: string) => updateValue(chatbotConfigKey, val)"
@@ -292,7 +298,7 @@ const save = async(btnCB: (arg: boolean) => void) => {
           </div>
 
           <div class="form-field">
-            <labeled-input
+            <password
               :value="formData[Settings.LANGFUSE_SECRET_KEY]"
               :label="t(`aiConfig.form.${ Settings.LANGFUSE_SECRET_KEY}.label`)"
               @update:value="(val: string) => updateValue(Settings.LANGFUSE_SECRET_KEY, val)"
