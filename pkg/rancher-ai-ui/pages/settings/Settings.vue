@@ -121,14 +121,32 @@ watch(resource, (newResource) => {
 
   formData.value = resourceClone;
 
-  if (!formData.value[Settings.ACTIVE_CHATBOT]) {
-    formData.value[Settings.ACTIVE_CHATBOT] = 'Local';
+  selectChatbot();
+
+  updateFormConfig(formData.value[Settings.ACTIVE_CHATBOT]);
+});
+
+/**
+ * Selects the default chatbot based on values in the form data.
+ * If no chatbot is currently selected, it calculates the default chatbot in the order: Ollama, Gemini and OpenAI
+ */
+function selectChatbot() {
+  if (formData.value[Settings.ACTIVE_CHATBOT]) {
+    return;
   }
 
-  const activeChatbot = formData.value[Settings.ACTIVE_CHATBOT];
+  let chatBot = 'Local';
 
-  updateFormConfig(activeChatbot);
-});
+  if (formData.value[Settings.OLLAMA_URL]) {
+    chatBot = 'Local';
+  } else if (formData.value[Settings.GOOGLE_API_KEY]) {
+    chatBot = 'Gemini';
+  } else if (formData.value[Settings.OPENAI_API_KEY]) {
+    chatBot = 'OpenAI';
+  }
+
+  formData.value[Settings.ACTIVE_CHATBOT] = chatBot;
+}
 
 /**
  * Updates the form data value for a given key.
@@ -153,7 +171,7 @@ const updateValue = (key: Settings, val: string | undefined) => {
  *
  * @param btnCB Callback function to notify the result of the save operation.
  */
-const save = async(btnCB: (arg: boolean) => void) => {
+const save = async(btnCB: (arg: boolean) => void) => { // eslint-disable-line no-unused-vars
   try {
     const formDataToSave: { [key: string]: string } = {};
     const formDataObject = toValue(formData.value);
@@ -169,7 +187,7 @@ const save = async(btnCB: (arg: boolean) => void) => {
     resource.value.data.data = formDataToSave;
     await resource.value.data.save();
     btnCB(true);
-  } catch (err) {
+  } catch (err) { // eslint-disable-line no-unused-vars
     btnCB(false);
   }
 };
