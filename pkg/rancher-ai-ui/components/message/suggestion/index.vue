@@ -22,26 +22,44 @@ const emit = defineEmits(['select']);
     <div class="suggestions-header">
       {{ t('ai.message.suggestions.label') }}
     </div>
-    <div
-      v-for="(suggestion, index) in props.suggestions"
-      :key="index"
-    >
-      <RcButton
-        tertiary
-        small
-        @click="() => emit('select', suggestion)"
+    <ul class="suggestions-list">
+      <li
+        v-for="(suggestion, index) in props.suggestions"
+        :key="index"
+        class="suggestion-item"
       >
-        <span class="rc-button-label">
-          {{ suggestion }}
-        </span>
-      </RcButton>
-    </div>
+        <RcButton
+          tertiary
+          small
+          @click="() => emit('select', suggestion)"
+        >
+          <span class="rc-button-label">
+            {{ suggestion }}
+          </span>
+        </RcButton>
+      </li>
+    </ul>
   </div>
 </template>
 
 <style lang='scss' scoped>
 .suggestions-header {
   margin-bottom: 8px;
+  font-weight: 600; /* make header bold */
+}
+.suggestions-list {
+  padding: 0;
+  margin: 0;
+  padding-left: 24px;
+
+  li {
+    padding: 0;
+    margin: 0;
+  }
+}
+.suggestion-item {
+  padding: 0;
+  margin: 0;
 }
 .rc-button-label {
   word-break: break-word;
