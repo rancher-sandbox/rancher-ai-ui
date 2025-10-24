@@ -31,7 +31,9 @@ const emit = defineEmits(['select']);
         small
         @click="() => emit('select', suggestion)"
       >
-        {{ suggestion }}
+        <span class="rc-button-label">
+          {{ suggestion }}
+        </span>
       </RcButton>
     </div>
   </div>
@@ -40,5 +42,10 @@ const emit = defineEmits(['select']);
 <style lang='scss' scoped>
 .suggestions-header {
   margin-bottom: 8px;
+}
+.rc-button-label {
+  word-break: break-word;
+  white-space: pre-line;
+  list-style-position: inside;
 }
 </style>

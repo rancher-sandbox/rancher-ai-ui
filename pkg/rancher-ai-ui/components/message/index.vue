@@ -340,7 +340,7 @@ onBeforeUnmount(() => {
   box-shadow: 0 2px 8px 0 rgba(61,152,211,0.10);
 }
 
-.chat-msg-text {
+.chat-msg-text, :deep() pre {
   word-break: break-word;
   white-space: pre-line;
   list-style-position: inside;
