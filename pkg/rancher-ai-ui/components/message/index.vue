@@ -1,0 +1,390 @@
+<script setup lang="ts">
+import {
+  computed, nextTick, onBeforeUnmount, ref, type PropType
+} from 'vue';
+import { useStore } from 'vuex';
+import { FormattedMessage, Role as RoleEnum } from '../../types';
+import Thinking from './Thinking.vue';
+import Actions from './action/index.vue';
+import Source from './source/index.vue';
+import Confirmation from './confirmation/index.vue';
+import Suggestions from './suggestion/index.vue';
+import UserAvatar from './avatar/UserAvatar.vue';
+import SystemAvatar from './avatar/SystemAvatar.vue';
+import RcButton from '@components/RcButton/RcButton.vue';
+
+const store = useStore();
+const t = store.getters['i18n/t'];
+
+const props = defineProps({
+  message: {
+    type:    Object as PropType<FormattedMessage>,
+    default: () => ({} as FormattedMessage),
+  },
+  disabled: {
+    type:    Boolean,
+    default: false,
+  }
+});
+
+const emit = defineEmits(['update:message', 'confirm:message', 'send:message', 'enable:autoscroll']);
+
+const isThinking = computed(() => props.message.role === RoleEnum.Assistant &&
+  !props.message.completed &&
+  (props.message.thinking || !props.message.formattedMessageContent)
+);
+const showCopySuccess = ref(false);
+const timeoutCopy = ref<any>(null);
+const timeoutAutoscroll = ref<any>(null);
+
+function handleCopy() {
+  if (!props.message.messageContent && !props.message.thinkingContent) {
+    return;
+  }
+
+  let text = '';
+
+  if (RoleEnum.Assistant && props.message.showThinking) {
+    text = props.message.thinkingContent || '';
+  }
+
+  text += (props.message.messageContent || '');
+
+  navigator.clipboard.writeText(text);
+  showCopySuccess.value = true;
+  if (timeoutCopy.value) {
+    clearTimeout(timeoutCopy.value);
+  }
+  timeoutCopy.value = setTimeout(() => {
+    showCopySuccess.value = false;
+  }, 1000);
+}
+
+function handleShowCompleteMessage() {
+  props.message.showCompleteMessage = !props.message.showCompleteMessage;
+
+  nextTick(() => {
+    emit('update:message', props.message);
+  });
+}
+
+function handleShowThinking() {
+  props.message.showThinking = !props.message.showThinking;
+
+  emit('enable:autoscroll', false);
+  nextTick(() => {
+    emit('update:message', props.message);
+  });
+  if (timeoutAutoscroll.value) {
+    clearTimeout(timeoutAutoscroll.value);
+  }
+  timeoutAutoscroll.value = setTimeout(() => {
+    emit('enable:autoscroll', true);
+  }, 500);
+}
+
+onBeforeUnmount(() => {
+  if (timeoutCopy.value) {
+    clearTimeout(timeoutCopy.value);
+  }
+  if (timeoutAutoscroll.value) {
+    clearTimeout(timeoutAutoscroll.value);
+  }
+});
+</script>
+
+<template>
+  <div
+    class="chat-message"
+    :class="{
+      'chat-message-user': props.message.role === RoleEnum.User,
+      disabled: props.disabled
+    }"
+  >
+    <component
+      :is="props.message.role === RoleEnum.User ? UserAvatar : SystemAvatar"
+      class="chat-msg-avatar"
+    />
+    <div class="chat-msg-content">
+      <div
+        class="chat-msg-bubble"
+        :class="{
+          'chat-msg-bubble-user': props.message.role === RoleEnum.User,
+          'chat-msg-bubble-assistant': props.message.role !== RoleEnum.User,
+          'chat-msg-bubble-error': props.message.isError
+        }"
+      >
+        <div
+          v-if="!props.disabled"
+          class="chat-msg-bubble-actions"
+        >
+          <button
+            v-if="props.message.role === RoleEnum.Assistant && !!props.message.thinkingContent"
+            v-clean-tooltip="props.message.showThinking ? t('ai.message.actions.tooltip.hideThinking') : t('ai.message.actions.tooltip.showThinking')"
+            class="bubble-action-btn btn header-btn role-tertiary"
+            type="button"
+            role="button"
+            @click="handleShowThinking"
+          >
+            <i class="icon icon-thinking-process" />
+          </button>
+          <button
+            v-clean-tooltip="t('ai.message.actions.tooltip.copy')"
+            class="bubble-action-btn btn header-btn role-tertiary"
+            type="button"
+            role="button"
+            @click="handleCopy"
+          >
+            <i
+              :class="{
+                'icon icon-checkmark': showCopySuccess,
+                'icon icon-copy': !showCopySuccess
+              }"
+            />
+          </button>
+        </div>
+        <div class="chat-msg-text">
+          <div v-if="isThinking">
+            <Thinking />
+          </div>
+          <span v-if="props.message.showThinking">
+            <br v-if="isThinking">
+            <span
+              v-if="props.message.formattedThinkingContent"
+              v-clean-html="props.message.formattedThinkingContent"
+            />
+            <br>
+          </span>
+          <span
+            v-if="!!props.message.summaryContent"
+            v-clean-html="props.message.summaryContent"
+          />
+          <span
+            v-if="props.message.formattedMessageContent && (!props.message.summaryContent || props.message.showCompleteMessage)"
+            v-clean-html="props.message.formattedMessageContent"
+            :class="{
+              'chat-msg-user-expanded': !!props.message.summaryContent && props.message.showCompleteMessage
+            }"
+          />
+        </div>
+        <div
+          v-if="props.message.suggestionActions?.length"
+          class="chat-msg-section-footer"
+        >
+          <Suggestions
+            :suggestions="props.message.suggestionActions"
+            @select="(suggestion: string) => emit('send:message', suggestion)"
+          />
+        </div>
+        <div
+          v-if="props.message.confirmationAction"
+          class="chat-msg-section-footer"
+        >
+          <Confirmation
+            :value="props.message.confirmationAction"
+            @confirm="emit('confirm:message', $event)"
+          />
+        </div>
+        <RcButton
+          v-if="props.message.role === RoleEnum.Assistant && !!props.message.thinkingContent && props.message.showThinking"
+          class="inline-button"
+          small
+          ghost
+          @click="handleShowThinking"
+        >
+          <a>{{ t('ai.message.actions.hideThinking') }}</a>
+        </RcButton>
+        <RcButton
+          v-if="!!props.message.summaryContent"
+          class="inline-button"
+          small
+          ghost
+          @click="handleShowCompleteMessage"
+        >
+          <a>{{ props.message.showCompleteMessage ? t('ai.message.actions.hideCompleteMessage') : t('ai.message.actions.showCompleteMessage') }}</a>
+        </RcButton>
+      </div>
+      <!-- TODO: replace with actual source when available -->
+      <div
+        v-if="props.message.source || (props.message.role === RoleEnum.Assistant && props.message.formattedMessageContent)"
+        class="chat-msg-section"
+      >
+        <Source />
+      </div>
+      <div
+        v-if="props.message.linkActions?.length"
+        class="chat-msg-section"
+      >
+        <Actions
+          :actions="props.message.linkActions"
+        />
+      </div>
+      <div
+        v-if="props.message.timestamp"
+        class="chat-msg-timestamp"
+      >
+        {{ props.message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}
+      </div>
+    </div>
+  </div>
+</template>
+
+<style lang='scss' scoped>
+.chat-message {
+  display: flex;
+  gap: 8px;
+}
+
+.chat-msg-content {
+  margin-right: 40px;
+}
+
+.chat-message-user {
+  flex-direction: row-reverse;
+
+  .chat-msg-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin: 0;
+  }
+
+  .chat-msg-text {
+    color: var(--on-tertiary);
+  }
+}
+
+.chat-msg-bubble {
+  position: relative;
+  max-width: 455px;
+  background: var(--body-bg);
+  color: var(--body-text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
+  padding: 12px;
+  font-size: 0.95rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  /* Hide actions by default, show on hover */
+  &:hover .chat-msg-bubble-actions {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.chat-msg-bubble-user {
+  background: var(--tertiary-hover);
+  align-items: flex-end;
+}
+
+.chat-msg-bubble-error {
+  background: var(--error-banner-bg);
+  border-color: var(--error);
+  color: var(--error-banner-text, var(--error));
+}
+
+.chat-msg-bubble-actions {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  display: flex;
+  gap: 5px;
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.bubble-action-btn {
+  background: var(--body-bg);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 2px 4px;
+  box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
+  cursor: pointer;
+  transition: border 0.15s, box-shadow 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.bubble-action-btn .icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.bubble-action-btn.header-btn {
+  padding: 2px;
+  min-width: 20px;
+  min-height: 20px;
+  width: 25px;
+  height: 25px;
+}
+
+.bubble-action-btn.header-btn .icon {
+  font-size: 12px;
+  width: 12px;
+  height: 12px;
+}
+
+.bubble-action-btn:hover {
+  border: solid 1px var(--secondary-border, var(--primary));
+  box-shadow: 0 2px 8px 0 rgba(61,152,211,0.10);
+}
+
+.chat-msg-text {
+  word-break: break-word;
+  white-space: pre-line;
+  list-style-position: inside;
+}
+
+.chat-msg-section {
+  margin-top: 8px;
+}
+
+.chat-msg-section-footer {
+  margin-top: 8px;
+}
+
+.chat-msg-timestamp {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  align-self: flex-end;
+}
+
+.icon-action-source {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.inline-button {
+  margin-left: auto;
+  height: 15px;
+  min-height: 15px;
+}
+
+.chat-msg-user-expanded {
+  display: block;
+  margin-top: 16px;
+
+  :deep() ul {
+    padding: 0 0 0 8px;
+    margin: 0;
+    margin-top: -10px;
+  }
+}
+</style>

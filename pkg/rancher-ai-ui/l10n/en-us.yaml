@@ -1,6 +1,86 @@
 ai:
+  title: Liz
   action:
-    openChat: Rancher AI Assisstant
+    openChat: Ask Liz
   nonPrime:
     title: Rancher AI Assistant requires Rancher Prime
     message: The Rancher AI Assistant requires a Rancher Prime subscription. Please upgrade to Prime or uninstall this extension.
+  message:
+    system:
+      welcome: Hello! I am Liz, your AI assistant. How can I help you today?
+    assistant:
+      thinking:
+        completed: Completed
+        inProgress: Thinking
+    source:
+      label: SOURCE
+    relatedResources:
+      label: RELATED RESOURCES
+      tooltip: '{kind}: {namespace}/{name} in {cluster} cluster'
+    actions:
+      tooltip:
+        copy: Copy to Clipboard
+        showThinking: Show Thinking
+        hideThinking: Hide Thinking
+      hideThinking: Hide Thinking
+      showCompleteMessage: Show Complete Message
+      hideCompleteMessage: Hide Complete Message
+    suggestions:
+      label: Recommended Actions
+    error:
+      processing: Error processing messages. Please close the chat and try again.
+  prompt:
+    placeholder: Ask Liz...
+    send: Send
+  context:
+    label: CONTEXT
+    add: Context
+    none: No context
+    reset: Reset
+    resources:
+      cluster: Cluster
+      namespace: Namespace
+  agent:
+    label: running {name} {model}
+    models:
+      ollama: Ollama
+      openai: ChatGPT
+      gemini: Gemini
+    unknown: Unknown Agent
+    goToInstall: Install Agent
+    goToDeployment: View Deployment
+  hooks:
+    menu:
+      header:
+        title: Ask Liz
+      items:
+        troubleshoot: Explain
+        inspect: Show me the log details
+        recover: Try to recover
+        explain: Explain Error
+      itemMessages:
+        troubleshoot: Explain me why the {kind} {name} is in error state
+        inspect: Show me the log details of {kind} {name}
+        recover: Try to recover {kind} {name}
+        explain: Explain Error "{error}"
+    overlay:
+      badgeSliding:
+        label: Send this to Liz
+  settings:
+    title: AI Assistant
+    goToSettings: Settings
+  confirmation:
+    message: Are you sure you want to proceed with this action?
+    yes: Confirm
+    no: Cancel
+  error:
+    message:
+      processing: Error processing messages. Please close the chat and try again.
+    websocket:
+      generic: WebSocket error occurred. Please try again later.
+      connection: Failed to connect to Rancher AI Agent. Please try again later.
+      disconnected: Connection closed.
+    agent:
+      notFound: Rancher AI Agent not found. Please ensure the agent chart is installed.
+      notActive: Rancher AI Agent is not active. Please ensure the agent is running properly.
+      missingConfig: Rancher AI Agent configuration is missing. Please go to Global [Settings > AI Assistant] and configure the agent.

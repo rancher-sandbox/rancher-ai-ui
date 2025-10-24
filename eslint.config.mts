@@ -4,7 +4,12 @@ import pluginVue from 'eslint-plugin-vue';
 import { defineConfig, globalIgnores } from 'eslint/config';
 
 export default defineConfig([
-  globalIgnores(['**/vue.config.js', '**/babel.config.js', 'pkg/rancher-ai-ui/index.ts']),
+  globalIgnores([
+    '**/vue.config.js',
+    '**/babel.config.js',
+    'pkg/rancher-ai-ui/index.ts',
+    'dist-pkg/**'
+  ]),
   {
     files:           ['**/*.{js,mjs,cjs,ts,mts,cts,vue}'],
     languageOptions: { globals: globals.browser }
@@ -21,14 +26,15 @@ export default defineConfig([
         max:    1,
         maxEOF: 0
       }],
-      'vue/no-empty-component-block':           'error',
-      '@typescript-eslint/no-explicit-any':     'off',
-      '@typescript-eslint/no-unused-vars':      'off',
-      '@typescript-eslint/no-var-requires':     'off',
-      '@typescript-eslint/no-this-alias':       'off',
-      'array-bracket-spacing':                  'warn',
-      'arrow-parens':                           'warn',
-      'arrow-spacing':                      [
+      'vue/no-empty-component-block':               'error',
+      '@typescript-eslint/no-unsafe-function-type': 'off',
+      '@typescript-eslint/no-explicit-any':         'off',
+      '@typescript-eslint/no-unused-vars':          'off',
+      '@typescript-eslint/no-var-requires':         'off',
+      '@typescript-eslint/no-this-alias':           'off',
+      'array-bracket-spacing':                      'warn',
+      'arrow-parens':                               'warn',
+      'arrow-spacing':                              [
         'warn',
         {
           before: true,

@@ -1,17 +1,18 @@
 {
   "name": "rancher-ai-ui",
-  "description": "rancher-ai-ui plugin",
-  "version": "0.1.0",
+  "description": "AI Assistant extension",
+  "version": "0.1.1",
   "private": false,
   "rancher": {
     "annotations": {
-      "catalog.cattle.io/rancher-version": ">= 2.10.0",
+      "catalog.cattle.io/display-name": "AI Assistant",
+      "catalog.cattle.io/rancher-version": ">= 2.12.0",
       "catalog.cattle.io/ui-extensions-version": ">= 3.0.0 < 4.0.0"
     }
   },
   "scripts": {},
   "engines": {
-    "node": ">=16"
+    "node": ">=20"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~5.0.0",

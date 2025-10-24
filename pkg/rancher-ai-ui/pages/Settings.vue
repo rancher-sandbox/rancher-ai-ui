@@ -1,17 +1,19 @@
-<script lang="ts">
+<script lang="ts" setup>
+import { onMounted } from 'vue';
+import { useStore } from 'vuex';
 
-export default {
-  mounted() {
-    console.log('Index page mounted', (this as any).$store); // eslint-disable-line no-console
-  },
-};
+const store = useStore();
 
+onMounted(() => {
+  // eslint-disable-next-line no-console
+  console.log('Index page mounted', store);
+});
 </script>
 
 <template>
   <div class="chat-config">
     <h1 class="content">
-      Rancher AI Config page
+      Rancher AI Settings
     </h1>
   </div>
 </template>

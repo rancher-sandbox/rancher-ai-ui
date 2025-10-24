@@ -1,12 +1,12 @@
 {
   "name": "rancher-ai-ui",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "engines": {
     "node": ">=20"
   },
   "dependencies": {
-    "@rancher/shell": "^3.0.4"
+    "@rancher/shell": "3.0.8-rc.2"
   },
   "resolutions": {
     "@types/node": "~20.10.0",
@@ -23,6 +23,8 @@
     "lint": "eslint ."
   },
   "devDependencies": {
+    "@types/lodash": "4.17.20",
+    "@types/markdown-it": "^14.1.2",
     "eslint": "^9.35.0",
     "eslint-plugin-vue": "^10.4.0",
     "globals": "^16.4.0",
