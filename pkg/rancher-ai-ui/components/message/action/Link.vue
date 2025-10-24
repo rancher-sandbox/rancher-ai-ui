@@ -58,7 +58,9 @@ onMounted(async() => {
       :disabled="!to"
       @click="goTo"
     >
-      {{ props.value.label }}
+      <span class="rc-button-label">
+        {{ props.value.label }}
+      </span>
     </RcButton>
   </div>
   <span v-if="props.value.type === ActionType.Link">
@@ -80,6 +82,11 @@ onMounted(async() => {
 </template>
 
 <style lang='scss' scoped>
+.rc-button-label {
+  word-break: break-word;
+  white-space: pre-line;
+  list-style-position: inside;
+}
 .link {
   cursor: pointer;
 }

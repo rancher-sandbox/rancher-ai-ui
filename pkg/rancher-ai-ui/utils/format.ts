@@ -49,7 +49,7 @@ export function formatMessageLinkActions(value: string, actionType = ActionType.
 
       return names.map((name: string) => ({
         type:     actionType,
-        label:    `${ parsed.kind }: ${ name }`,
+        label:    `View ${ parsed.kind }: ${ name }`,
         resource: {
           kind:      parsed.kind,
           type:      parsed.type,
@@ -82,35 +82,23 @@ export function formatConfirmationAction(value: string): MessageActionConfirmati
   return null;
 }
 
-export function formatSuggestionActions(msg: string): { suggestionActions: string[]; cleanMessageContent: string } {
-  const out = {
-    suggestionActions:   [] as string[],
-    cleanMessageContent: msg,
-  };
+export function formatSuggestionActions(suggestionActions: string[], remaining: string): { suggestionActions: string[]; remaining: string } {
+  const re = /<suggestion\b[^>]*>([\s\S]*?)<\/suggestion>/i;
+  const match = remaining?.match(re);
 
-  const suggestionsMatch = msg.match(/<suggestions>[\s\S]*?<\/suggestions>/);
+  if (match) {
+    const inner = match[1]; // first suggestion text
 
-  if (!suggestionsMatch) {
-    return out;
-  }
+    suggestionActions.push(inner.trim());
+    remaining = remaining.replace(match[0], '').trim();
 
-  const suggestionsBlock = suggestionsMatch[0];
-
-  // TODO: improve parsing to handle invalid JSON
-  const suggestionsString = suggestionsBlock?.replaceAll(Tag.SuggestionsStart, '').replaceAll(Tag.SuggestionsEnd, '').replace(/'([^']*)'/g, '"');
-
-  if (suggestionsString) {
-    try {
-      const parsed = JSON.parse(suggestionsString);
-
-      if (Array.isArray(parsed)) {
-        out.suggestionActions = parsed.map((item) => String(item));
-        out.cleanMessageContent = msg.replace(suggestionsBlock, '');
-      }
-    } catch (e) {
-      console.error('Failed to parse suggestions response:', e); /* eslint-disable-line no-console */
+    if (remaining) {
+      return formatSuggestionActions(suggestionActions, remaining);
     }
   }
 
-  return out;
+  return {
+    suggestionActions,
+    remaining
+  };
 }

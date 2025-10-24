@@ -124,10 +124,10 @@ export function useChatMessageComposable() {
           currentMsg.value.messageContent += data;
 
           if (currentMsg.value.messageContent?.includes(Tag.SuggestionsStart) && currentMsg.value.messageContent?.includes(Tag.SuggestionsEnd)) {
-            const { suggestionActions, cleanMessageContent } = formatSuggestionActions(currentMsg.value.messageContent);
+            const { suggestionActions, remaining } = formatSuggestionActions(currentMsg.value.suggestionActions || [], currentMsg.value.messageContent);
 
             currentMsg.value.suggestionActions = suggestionActions;
-            currentMsg.value.messageContent = cleanMessageContent;
+            currentMsg.value.messageContent = remaining;
             break;
           }
 

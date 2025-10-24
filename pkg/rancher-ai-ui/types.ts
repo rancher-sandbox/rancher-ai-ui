@@ -38,8 +38,8 @@ export const enum Tag {
   McpResultEnd = '</mcp-response>',
   ConfirmationStart = '<confirmation-response>',
   ConfirmationEnd = '</confirmation-response>',
-  SuggestionsStart = '<suggestions>',
-  SuggestionsEnd = '</suggestions>',
+  SuggestionsStart = '<suggestion>',
+  SuggestionsEnd = '</suggestion>',
 }
 
 export const enum Role {

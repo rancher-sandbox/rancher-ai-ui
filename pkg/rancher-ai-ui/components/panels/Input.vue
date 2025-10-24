@@ -122,7 +122,7 @@ watch(() => text.value, () => {
 <style lang='scss' scoped>
 .chat-input-row {
   display: flex;
-  align-items: center;
+  align-items: end;
   gap: 8px;
   padding: 12px 16px;
   border-bottom-left-radius: 8px;

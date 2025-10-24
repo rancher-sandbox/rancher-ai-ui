@@ -45,7 +45,9 @@ function confirm(value: boolean) {
           :disabled="confirmed"
           @click="confirm(true)"
         >
-          {{ t('ai.confirmation.yes') }}
+          <span class="rc-button-label">
+            {{ t('ai.confirmation.yes') }}
+          </span>
         </RcButton>
         <!-- <RcButton
           small
@@ -53,7 +55,9 @@ function confirm(value: boolean) {
           :disabled="confirmed"
           @click="confirm(false)"
         >
-          {{ t('ai.confirmation.no') }}
+          <span class="rc-button-label">
+            {{ t('ai.confirmation.no') }}
+          </span>
         </RcButton> -->
       </div>
     </div>
@@ -69,5 +73,11 @@ function confirm(value: boolean) {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+}
+
+.rc-button-label {
+  word-break: break-word;
+  white-space: pre-line;
+  list-style-position: inside;
 }
 </style>
