@@ -1,0 +1,19 @@
+{
+  "name": "rancher-ai-ui",
+  "description": "AI Assistant extension",
+  "version": "0.1.1",
+  "private": false,
+  "rancher": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-service": "~5.0.0",
+    "@vue/cli-plugin-typescript": "~5.0.0"
+  },
+  "files": [
+    "**/*"
+  ],
+  "main": "rancher-ai-ui-0.1.1.umd.min.js"
+}
