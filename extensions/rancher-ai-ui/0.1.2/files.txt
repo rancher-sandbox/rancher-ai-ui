@@ -1,0 +1,10 @@
+plugin/img/liz-icon.fdbc7bd8.svg
+plugin/package.json
+plugin/rancher-ai-ui-0.1.2.umd.min.37.js
+plugin/rancher-ai-ui-0.1.2.umd.min.37.js.map
+plugin/rancher-ai-ui-0.1.2.umd.min.480.js
+plugin/rancher-ai-ui-0.1.2.umd.min.480.js.map
+plugin/rancher-ai-ui-0.1.2.umd.min.865.js
+plugin/rancher-ai-ui-0.1.2.umd.min.865.js.map
+plugin/rancher-ai-ui-0.1.2.umd.min.js
+plugin/rancher-ai-ui-0.1.2.umd.min.js.map
