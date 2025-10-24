@@ -250,7 +250,7 @@ onBeforeUnmount(() => {
   }
 
   .chat-msg-text {
-    color: var(--on-tertiary);
+    color: var(--body-text);
   }
 }
 
