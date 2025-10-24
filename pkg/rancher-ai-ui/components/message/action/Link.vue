@@ -32,7 +32,7 @@ onMounted(async() => {
     to.value = await store.dispatch('management/find', {
       cluster,
       type,
-      id: `${ namespace }/${ name }`
+      id: namespace ? `${ namespace }/${ name }` : name
     });
   }
 

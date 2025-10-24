@@ -4,9 +4,9 @@ import {
 } from 'vue';
 import type { PropType } from 'vue';
 import { useStore } from 'vuex';
-import MarkdownIt from 'markdown-it';
 import { Message, FormattedMessage, Role, ChatError } from '../../types';
 import MessageComponent from '../message/index.vue';
+import { formatMessageContent } from '../../utils/format';
 
 const store = useStore();
 const t = store.getters['i18n/t'];
@@ -22,25 +22,22 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['update:message', 'confirm:message']);
+const emit = defineEmits(['update:message', 'confirm:message', 'send:message']);
 
 const messagesView = ref<HTMLDivElement | null>(null);
 const autoScrollEnabled = ref(true);
 
-const md = new MarkdownIt({
-  html:        true,
-  breaks:      true,
-  linkify:     true,
-  typographer: true,
-});
-
 const formattedMessages = computed<FormattedMessage[]>(() => {
   return [...props.messages]
-    .filter((m) => m.messageContent || m.thinkingContent || m.confirmationAction)
+    .filter((m) => m.messageContent ||
+      m.thinkingContent ||
+      m.confirmationAction ||
+      m.suggestionActions?.length
+    )
     .map((m) => ({
       ...m,
-      formattedMessageContent:  m.role === Role.Assistant ? md.render(m.messageContent || '') : m.messageContent,
-      formattedThinkingContent: m.role === Role.Assistant ? md.render(m.thinkingContent || '') : '',
+      formattedMessageContent:  m.role === Role.Assistant || !!m.summaryContent ? formatMessageContent(m.messageContent || '') : m.messageContent,
+      formattedThinkingContent: m.role === Role.Assistant ? formatMessageContent(m.thinkingContent || '') : '',
     }))
     .sort((a, b) => ((Number(a.timestamp) || 0) - (Number(b.timestamp) || 0)) || (`${ a.id  }`).localeCompare(`${ b.id  }`));
 });
@@ -124,6 +121,7 @@ onBeforeUnmount(() => {
       :disabled="disabled"
       @update:message="emit('update:message', message)"
       @confirm:message="emit('confirm:message', $event)"
+      @send:message="emit('send:message', $event)"
       @enable:autoscroll="autoScrollEnabled = $event"
     />
     <MessageComponent

@@ -2,7 +2,8 @@
 import {
   ref, computed, defineProps, defineEmits, nextTick,
   onMounted,
-  watch
+  watch,
+  onUpdated
 } from 'vue';
 import { useStore } from 'vuex';
 import RcButton from '@components/RcButton/RcButton.vue';
@@ -58,24 +59,35 @@ function autoResizePrompt(height?: number) {
   const textarea = promptTextarea.value;
 
   if (textarea) {
+    textarea.style.overflow = parseInt(textarea.style.height) > 90 ? 'auto' : 'hidden';
     textarea.style.height = 'auto';
     textarea.style.height = `${ height || textarea.scrollHeight }px`;
   }
 }
+
+onMounted(() => {
+  nextTick(() => {
+    promptTextarea.value?.focus();
+  });
+});
+
+onUpdated(() => {
+  nextTick(() => {
+    promptTextarea.value?.focus();
+  });
+});
+
+watch(promptTextarea, (el) => {
+  if (el) {
+    nextTick(() => el.focus());
+  }
+}, {});
 
 watch(() => text.value, () => {
   nextTick(() => {
     autoResizePrompt();
   });
 }, {});
-
-onMounted(() => {
-  nextTick(() => {
-    if (promptTextarea.value) {
-      promptTextarea.value.focus();
-    }
-  });
-});
 </script>
 
 <template>
@@ -131,9 +143,9 @@ onMounted(() => {
   width: auto;
   outline-offset: 0;
   resize: none;
-  overflow: hidden;
+  overflow: auto;
   min-height: 36px;
-  max-height: 200px;
+  max-height: 90px;
 }
 
 .chat-input:focus {

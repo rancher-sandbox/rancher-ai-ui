@@ -21,17 +21,17 @@ const emit = defineEmits([
 
 <template>
   <div class="chat-header">
-    <div class="chat-header-left">
-      <div class="chat-title">
-        <span class="chat-name">
+    <div class="chat-title">
+      <div class="chat-name">
+        <i class="icon icon-ai icon-lg" />
+        <span class="label">
           {{ t('ai.title') }}
         </span>
-        <span class="chat-model">
-          {{ !!props.agent ? t('ai.agent.label', { name: props.agent.name, model: props.agent.model }, true) : t('ai.agent.unknown') }}
-        </span>
       </div>
+      <span class="chat-model">
+        {{ !!props.agent ? t('ai.agent.label', { name: props.agent.name, model: props.agent.model }, true) : t('ai.agent.unknown') }}
+      </span>
     </div>
-
     <div class="chat-close-btn">
       <RcButton
         small
@@ -63,18 +63,33 @@ const emit = defineEmits([
   display: flex;
   flex-direction: row;
   align-items: baseline;
-  gap: 6px;
+  min-width: 0; /* allow children to shrink so text-overflow works */
 
   .chat-name {
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 1em;
     color: var(--on-active);
     margin: 0;
+    margin-top: 4px;
+    width: 60px;
+
+    .icon {
+      margin-right: 3px;
+    }
+
+    .label {
+      font-size: 1.3em;
+    }
   }
 
   .chat-model {
     font-size: 0.8rem;
     color: var(--on-active);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    flex: 1 1 auto;
   }
 }
 

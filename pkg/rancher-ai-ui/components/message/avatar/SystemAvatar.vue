@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import iconSuse from '../../../assets/suse-avatar.svg';
+// @ts-expect-error FIXME: Cannot find module '../../../assets/liz-icon.svg'... Remove this comment to see the full error message
+import lizIcon from '../../../assets/liz-icon.svg';
 
 </script>
 <template>
   <div class="system-msg-avatar">
     <img
       class="img-svg"
-      :src="iconSuse"
+      :src="lizIcon"
     />
   </div>
 </template>

@@ -106,6 +106,7 @@ function unmount() {
         :errors="errors"
         @update:message="updateMessage"
         @confirm:message="confirmMessage($event, ws)"
+        @send:message="sendMessage($event, ws)"
       />
       <Context
         :value="context"

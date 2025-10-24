@@ -1,9 +1,7 @@
 import { Store } from 'vuex';
-import { Context } from '../../../types';
+import { Context } from '../../types';
 import { nextTick } from 'vue';
-// @ts-expect-error missing icon
-import chatIcon from '../../../assets/suse-avatar.svg';
-import Chat from '../../chat';
+import Chat from '../chat';
 
 interface MenuItems {
   ctx: Context[];
@@ -138,9 +136,8 @@ class MenuFactory {
         <div
           class="menu-header"
         >
-          <img
-            class="menu-header-icon"
-            src="${ chatIcon }"
+          <i
+            class="icon icon-ai"
           />
           <span
             class="menu-header-title"

@@ -44,7 +44,7 @@ export default function(plugin: IPlugin, { store }: any): void {
   // Add Vue Routes
   plugin.addRoutes(extensionRouting);
 
-  // Register the Chat component in shell/components/SecondarySidePanel
+  // Register the Chat component
   plugin.register('component', 'ChatComponent', defineAsyncComponent(() => import('./pages/Chat.vue')) as Function);
 
   // Open chat window action
@@ -54,7 +54,7 @@ export default function(plugin: IPlugin, { store }: any): void {
     {
       tooltipKey: 'ai.action.openChat',
       shortcut: 'i',
-      svg: require('./assets/chat-icon.svg'),
+      icon: 'icon-ai',
       invoke: () => Chat.open(store),
     }
   );

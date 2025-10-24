@@ -23,6 +23,10 @@ ai:
         showThinking: Show Thinking
         hideThinking: Hide Thinking
       hideThinking: Hide Thinking
+      showCompleteMessage: Show Complete Message
+      hideCompleteMessage: Hide Complete Message
+    suggestions:
+      label: Recommended Actions
     error:
       processing: Error processing messages. Please close the chat and try again.
   prompt:

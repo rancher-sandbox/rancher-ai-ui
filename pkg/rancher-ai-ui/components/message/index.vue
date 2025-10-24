@@ -8,6 +8,7 @@ import Thinking from './Thinking.vue';
 import Actions from './action/index.vue';
 import Source from './source/index.vue';
 import Confirmation from './confirmation/index.vue';
+import Suggestions from './suggestion/index.vue';
 import UserAvatar from './avatar/UserAvatar.vue';
 import SystemAvatar from './avatar/SystemAvatar.vue';
 import RcButton from '@components/RcButton/RcButton.vue';
@@ -26,7 +27,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['update:message', 'confirm:message', 'enable:autoscroll']);
+const emit = defineEmits(['update:message', 'confirm:message', 'send:message', 'enable:autoscroll']);
 
 const isThinking = computed(() => props.message.role === RoleEnum.Assistant &&
   !props.message.completed &&
@@ -57,6 +58,14 @@ function handleCopy() {
   timeoutCopy.value = setTimeout(() => {
     showCopySuccess.value = false;
   }, 1000);
+}
+
+function handleShowCompleteMessage() {
+  props.message.showCompleteMessage = !props.message.showCompleteMessage;
+
+  nextTick(() => {
+    emit('update:message', props.message);
+  });
 }
 
 function handleShowThinking() {
@@ -147,11 +156,30 @@ onBeforeUnmount(() => {
             <br>
           </span>
           <span
-            v-if="props.message.formattedMessageContent"
+            v-if="!!props.message.summaryContent"
+            v-clean-html="props.message.summaryContent"
+          />
+          <span
+            v-if="props.message.formattedMessageContent && (!props.message.summaryContent || props.message.showCompleteMessage)"
             v-clean-html="props.message.formattedMessageContent"
+            :class="{
+              'chat-msg-user-expanded': !!props.message.summaryContent && props.message.showCompleteMessage
+            }"
           />
         </div>
-        <div v-if="props.message.confirmationAction">
+        <div
+          v-if="props.message.suggestionActions?.length"
+          class="chat-msg-section-footer"
+        >
+          <Suggestions
+            :suggestions="props.message.suggestionActions"
+            @select="(suggestion: string) => emit('send:message', suggestion)"
+          />
+        </div>
+        <div
+          v-if="props.message.confirmationAction"
+          class="chat-msg-section-footer"
+        >
           <Confirmation
             :value="props.message.confirmationAction"
             @confirm="emit('confirm:message', $event)"
@@ -159,12 +187,21 @@ onBeforeUnmount(() => {
         </div>
         <RcButton
           v-if="props.message.role === RoleEnum.Assistant && !!props.message.thinkingContent && props.message.showThinking"
-          class="button-hide-thinking"
+          class="inline-button"
           small
           ghost
           @click="handleShowThinking"
         >
           <a>{{ t('ai.message.actions.hideThinking') }}</a>
+        </RcButton>
+        <RcButton
+          v-if="!!props.message.summaryContent"
+          class="inline-button"
+          small
+          ghost
+          @click="handleShowCompleteMessage"
+        >
+          <a>{{ props.message.showCompleteMessage ? t('ai.message.actions.hideCompleteMessage') : t('ai.message.actions.showCompleteMessage') }}</a>
         </RcButton>
       </div>
       <!-- TODO: replace with actual source when available -->
@@ -213,13 +250,13 @@ onBeforeUnmount(() => {
   }
 
   .chat-msg-text {
-    color: #fff;
+    color: var(--on-tertiary);
   }
 }
 
 .chat-msg-bubble {
   position: relative;
-  max-width: 450px;
+  max-width: 455px;
   background: var(--body-bg);
   color: var(--body-text);
   border: 1px solid var(--border);
@@ -239,8 +276,8 @@ onBeforeUnmount(() => {
 }
 
 .chat-msg-bubble-user {
-  background: var(--primary);
-  border: 1px solid var(--primary);
+  background: var(--tertiary-hover);
+  align-items: flex-end;
 }
 
 .chat-msg-bubble-error {
@@ -313,6 +350,10 @@ onBeforeUnmount(() => {
   margin-top: 8px;
 }
 
+.chat-msg-section-footer {
+  margin-top: 8px;
+}
+
 .chat-msg-timestamp {
   font-size: 0.75rem;
   color: #94a3b8;
@@ -330,9 +371,20 @@ onBeforeUnmount(() => {
   vertical-align: middle;
 }
 
-.button-hide-thinking {
+.inline-button {
   margin-left: auto;
   height: 15px;
   min-height: 15px;
+}
+
+.chat-msg-user-expanded {
+  display: block;
+  margin-top: 16px;
+
+  :deep() ul {
+    padding: 0 0 0 8px;
+    margin: 0;
+    margin-top: -10px;
+  }
 }
 </style>

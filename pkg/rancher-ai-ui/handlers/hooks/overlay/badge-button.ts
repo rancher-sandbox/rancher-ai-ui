@@ -1,8 +1,6 @@
 import { Context } from '../../../types';
 import { Store } from 'vuex';
 import { nextTick } from 'vue';
-// @ts-expect-error missing icon
-import chatIcon from '../../../assets/suse-avatar.svg';
 import MenuFactory from '../menu';
 import { HooksOverlay } from './index';
 
@@ -18,7 +16,7 @@ class BadgeButtonOverlay extends HooksOverlay {
     const overlayBtnHeight = 32;
 
     overlayBtn.className = `${ HooksOverlay.defaultClassPrefix }-${ this.getSelector() }`;
-    overlayBtn.innerHTML = `<img src="${ chatIcon }" alt="AI" style="width:18px;height:18px;vertical-align:middle;" />`;
+    overlayBtn.innerHTML = `<div><i class="icon icon-ai icon-lg" /></div>`;
     // overlayBtn.style.position = 'absolute';
     overlayBtn.style.position = 'fixed';
     overlayBtn.style.width = `${ overlayBtnHeight }px`;

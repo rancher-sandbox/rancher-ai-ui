@@ -19,6 +19,11 @@ const mutations = {
     }
     state.ws = ws;
   },
+  send(state: State, message: string) {
+    if (state.ws) {
+      state.ws.send(message);
+    }
+  },
   close(state: State) {
     if (state.ws) {
       state.ws.close();
@@ -43,7 +48,13 @@ const actions = {
     try {
       const ws = new WebSocket(url);
 
-      ws.onopen = onopen || null;
+      ws.onopen = (e) => {
+        commit('open', ws);
+        if (onopen) {
+          onopen(e);
+        }
+      };
+
       ws.onmessage = onmessage || null;
       ws.onclose = onclose || null;
       ws.onerror = (e) => {
@@ -52,7 +63,6 @@ const actions = {
         commit('setError', { key: 'ai.error.websocket.generic' });
       };
 
-      commit('open', ws);
       commit('setError', null);
     } catch (e) {
       // eslint-disable-next-line no-console

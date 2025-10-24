@@ -38,6 +38,8 @@ export const enum Tag {
   McpResultEnd = '</mcp-response>',
   ConfirmationStart = '<confirmation-response>',
   ConfirmationEnd = '</confirmation-response>',
+  SuggestionsStart = '<suggestions>',
+  SuggestionsEnd = '</suggestions>',
 }
 
 export const enum Role {
@@ -88,17 +90,22 @@ export interface MessageActionLink {
   resource: ActionResource;
 }
 
+export type MessageActionSuggestion = string;
+
 export interface Message {
   id?: number | string;
   role: Role;
   thinkingContent?: string;
   messageContent?: string;
+  summaryContent?: string;
   thinking?: boolean;
   completed?: boolean;
   timestamp?: Date;
   showThinking?: boolean;
+  showCompleteMessage?: boolean;
   linkActions?: MessageActionLink[];
   confirmationAction?: MessageActionConfirmation | null;
+  suggestionActions?: string[];
   source?: object;
 }
 
