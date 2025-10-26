@@ -114,9 +114,20 @@ export function formatFileMessages(principal: any, messages: Message[]): string 
   };
 
   return messages.map((msg) => {
-    return `[${ msg.timestamp?.toLocaleTimeString([], {
+    const timestamp = msg.timestamp?.toLocaleTimeString([], {
       hour:   '2-digit',
       minute: '2-digit'
-    }) }] [${ avatar[msg.role] }]: ${ msg.messageContent }`;
-  }).join('\n\n');
+    });
+
+    let body = msg.summaryContent ? `Summary: ${ msg.summaryContent }\n` : '';
+
+    body += msg.messageContent ? `${ msg.messageContent }\n` : '';
+    body += msg.thinkingContent ? `${ msg.thinkingContent }\n` : '';
+
+    if (msg.contextContent?.length) {
+      body += `Context: ${ JSON.stringify(msg.contextContent) }\n`;
+    }
+
+    return `[${ timestamp }] [${ avatar[msg.role] }]: ${ body }`;
+  }).join('\n');
 }
