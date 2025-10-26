@@ -2,7 +2,7 @@
 import { computed, type PropType } from 'vue';
 import { useStore } from 'vuex';
 import RcButton from '@components/RcButton/RcButton.vue';
-import { ConfirmationStatus, ConfirmationType, MessageConfirmation } from '../../../types';
+import { ConfirmationStatus, ConfirmationType, MessageConfirmation } from '../../types';
 
 const store = useStore();
 const t = store.getters['i18n/t'];

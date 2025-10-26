@@ -8,7 +8,7 @@ import {
 import { useStore } from 'vuex';
 import RcButton from '@components/RcButton/RcButton.vue';
 import { useInputComposable } from '../../composables/useInputComposable';
-import Options from '../options/index.vue';
+import ConsoleMenu from '../console/Menu.vue';
 
 const store = useStore();
 const t = store.getters['i18n/t'];
@@ -94,8 +94,8 @@ watch(() => text.value, () => {
     class="chat-console-row"
     :class="{ disabled: props.disabled }"
   >
-    <div class="chat-options">
-      <Options
+    <div class="chat-console-menu">
+      <ConsoleMenu
         :disabled="props.disabled"
         @download:chat="emit('download:chat')"
         @reset:chat="emit('reset:chat')"
@@ -138,7 +138,7 @@ watch(() => text.value, () => {
   min-height: 70px;
 }
 
-.chat-options {
+.chat-console-menu {
   margin-bottom: 4px;
 }
 

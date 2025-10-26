@@ -50,9 +50,9 @@ const isOpen = ref(false);
 </script>
 
 <template>
-  <div class="chat-options-container">
+  <div class="chat-console-menu-container">
     <rc-dropdown
-      class="options-dropdown"
+      class="menu-dropdown"
       placement="top-end"
       @update:open="isOpen = $event"
     >
