@@ -22,9 +22,7 @@ const props = defineProps({
 
 const emit = defineEmits(['input:content', 'download:chat', 'reset:chat', 'show:help']);
 
-const {
-  inputText, updateInput, cleanInput, clearInput
-} = useInputComposable();
+const { inputText, updateInput, cleanInput } = useInputComposable();
 
 const promptTextarea = ref<HTMLTextAreaElement | null>(null);
 
@@ -37,7 +35,7 @@ const text = computed(() => {
 });
 
 function onInputMessage(event: Event) {
-  updateInput(event);
+  updateInput((event?.target as HTMLTextAreaElement)?.value);
   autoResizePrompt();
 }
 
@@ -53,7 +51,7 @@ function sendContent(event: Event) {
 
   emit('input:content', cleanInput(text.value));
 
-  clearInput();
+  updateInput('');
 }
 
 function autoResizePrompt(height?: number) {
