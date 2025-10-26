@@ -177,11 +177,12 @@ onBeforeUnmount(() => {
           />
         </div>
         <div
-          v-if="props.message.confirmationAction"
+          v-if="props.message.confirmation"
           class="chat-msg-section-footer"
         >
           <Confirmation
-            :value="props.message.confirmationAction"
+            :value="props.message.confirmation"
+            :message-content="props.message.messageContent"
             @confirm="emit('confirm:message', $event)"
           />
         </div>

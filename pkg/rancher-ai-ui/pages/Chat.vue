@@ -114,7 +114,7 @@ function unmount() {
         @select="selectContext"
       />
       <Input
-        :disabled="!ws || ws.readyState === 3 || errors.length > 0"
+        :disabled="!ws || ws.readyState === 3 || errors.length > 0 || !!messages.find(msg => msg.confirmation?.status === 'pending')"
         @input:content="sendMessage($event, ws)"
       />
     </div>

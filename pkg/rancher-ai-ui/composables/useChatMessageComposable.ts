@@ -1,7 +1,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useContextComposable } from './useContextComposable';
-import { Message, Role, Tag } from '../types';
+import { ConfirmationStatus, Message, Role, Tag } from '../types';
 import { formatMessageWithContext, formatMessageLinkActions, formatConfirmationAction, formatSuggestionActions } from '../utils/format';
 
 const CHAT_ID = 'default';
@@ -42,10 +42,18 @@ export function useChatMessageComposable() {
     });
   }
 
-  function confirmMessage(confirmed: boolean, ws: WebSocket) {
-    const msg = JSON.stringify({ prompt: confirmed ? 'yes' : 'no' });
+  function confirmMessage(result: boolean, ws: WebSocket) {
+    const msg = JSON.stringify({ prompt: result ? 'yes' : 'no' });
 
     ws.send(msg);
+
+    updateMessage({
+      ...currentMsg.value,
+      confirmation: {
+        action: currentMsg.value.confirmation?.action || null,
+        status: result ? ConfirmationStatus.Confirmed : ConfirmationStatus.Canceled
+      },
+    });
   }
 
   function getMessage(messageId: string) {
@@ -115,10 +123,18 @@ export function useChatMessageComposable() {
           }
 
           if (data.startsWith(Tag.ConfirmationStart) && data.endsWith(Tag.ConfirmationEnd)) {
-            currentMsg.value.confirmationAction = formatConfirmationAction(data);
-            currentMsg.value.thinking = false;
-            currentMsg.value.completed = true;
-            break;
+            const confirmationAction = formatConfirmationAction(data);
+
+            if (confirmationAction) {
+              currentMsg.value.confirmation = {
+                action: confirmationAction,
+                status: ConfirmationStatus.Pending,
+              };
+              currentMsg.value.thinking = false;
+              currentMsg.value.completed = true;
+
+              break;
+            }
           }
 
           currentMsg.value.messageContent += data;

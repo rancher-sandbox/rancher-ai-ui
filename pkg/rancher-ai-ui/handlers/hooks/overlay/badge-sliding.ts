@@ -118,7 +118,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
     });
 
     overlay.addEventListener('mouseenter', () => {
-      overlay.style.width = `${ parseInt(overlay.style.width) + (18 + overlay.textContent?.length + parseInt(badgeStyle.fontSize) * 3 + parseFloat(badgeStyle.marginRight) + parseFloat(badgeStyle.marginLeft)) }px`;
+      overlay.style.width = `${ parseInt(overlay.style.width) + (18 + (overlay.textContent?.length || 0) + parseInt(badgeStyle.fontSize) * 3 + parseFloat(badgeStyle.marginRight) + parseFloat(badgeStyle.marginLeft)) }px`;
       overlay.style.color = overlayProps.color;
     });
 
@@ -126,7 +126,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
       if (!HooksOverlay.modifierKeyPressed) {
         this.destroy(target);
       } else {
-        overlay.style.width = `${ parseInt(overlay.style.width) - (18 + overlay.textContent?.length + parseInt(badgeStyle.fontSize) * 3 + parseFloat(badgeStyle.marginRight) + parseFloat(badgeStyle.marginLeft)) }px`;
+        overlay.style.width = `${ parseInt(overlay.style.width) - (18 + (overlay.textContent?.length || 0) + parseInt(badgeStyle.fontSize) * 3 + parseFloat(badgeStyle.marginRight) + parseFloat(badgeStyle.marginLeft)) }px`;
       }
     });
   }

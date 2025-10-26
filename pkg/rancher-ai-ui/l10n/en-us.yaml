@@ -70,9 +70,13 @@ ai:
     title: AI Assistant
     goToSettings: Settings
   confirmation:
-    message: Are you sure you want to proceed with this action?
-    yes: Confirm
-    no: Cancel
+    message:
+      question: Are you sure you want to proceed with this action?
+      description: 'I will <b>{op}</b> the value <code>{value}</code> in the path <code>{path}</code> to the <code>{name}</code> {kind} in the <code>{namespace}</code> namespace of the <code>{cluster}</code> cluster.'
+    confirm: Confirm
+    cancel: Cancel
+    confirmed: Confirmed
+    canceled: Canceled
   error:
     message:
       processing: Error processing messages. Please close the chat and try again.

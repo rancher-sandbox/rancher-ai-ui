@@ -76,7 +76,13 @@ export const enum ConfirmationType {
   Delete = 'delete',
 }
 
-export interface MessageActionConfirmation {
+export const enum ConfirmationStatus {
+  Pending = 'pending',
+  Confirmed = 'confirmed',
+  Canceled = 'canceled',
+}
+
+export interface MessageConfirmationAction {
   type: ConfirmationType | string;
   payload?: OperationPayload[];
   resource: ActionResource;
@@ -92,6 +98,11 @@ export interface MessageActionLink {
 
 export type MessageActionSuggestion = string;
 
+export interface MessageConfirmation {
+  action: MessageConfirmationAction | null;
+  status: ConfirmationStatus;
+}
+
 export interface Message {
   id?: number | string;
   role: Role;
@@ -104,8 +115,8 @@ export interface Message {
   showThinking?: boolean;
   showCompleteMessage?: boolean;
   linkActions?: MessageActionLink[];
-  confirmationAction?: MessageActionConfirmation | null;
   suggestionActions?: string[];
+  confirmation?: MessageConfirmation;
   source?: object;
 }
 

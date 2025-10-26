@@ -1,6 +1,6 @@
 import MarkdownIt from 'markdown-it';
 import {
-  ActionType, MessageActionLink, MessageActionConfirmation, Tag, Context
+  ActionType, MessageActionLink, MessageConfirmationAction, Tag, Context
 } from '../types';
 import { validateActionResource } from './validator';
 
@@ -66,7 +66,7 @@ export function formatMessageLinkActions(value: string, actionType = ActionType.
   return [];
 }
 
-export function formatConfirmationAction(value: string): MessageActionConfirmation | null {
+export function formatConfirmationAction(value: string): MessageConfirmationAction | null {
   value = value.replaceAll(Tag.ConfirmationStart, '').replaceAll(Tag.ConfirmationEnd, '').replace(/'([^']*)'/g, '"');
 
   if (value) {

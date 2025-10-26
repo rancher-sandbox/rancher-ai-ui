@@ -31,7 +31,7 @@ const formattedMessages = computed<FormattedMessage[]>(() => {
   return [...props.messages]
     .filter((m) => m.messageContent ||
       m.thinkingContent ||
-      m.confirmationAction ||
+      m.confirmation ||
       m.suggestionActions?.length
     )
     .map((m) => ({
