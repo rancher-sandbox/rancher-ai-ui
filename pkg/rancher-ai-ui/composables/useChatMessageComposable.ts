@@ -2,7 +2,11 @@ import { ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useContextComposable } from './useContextComposable';
 import { ConfirmationStatus, Message, Role, Tag } from '../types';
-import { formatMessageWithContext, formatMessageLinkActions, formatConfirmationAction, formatSuggestionActions } from '../utils/format';
+import {
+  formatMessageWithContext, formatMessageLinkActions, formatConfirmationAction, formatSuggestionActions, formatFileMessages
+} from '../utils/format';
+import { downloadFile } from '@shell/utils/download';
+import { NORMAN } from '@shell/config/types';
 
 const CHAT_ID = 'default';
 const EXPAND_THINKING = false;
@@ -172,6 +176,20 @@ export function useChatMessageComposable() {
     });
   }
 
+  function downloadMessages() {
+    const principal = store.getters['rancher/byId'](NORMAN.PRINCIPAL, store.getters['auth/principalId']) || {};
+
+    downloadFile(
+      `Rancher-liz-chat-${ CHAT_ID }_${ new Date().toISOString().slice(0, 10) }.txt`,
+      formatFileMessages(principal, messages.value)
+    );
+  }
+
+  function resetMessages() {
+    // Should we reset ws connection too?
+    store.commit('rancher-ai-ui/chat/resetMessages', CHAT_ID);
+  }
+
   onMounted(() => {
     store.commit('rancher-ai-ui/chat/init', CHAT_ID);
   });
@@ -186,6 +204,8 @@ export function useChatMessageComposable() {
     confirmMessage,
     selectContext,
     resetChatError,
+    downloadMessages,
+    resetMessages,
     pendingConfirmation,
     error
   };

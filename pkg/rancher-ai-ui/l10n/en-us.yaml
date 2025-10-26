@@ -89,6 +89,17 @@ ai:
       notFound: Rancher AI Agent not found. Please ensure the agent chart is installed.
       notActive: Rancher AI Agent is not active. Please ensure the agent is running properly.
       missingConfig: Rancher AI Agent configuration is missing. Please go to Global [Settings > AI Assistant] and configure the agent.
+  options:
+    chat:
+      reset:
+        label: Reset Chat
+        description: Clear the current chat and start a new conversation
+      download:
+        label: Download Messages
+        description: Download the current messages to a text file
+      help:
+        label: Chat Help
+        description: Get assistance with using the chat features
 
 aiConfig:
   label: AI Assistant

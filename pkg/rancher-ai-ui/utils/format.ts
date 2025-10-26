@@ -1,6 +1,8 @@
 import MarkdownIt from 'markdown-it';
 import {
-  ActionType, MessageActionLink, MessageConfirmationAction, Tag, Context
+  ActionType, MessageActionLink, MessageConfirmationAction, Tag, Context,
+  Message,
+  Role
 } from '../types';
 import { validateActionResource } from './validator';
 
@@ -101,4 +103,19 @@ export function formatSuggestionActions(suggestionActions: string[], remaining: 
     suggestionActions,
     remaining
   };
+}
+
+export function formatFileMessages(principal: any, messages: Message[]): string {
+  const avatar = {
+    [Role.User]:      `👤 ${ principal.name }`,
+    [Role.Assistant]: '🤖 Liz',
+    [Role.System]:    '🛠️ Liz',
+  };
+
+  return messages.map((msg) => {
+    return `[${ msg.timestamp?.toLocaleTimeString([], {
+      hour:   '2-digit',
+      minute: '2-digit'
+    }) }] [${ avatar[msg.role] }]: ${ msg.messageContent }`;
+  }).join('\n\n');
 }

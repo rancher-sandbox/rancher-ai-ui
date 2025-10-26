@@ -8,6 +8,7 @@ import {
 import { useStore } from 'vuex';
 import RcButton from '@components/RcButton/RcButton.vue';
 import { useInputComposable } from '../../composables/useInputComposable';
+import Options from '../options/index.vue';
 
 const store = useStore();
 const t = store.getters['i18n/t'];
@@ -19,7 +20,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['input:content']);
+const emit = defineEmits(['input:content', 'download:chat', 'reset:chat', 'show:help']);
 
 const {
   inputText, updateInput, cleanInput, clearInput
@@ -92,9 +93,17 @@ watch(() => text.value, () => {
 
 <template>
   <div
-    class="chat-input-row"
+    class="chat-console-row"
     :class="{ disabled: props.disabled }"
   >
+    <div class="chat-options">
+      <Options
+        :disabled="props.disabled"
+        @download:chat="emit('download:chat')"
+        @reset:chat="emit('reset:chat')"
+        @show:help="emit('show:help')"
+      />
+    </div>
     <textarea
       ref="promptTextarea"
       class="chat-input"
@@ -106,7 +115,7 @@ watch(() => text.value, () => {
       @input="onInputMessage"
       @keydown="handleTextareaKeydown"
     ></textarea>
-    <div class="chat-input-console">
+    <div class="chat-input-send">
       <RcButton
         small
         :disabled="!text || props.disabled"
@@ -120,15 +129,19 @@ watch(() => text.value, () => {
 </template>
 
 <style lang='scss' scoped>
-.chat-input-row {
+.chat-console-row {
   display: flex;
   align-items: end;
   gap: 8px;
-  padding: 12px 16px;
+  padding: 16px 16px 16px 12px;
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
   border-top: 1px solid var(--border);
   min-height: 70px;
+}
+
+.chat-options {
+  margin-bottom: 4px;
 }
 
 .chat-input {
@@ -152,7 +165,7 @@ watch(() => text.value, () => {
   border: solid 1.5px var(--secondary-border, var(--primary));
 }
 
-.chat-input-console {
+.chat-input-send {
   .btn {
     height: 36px;
   }

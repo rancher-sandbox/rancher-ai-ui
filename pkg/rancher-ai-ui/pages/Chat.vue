@@ -9,7 +9,7 @@ import { useAgentComposable } from '../composables/useAgentComposable';
 import Header from '../components/panels/Header.vue';
 import Messages from '../components/panels/Messages.vue';
 import Context from '../components/panels/Context.vue';
-import Input from '../components/panels/Input.vue';
+import Console from '../components/panels/Console.vue';
 import HooksHandler from '../handlers/hooks';
 
 const { agent, error: agentError } = useAgentComposable();
@@ -21,6 +21,8 @@ const {
   sendMessage,
   updateMessage,
   confirmMessage,
+  downloadMessages,
+  resetMessages,
   selectContext,
   resetChatError,
   pendingConfirmation,
@@ -115,9 +117,11 @@ function unmount() {
         :disabled="errors.length > 0"
         @select="selectContext"
       />
-      <Input
+      <Console
         :disabled="!ws || ws.readyState === 3 || errors.length > 0 || !!pendingConfirmation"
         @input:content="sendMessage($event, ws)"
+        @download:chat="downloadMessages"
+        @reset:chat="resetMessages"
       />
     </div>
   </div>
