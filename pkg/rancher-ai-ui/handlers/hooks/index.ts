@@ -3,8 +3,6 @@ import { Store } from 'vuex';
 import { watch } from 'vue';
 import { HooksOverlay } from './overlay';
 
-export const defaultModifierKey = 'Control';
-
 interface Target {
   target: HTMLElement;
   ctx: Context;
@@ -16,8 +14,16 @@ class HooksHandler {
 
   private static initialized = false;
 
-  private static modifierKey = defaultModifierKey;
-  private static modifierKeyPressed = false;
+  private static allHooksKeyPressed = false;
+
+  // Key chain: Ctrl + Alt + L
+  public isShowAllHooksKey(e: KeyboardEvent) {
+    if (HooksHandler.allHooksKeyPressed) {
+      return e.type === 'keyup' && (e.key === 'Control' || e.key === 'Alt' || e.key?.toLowerCase() === 'l');
+    } else {
+      return e.ctrlKey && e.altKey && e.key?.toLowerCase() === 'l';
+    }
+  };
 
   private getOverlayHTMLElement(target: HTMLElement, overlay: HooksOverlay) {
     return target.classList.contains(overlay.getSelector()) ? target : (target.querySelector(`.${ overlay.getSelector() }`) as HTMLElement);
@@ -56,13 +62,13 @@ class HooksHandler {
             });
 
             target.addEventListener('mouseenter', () => {
-              if (!HooksHandler.modifierKeyPressed) {
+              if (!HooksHandler.allHooksKeyPressed) {
                 this.toggleOverlays(store, target, ctx, true);
               }
             });
 
             target.addEventListener('mouseleave', () => {
-              if (!HooksHandler.modifierKeyPressed) {
+              if (!HooksHandler.allHooksKeyPressed) {
                 this.toggleOverlays(store, target, ctx, false);
               }
             });
@@ -86,17 +92,17 @@ class HooksHandler {
     });
 
     window.addEventListener('keydown', (e) => {
-      if (e.key === HooksHandler.modifierKey) {
-        HooksHandler.modifierKeyPressed = true;
-        HooksOverlay.setModifierKeyPressed(true);
+      if (this.isShowAllHooksKey(e)) {
+        HooksHandler.allHooksKeyPressed = true;
+        HooksOverlay.setAllHooksKeyPressed(true);
         this.targets.forEach(({ target, ctx }) => this.toggleOverlays(store, target, ctx, true));
       }
     });
 
     window.addEventListener('keyup', (e) => {
-      if (e.key === HooksHandler.modifierKey) {
-        HooksHandler.modifierKeyPressed = false;
-        HooksOverlay.setModifierKeyPressed(false);
+      if (this.isShowAllHooksKey(e)) {
+        HooksHandler.allHooksKeyPressed = false;
+        HooksOverlay.setAllHooksKeyPressed(false);
         this.targets.forEach(({ target, ctx }) => this.toggleOverlays(store, target, ctx, false));
       }
     });

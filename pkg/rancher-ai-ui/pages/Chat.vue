@@ -10,7 +10,7 @@ import Header from '../components/panels/Header.vue';
 import Messages from '../components/panels/Messages.vue';
 import Context from '../components/panels/Context.vue';
 import Input from '../components/panels/Input.vue';
-import { defaultModifierKey } from '../handlers/hooks';
+import HooksHandler from '../handlers/hooks';
 
 const { agent, error: agentError } = useAgentComposable();
 
@@ -63,7 +63,7 @@ function close() {
 }
 
 function handleKeydown(event: KeyboardEvent) {
-  if (event.key === defaultModifierKey) {
+  if (HooksHandler.isShowAllHooksKey(event)) {
     event.stopPropagation();
     event.preventDefault();
   }

@@ -123,7 +123,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
     });
 
     overlay.addEventListener('mouseleave', () => {
-      if (!HooksOverlay.modifierKeyPressed) {
+      if (!HooksOverlay.allHooksKeyPressed) {
         this.destroy(target);
       } else {
         overlay.style.width = `${ parseInt(overlay.style.width) - (18 + (overlay.textContent?.length || 0) + parseInt(badgeStyle.fontSize) * 3 + parseFloat(badgeStyle.marginRight) + parseFloat(badgeStyle.marginLeft)) }px`;
