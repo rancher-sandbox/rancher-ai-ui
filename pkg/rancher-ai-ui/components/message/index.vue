@@ -9,6 +9,7 @@ import Actions from './action/index.vue';
 import Source from './source/index.vue';
 import Confirmation from './confirmation/index.vue';
 import Suggestions from './suggestion/index.vue';
+import ContextTag from '../context/ContextTag.vue';
 import UserAvatar from './avatar/UserAvatar.vue';
 import SystemAvatar from './avatar/SystemAvatar.vue';
 import RcButton from '@components/RcButton/RcButton.vue';
@@ -225,6 +226,18 @@ onBeforeUnmount(() => {
           <a>{{ props.message.showCompleteMessage ? t('ai.message.actions.hideCompleteMessage') : t('ai.message.actions.showCompleteMessage') }}</a>
         </RcButton>
       </div>
+      <div
+        v-if="props.message.role === RoleEnum.User && props.message.contextContent?.length"
+        class="chat-msg-section chat-msg-user-context-tags"
+      >
+        <ContextTag
+          v-for="(item, index) in props.message.contextContent"
+          :key="index"
+          :item="item"
+          :remove-enabled="false"
+          class="chat-msg-user-context-tag"
+        />
+      </div>
       <!-- TODO: replace with actual source when available -->
       <div
         v-if="props.message.source || (props.message.role === RoleEnum.Assistant && props.message.formattedMessageContent)"
@@ -407,5 +420,24 @@ onBeforeUnmount(() => {
     margin: 0;
     margin-top: -10px;
   }
+}
+
+.chat-msg-user-context-tags {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 100%;
+  align-items: center;
+  gap: 4px;
+}
+
+.chat-msg-user-context-tag {
+  background-color: transparent;
+  color: #9fabc6;
+  height: 16px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  border: 1px solid #9fabc6;
+  border-radius: 3px;
+  margin: 0;
 }
 </style>

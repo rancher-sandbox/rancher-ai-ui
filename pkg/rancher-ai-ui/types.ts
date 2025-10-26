@@ -109,6 +109,7 @@ export interface Message {
   thinkingContent?: string;
   messageContent?: string;
   summaryContent?: string;
+  contextContent?: Context[];
   thinking?: boolean;
   completed?: boolean;
   showThinking?: boolean;

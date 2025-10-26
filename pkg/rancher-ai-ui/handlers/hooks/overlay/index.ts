@@ -6,9 +6,9 @@ export abstract class HooksOverlay {
   protected static defaultClassPrefix = 'context-overlay';
   protected static allHooksKeyPressed = false;
   // eslint-disable-next-line no-unused-vars
-  abstract create(store: Store<any>, target: HTMLElement, el: HTMLElement, ctx: Context): void;
+  abstract create(store: Store<any>, target: HTMLElement, el: HTMLElement, ctx: Context, globalCtx?: Context[]): void;
   // eslint-disable-next-line no-unused-vars
-  abstract action(store: Store<any>, e: Event, overlay: HTMLElement, ctx: Context): void;
+  abstract action(store: Store<any>, e: Event, overlay: HTMLElement, ctx: Context, globalCtx?: Context[]): void;
   // eslint-disable-next-line no-unused-vars
   abstract destroy(target: HTMLElement): void;
 

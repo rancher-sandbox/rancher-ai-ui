@@ -32,6 +32,7 @@ export function useChatMessageComposable() {
       addMessage({
         role:           Role.User,
         messageContent: prompt,
+        contextContent: selectedContext.value
       });
     }
   }

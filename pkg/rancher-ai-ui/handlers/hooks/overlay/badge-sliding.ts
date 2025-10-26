@@ -6,6 +6,7 @@ import { nextTick } from 'vue';
 import { HooksOverlay } from './index';
 import Chat from '../../chat';
 import TemplateMessage from '../template-message';
+import { formatMessageWithContext } from '../../../utils/format';
 
 const enum Theme {
   Light = 'light', // eslint-disable-line no-unused-vars
@@ -51,7 +52,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
     return out;
   }
 
-  create(store: Store<any>, target: HTMLElement, badge: HTMLElement, ctx: Context) {
+  create(store: Store<any>, target: HTMLElement, badge: HTMLElement, ctx: Context, globalCtx: Context[] = []) {
     const t = store.getters['i18n/t'];
     const theme = store.getters['prefs/theme'] as Theme;
 
@@ -114,7 +115,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
     }, 10);
 
     overlay.addEventListener('click', (e) => {
-      this.action(store, e, overlay, ctx);
+      this.action(store, e, overlay, ctx, globalCtx);
     });
 
     overlay.addEventListener('mouseenter', () => {
@@ -131,7 +132,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
     });
   }
 
-  action(store: Store<any>, e: Event, overlay: HTMLElement, context: Context) {
+  action(store: Store<any>, e: Event, overlay: HTMLElement, ctx: Context, globalCtx: Context[]) {
     e.stopPropagation();
 
     // const obj = context.value as any;
@@ -148,11 +149,11 @@ class BadgeSlidingOverlay extends HooksOverlay {
     //   store.commit('rancher-ai-ui/context/add', ctx);
     // }
 
-    const filledMsg = TemplateMessage.fill(store, context);
+    const message = TemplateMessage.fill(ctx, globalCtx);
 
     store.dispatch('rancher-ai-ui/chat/init', {
       chatId:   'default',
-      messages: [filledMsg.message]
+      messages: [message],
     });
 
     nextTick(async() => {
@@ -168,7 +169,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
       const ws = store.getters['rancher-ai-ui/connection/ws'];
 
       if (!!ws) {
-        ws.send(filledMsg.payload);
+        ws.send(formatMessageWithContext(message.messageContent || '', message.contextContent || []));
       }
 
       overlay.remove();
