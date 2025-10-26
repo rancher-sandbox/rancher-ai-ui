@@ -21,19 +21,19 @@ const emit = defineEmits(['download:chat', 'reset:chat', 'show:help']);
 
 const options = ref([
   {
-    label:       t('ai.options.chat.reset.label'),
-    description: t('ai.options.chat.reset.description'),
-    icon:        'icon-backup',
-    action:      () => {
-      emit('reset:chat');
-    },
-  },
-  {
     label:       t('ai.options.chat.download.label'),
     description: t('ai.options.chat.download.description'),
     icon:        'icon-download',
     action:      () => {
       emit('download:chat');
+    },
+  },
+  {
+    label:       t('ai.options.chat.reset.label'),
+    description: t('ai.options.chat.reset.description'),
+    icon:        'icon-backup',
+    action:      () => {
+      emit('reset:chat');
     },
   },
   // {

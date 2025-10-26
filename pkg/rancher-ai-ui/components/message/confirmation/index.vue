@@ -21,7 +21,7 @@ const props = defineProps({
 const emit = defineEmits(['confirm']);
 
 // TODO the description should be generated server-side
-const confirmationLabel = computed(() => {
+const confirmationText = computed(() => {
   const msg = t('ai.confirmation.message.question');
 
   if (!props.messageContent) {
@@ -29,21 +29,29 @@ const confirmationLabel = computed(() => {
       kind, name, namespace, cluster
     } = props.value.action?.resource || {};
 
-    const description = props.value.action?.payload?.reduce((acc: string, curr) => {
-      const { op, value, path } = curr;
+    if (kind && name && namespace && cluster) {
+      const description = props.value.action?.payload?.reduce((acc: string, curr) => {
+        const { op, value, path } = curr || {};
 
-      return `${ acc + t('ai.confirmation.message.description', {
-        op,
-        value: typeof value === 'string' ? value : JSON.stringify(value),
-        path,
-        name,
-        kind,
-        namespace,
-        cluster
-      }, true)  }<br>`;
-    }, '');
+        if (op && value && path) {
+          return `${ acc + t('ai.confirmation.message.description', {
+            op,
+            value: typeof value === 'string' ? value : JSON.stringify(value),
+            path,
+            name,
+            kind,
+            namespace,
+            cluster
+          }, true) }<br>`;
+        }
 
-    return `${ description  }<br>${  msg }`;
+        return acc;
+      }, '');
+
+      if (!!description?.trim()) {
+        return `${ description }<br>${ msg }`;
+      }
+    }
   }
 
   return msg;
@@ -54,7 +62,7 @@ const confirmationLabel = computed(() => {
   <div class="confirmation-action">
     <div class="confirmation-message">
       <span
-        v-clean-html="confirmationLabel"
+        v-clean-html="confirmationText"
       />
     </div>
     <div
