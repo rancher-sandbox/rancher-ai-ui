@@ -23,6 +23,7 @@ const {
   confirmMessage,
   selectContext,
   resetChatError,
+  pendingConfirmation,
   error: messageError
 } = useChatMessageComposable();
 
@@ -104,6 +105,7 @@ function unmount() {
       <Messages
         :messages="messages"
         :errors="errors"
+        :pending-confirmation="!!pendingConfirmation"
         @update:message="updateMessage"
         @confirm:message="confirmMessage($event, ws)"
         @send:message="sendMessage($event, ws)"
@@ -114,7 +116,7 @@ function unmount() {
         @select="selectContext"
       />
       <Input
-        :disabled="!ws || ws.readyState === 3 || errors.length > 0 || !!messages.find(msg => msg.confirmation?.status === 'pending')"
+        :disabled="!ws || ws.readyState === 3 || errors.length > 0 || !!pendingConfirmation"
         @input:content="sendMessage($event, ws)"
       />
     </div>

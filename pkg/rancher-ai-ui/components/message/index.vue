@@ -24,6 +24,10 @@ const props = defineProps({
   disabled: {
     type:    Boolean,
     default: false,
+  },
+  pendingConfirmation: {
+    type:    Boolean,
+    default: false,
   }
 });
 
@@ -60,6 +64,10 @@ function handleCopy() {
   }, 1000);
 }
 
+function handleResendMessage() {
+  doActionAndScroll(() => emit('send:message', props.message.messageContent || ''));
+}
+
 function handleShowCompleteMessage() {
   props.message.showCompleteMessage = !props.message.showCompleteMessage;
 
@@ -71,10 +79,12 @@ function handleShowCompleteMessage() {
 function handleShowThinking() {
   props.message.showThinking = !props.message.showThinking;
 
+  doActionAndScroll(() => emit('update:message', props.message));
+}
+
+function doActionAndScroll(fn: () => void) {
   emit('enable:autoscroll', false);
-  nextTick(() => {
-    emit('update:message', props.message);
-  });
+  nextTick(() => fn());
   if (timeoutAutoscroll.value) {
     clearTimeout(timeoutAutoscroll.value);
   }
@@ -141,6 +151,16 @@ onBeforeUnmount(() => {
                 'icon icon-copy': !showCopySuccess
               }"
             />
+          </button>
+          <button
+            v-if="props.message.role === RoleEnum.User && !pendingConfirmation"
+            v-clean-tooltip="t('ai.message.actions.tooltip.resend')"
+            class="bubble-action-btn btn header-btn role-tertiary"
+            type="button"
+            role="button"
+            @click="handleResendMessage"
+          >
+            <i class="icon icon-backup" />
           </button>
         </div>
         <div class="chat-msg-text">

@@ -15,6 +15,10 @@ export function useChatMessageComposable() {
   const currentMsg = ref<Message>({} as Message);
   const error = computed(() => store.getters['rancher-ai-ui/chat/error'](CHAT_ID));
 
+  const pendingConfirmation = computed(() => {
+    return messages.value.find((msg) => msg.confirmation?.status === ConfirmationStatus.Pending);
+  });
+
   const { selectContext, selectedContext } = useContextComposable();
 
   function sendMessage(prompt: string, ws: WebSocket) {
@@ -182,6 +186,7 @@ export function useChatMessageComposable() {
     confirmMessage,
     selectContext,
     resetChatError,
+    pendingConfirmation,
     error
   };
 }
