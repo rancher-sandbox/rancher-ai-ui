@@ -92,17 +92,14 @@ class BadgeSlidingOverlay extends HooksOverlay {
     const icon = document.createElement('i');
 
     icon.classList.add('icon-ai');
-    icon.classList.add(badgeRect.height < 20 ? 'icon-lg' : 'icon');
     icon.style.display = 'inline-flex';
     icon.style.alignItems = 'center';
     icon.style.justifyContent = 'center';
     icon.style.flex = '0 0 auto';
     icon.style.width = `${ Math.max(16, Math.round(badgeRect.height * 0.6)) }px`;
     icon.style.height = `${ Math.max(16, Math.round(badgeRect.height * 0.6)) }px`;
-    icon.style.marginTop = '0';
-    icon.style.marginBottom = '1px';
-    icon.style.marginRight = `4px`;
-    icon.style.marginLeft = `8px`;
+    icon.style.marginLeft = `${ Math.round(badgeRect.height * 0.3) }px`;
+    icon.style.marginRight = `${ Math.round(badgeRect.height * 0.2) }px`;
     icon.style.lineHeight = '1';
     icon.style.color = overlayProps.color;
     icon.style.boxSizing = 'content-box';
@@ -121,7 +118,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
     });
 
     overlay.addEventListener('mouseenter', () => {
-      overlay.style.width = `${ parseInt(overlay.style.width) + (55 + parseInt(badgeStyle.fontSize) * 3 + parseFloat(badgeStyle.marginRight) + parseFloat(badgeStyle.marginLeft)) }px`;
+      overlay.style.width = `${ parseInt(overlay.style.width) + (18 + overlay.textContent?.length + parseInt(badgeStyle.fontSize) * 3 + parseFloat(badgeStyle.marginRight) + parseFloat(badgeStyle.marginLeft)) }px`;
       overlay.style.color = overlayProps.color;
     });
 
@@ -129,7 +126,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
       if (!HooksOverlay.modifierKeyPressed) {
         this.destroy(target);
       } else {
-        overlay.style.width = `${ parseInt(overlay.style.width) - (55 + parseInt(badgeStyle.fontSize) * 3 + parseFloat(badgeStyle.marginRight) + parseFloat(badgeStyle.marginLeft)) }px`;
+        overlay.style.width = `${ parseInt(overlay.style.width) - (18 + overlay.textContent?.length + parseInt(badgeStyle.fontSize) * 3 + parseFloat(badgeStyle.marginRight) + parseFloat(badgeStyle.marginLeft)) }px`;
       }
     });
   }

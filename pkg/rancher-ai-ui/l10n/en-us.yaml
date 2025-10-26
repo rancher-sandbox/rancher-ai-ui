@@ -65,7 +65,7 @@ ai:
         explain: Explain Error "{error}"
     overlay:
       badgeSliding:
-        label: Send this to Liz
+        label: Send to Liz
   settings:
     title: AI Assistant
     goToSettings: Settings
