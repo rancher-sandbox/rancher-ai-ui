@@ -3,7 +3,7 @@ import { useStore } from 'vuex';
 import { useContextComposable } from './useContextComposable';
 import { ConfirmationStatus, Message, Role, Tag } from '../types';
 import {
-  formatMessageWithContext, formatMessageLinkActions, formatConfirmationAction, formatSuggestionActions, formatFileMessages
+  formatMessageWithContext, formatMessageRelatedResourcesActions, formatConfirmationAction, formatSuggestionActions, formatFileMessages
 } from '../utils/format';
 import { downloadFile } from '@shell/utils/download';
 import { NORMAN } from '@shell/config/types';
@@ -126,7 +126,7 @@ export function useChatMessageComposable() {
           }
 
           if (data.startsWith(Tag.McpResultStart) && data.endsWith(Tag.McpResultEnd)) {
-            currentMsg.value.linkActions = formatMessageLinkActions(data);
+            currentMsg.value.relatedResourcesActions = formatMessageRelatedResourcesActions(data);
             break;
           }
 

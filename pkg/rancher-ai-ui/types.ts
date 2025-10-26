@@ -3,7 +3,7 @@
 export interface ChatError {
   key?:     string;
   message?: string;
-  action?:  MessageActionLink;
+  action?:  MessageActionRelatedResource;
 }
 
 export interface ConnectionError extends ChatError {
@@ -88,7 +88,7 @@ export interface MessageConfirmationAction {
   resource: ActionResource;
 }
 
-export interface MessageActionLink {
+export interface MessageActionRelatedResource {
   type: ActionType | string;
   label: string;
   tooltip?: string;
@@ -111,13 +111,13 @@ export interface Message {
   summaryContent?: string;
   thinking?: boolean;
   completed?: boolean;
-  timestamp?: Date;
   showThinking?: boolean;
   showCompleteMessage?: boolean;
-  linkActions?: MessageActionLink[];
+  relatedResourcesActions?: MessageActionRelatedResource[];
   suggestionActions?: string[];
   confirmation?: MessageConfirmation;
   source?: object;
+  timestamp?: Date;
 }
 
 export interface FormattedMessage extends Message {

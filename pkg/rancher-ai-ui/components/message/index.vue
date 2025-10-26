@@ -233,11 +233,11 @@ onBeforeUnmount(() => {
         <Source />
       </div>
       <div
-        v-if="props.message.linkActions?.length"
+        v-if="props.message.relatedResourcesActions?.length"
         class="chat-msg-section"
       >
         <Actions
-          :actions="props.message.linkActions"
+          :actions="props.message.relatedResourcesActions"
         />
       </div>
       <div

@@ -1,8 +1,9 @@
 import MarkdownIt from 'markdown-it';
 import {
-  ActionType, MessageActionLink, MessageConfirmationAction, Tag, Context,
+  ActionType, MessageConfirmationAction, Tag, Context,
   Message,
-  Role
+  Role,
+  MessageActionRelatedResource
 } from '../types';
 import { validateActionResource } from './validator';
 
@@ -32,7 +33,7 @@ export function formatMessageWithContext(prompt: string, selectedContext: Contex
   });
 }
 
-export function formatMessageLinkActions(value: string, actionType = ActionType.Button): MessageActionLink[] {
+export function formatMessageRelatedResourcesActions(value: string, actionType = ActionType.Button): MessageActionRelatedResource[] {
   value = value.replaceAll(Tag.McpResultStart, '').replaceAll(Tag.McpResultEnd, '').replace(/'([^']*)'/g, '"');
 
   if (value) {
@@ -40,7 +41,7 @@ export function formatMessageLinkActions(value: string, actionType = ActionType.
       const parsed = JSON.parse(value);
 
       if (Array.isArray(parsed)) {
-        return parsed.flatMap((item) => formatMessageLinkActions(JSON.stringify(item), actionType));
+        return parsed.flatMap((item) => formatMessageRelatedResourcesActions(JSON.stringify(item), actionType));
       }
 
       if (!validateActionResource(parsed)) {

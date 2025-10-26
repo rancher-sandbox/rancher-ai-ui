@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { MessageActionLink } from '../../../types';
+import { MessageActionRelatedResource } from '../../../types';
 import { type PropType } from 'vue';
 import { useStore } from 'vuex';
-import Link from './Link.vue';
+import RelatedResource from './RelatedResource.vue';
 
 const store = useStore();
 const t = store.getters['i18n/t'];
 
 const props = defineProps({
   actions: {
-    type:    Array as PropType<MessageActionLink[]>,
-    default: () => ([] as MessageActionLink[]),
+    type:    Array as PropType<MessageActionRelatedResource[]>,
+    default: () => ([] as MessageActionRelatedResource[]),
   },
 });
 </script>
@@ -27,7 +27,7 @@ const props = defineProps({
         :key="index"
         class="mt-2 chat-msg-actions"
       >
-        <Link :value="action" />
+        <RelatedResource :value="action" />
       </div>
     </div>
   </div>
