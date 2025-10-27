@@ -159,7 +159,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
     overlay.style.overflow = 'hidden';
     overlay.style.boxSizing = 'border-box'; // ensure padding is included in size
 
-    badge.style.zIndex = '1000';
+    badge.style.zIndex = Math.max(parseInt(badge.style.zIndex || '0'), 12).toString();
     badge.style.background = badgeProps.background;
 
     const icon = document.createElement('i');
