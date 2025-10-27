@@ -14,7 +14,7 @@ class TemplateMessageFactory {
   fill(ctx: Context, globalCtx: Context[]): Message {
     let messageContent = 'Hey Liz, please analyse the resource';
     let summaryContent = '';
-    const contextContent = globalCtx || [];
+    let contextContent: Context[] = [];
 
     switch (ctx.tag) {
     case ContextTag.SortableTableRow:
@@ -33,14 +33,27 @@ class TemplateMessageFactory {
   - Confirm that this is the expected state and what it implies.`;
       }
 
-      if (contextContent.findIndex((c) => c.tag === resource?.kind?.toLowerCase() && c.value === resource?.name) === -1) {
-        contextContent.push({
-          tag:         resource?.kind?.toLowerCase(),
-          description: resource?.kind,
-          icon:        ctx.icon,
-          value:       resource?.name
-        });
-      }
+      // Add resource as context
+      const resourceCtx = [{
+        tag:         resource?.kind?.toLowerCase(),
+        description: resource?.kind,
+        icon:        ctx.icon,
+        value:       resource?.name
+      }];
+
+      // Add resource's namespace as context if available
+      const resourceNamespaceCtx = resource?.namespace ? [{
+        tag:         'namespace',
+        description: 'Namespace',
+        icon:        'icon-namespace',
+        value:       resource?.namespace
+      }] : [];
+
+      contextContent = [
+        ...(globalCtx || []),
+        ...resourceCtx,
+        ...resourceNamespaceCtx
+      ].filter((item, index, self) => index === self.findIndex((c) => c.tag === item.tag && c.value === item.value));
       break;
     default:
       break;
