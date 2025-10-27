@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, onBeforeUnmount, computed } from 'vue';
+import { onMounted, onBeforeUnmount, computed, nextTick } from 'vue';
 import { AGENT_NAME, AGENT_NAMESPACE, AGENT_API_PATH } from '../product';
 import { useConnectionComposable } from '../composables/useConnectionComposable';
 import { useChatMessageComposable } from '../composables/useChatMessageComposable';
@@ -64,6 +64,14 @@ function close() {
   closePanel();
 }
 
+function resetChat() {
+  resetMessages();
+  disconnect();
+  nextTick(() => {
+    connect(AGENT_NAMESPACE, AGENT_NAME, AGENT_API_PATH);
+  });
+}
+
 function handleKeydown(event: KeyboardEvent) {
   if (HooksHandler.isShowAllHooksKey(event)) {
     event.stopPropagation();
@@ -121,7 +129,7 @@ function unmount() {
         :disabled="!ws || ws.readyState === 3 || errors.length > 0 || !!pendingConfirmation"
         @input:content="sendMessage($event, ws)"
         @download:chat="downloadMessages"
-        @reset:chat="resetMessages"
+        @reset:chat="resetChat"
       />
     </div>
   </div>
