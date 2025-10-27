@@ -52,6 +52,78 @@ class BadgeSlidingOverlay extends HooksOverlay {
     return out;
   }
 
+  /**
+   * Handle changes in the parent container's position.
+   * @param target The target element.
+   * @param container The parent container element.
+   * @param overlay The overlay element.
+   */
+  private handleParentPositionChange(target: HTMLElement, container: HTMLElement, overlay: HTMLElement) {
+    // destroy overlay if the container/parent moves (position changes)
+    let lastContainerRect = container.getBoundingClientRect();
+    const onContainerPosChange = () => {
+      try {
+        const r = container.getBoundingClientRect();
+
+        if (r.top !== lastContainerRect.top || r.left !== lastContainerRect.left) {
+          // parent moved -> remove overlays for this target
+          this.destroy(target, true);
+        } else {
+          lastContainerRect = r;
+        }
+      } catch (e) {
+        warn('Error checking container position change', e);
+      }
+    };
+
+    const containerRO = new ResizeObserver(onContainerPosChange);
+
+    containerRO.observe(container);
+
+    const containerMO = new MutationObserver(onContainerPosChange);
+
+    containerMO.observe(container, {
+      attributes:      true,
+      attributeFilter: ['style', 'class']
+    });
+
+    const scrollHandler = () => onContainerPosChange();
+
+    window.addEventListener('scroll', scrollHandler, true);
+
+    // attach cleanup so destroy() can call it (avoid leaks if overlay removed directly)
+    (overlay as any).__parentPositionCleanup = () => {
+      try {
+        containerRO.disconnect();
+      } catch (e) {
+        warn('Error disconnecting ResizeObserver', e);
+      }
+      try {
+        containerMO.disconnect();
+      } catch (e) {
+        warn('Error disconnecting MutationObserver', e);
+      }
+      try {
+        window.removeEventListener('scroll', scrollHandler, true);
+      } catch (e) {
+        warn('Error removing scroll event listener', e);
+      }
+    };
+  }
+
+  /**
+   * Cleanup parent position change handlers
+   */
+  private cleanupParentPosition(overlay: any) {
+    try {
+      if (typeof overlay.__parentPositionCleanup === 'function') {
+        overlay.__parentPositionCleanup();
+      }
+    } catch (e) {
+      warn('Error during parent position cleanup', e);
+    }
+  }
+
   create(store: Store<any>, target: HTMLElement, badge: HTMLElement, ctx: Context, globalCtx: Context[] = []) {
     const t = store.getters['i18n/t'];
     const theme = store.getters['prefs/theme'] as Theme;
@@ -107,12 +179,16 @@ class BadgeSlidingOverlay extends HooksOverlay {
 
     overlay.appendChild(icon);
 
-    ((target.parentElement || target) as HTMLElement).appendChild(overlay);
+    const container = (target.parentElement || target) as HTMLElement;
+
+    container.appendChild(overlay);
 
     // Animate width expansion after a short delay
     setTimeout(() => {
       overlay.style.width = `${ parseInt(overlay.style.width) + 30 }px`;
     }, 10);
+
+    this.handleParentPositionChange(target, container, overlay);
 
     overlay.addEventListener('click', (e) => {
       this.action(store, e, overlay, ctx, globalCtx);
@@ -179,6 +255,8 @@ class BadgeSlidingOverlay extends HooksOverlay {
   destroy(target: HTMLElement, immediate = false) {
     (target.parentElement as HTMLElement).querySelectorAll(`.${ HooksOverlay.defaultClassPrefix }-${ this.getSelector() }`).forEach((overlay: any) => {
       if (overlay && !(overlay.matches(':hover') || (overlay.querySelector(':hover') !== null))) {
+        this.cleanupParentPosition(overlay);
+
         // Animate width shrink before removing
         overlay.style.transition = 'width 0.2s cubic-bezier(0.4,0,0.2,1), opacity 0.3s';
         overlay.style.width = `${ 0 }px`;
