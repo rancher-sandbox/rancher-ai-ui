@@ -38,18 +38,35 @@ const getters = {
 
     // Get active namespaces from the store
     const namespaces = rootGetters['namespaces']() || {};
-    const activeNamespaces = Object.keys(namespaces)
-      .filter((k) => !!namespaces[k])
-      .map((value) => ({
-        tag:         ContextTag.NAMESPACE,
-        value,
-        description: t('ai.context.resources.namespace'),
-        icon:        'icon-namespace'
-      }));
+    const activeNamespaceFilters = rootGetters['activeNamespaceFilters'] || [];
+
+    /**
+     * Possible namespace filters:
+     *
+     * ['all://user']  // Only User Namespaces
+     * ['all://system']  // Only System Namespaces
+     * ['namespaced://true']  // All Namespaced Resources
+     * ['namespaced://false']  // All Cluster Resources
+     * ['ns://{namespace}', 'ns://{namespace2}', ...] // One or more Specific Namespace
+     *
+     * Below logic only handles the 'ns://' case, as the others are not handled.
+     */
+    let activeNamespaces: Context[] = [];
+
+    if (!!activeNamespaceFilters.find((n: string) => n?.startsWith('ns://'))) {
+      activeNamespaces = Object.keys(namespaces)
+        .filter((k) => !!namespaces[k])
+        .map((value) => ({
+          tag:         ContextTag.NAMESPACE,
+          value,
+          description: t('ai.context.resources.namespace'),
+          icon:        'icon-namespace'
+        }));
+    }
 
     const all = [
       ...activeCluster,
-      ...(activeNamespaces?.[0] ? [activeNamespaces[0]] : []), // To fix, we are limiting results, it should include all active namespaces
+      ...activeNamespaces,
       ...getters.default,
       ...state.context,
     ];
