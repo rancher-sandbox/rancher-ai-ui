@@ -1,8 +1,12 @@
 import { ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useContextComposable } from './useContextComposable';
-import { Message, Role, Tag } from '../types';
-import { formatMessageWithContext, formatMessageLinkActions, formatConfirmationAction, formatSuggestionActions } from '../utils/format';
+import { ConfirmationStatus, Message, Role, Tag } from '../types';
+import {
+  formatMessageWithContext, formatMessageRelatedResourcesActions, formatConfirmationAction, formatSuggestionActions, formatFileMessages
+} from '../utils/format';
+import { downloadFile } from '@shell/utils/download';
+import { NORMAN } from '@shell/config/types';
 
 const CHAT_ID = 'default';
 const EXPAND_THINKING = false;
@@ -15,6 +19,10 @@ export function useChatMessageComposable() {
   const currentMsg = ref<Message>({} as Message);
   const error = computed(() => store.getters['rancher-ai-ui/chat/error'](CHAT_ID));
 
+  const pendingConfirmation = computed(() => {
+    return messages.value.find((msg) => msg.confirmation?.status === ConfirmationStatus.Pending);
+  });
+
   const { selectContext, selectedContext } = useContextComposable();
 
   function sendMessage(prompt: string, ws: WebSocket) {
@@ -24,6 +32,7 @@ export function useChatMessageComposable() {
       addMessage({
         role:           Role.User,
         messageContent: prompt,
+        contextContent: selectedContext.value
       });
     }
   }
@@ -42,10 +51,18 @@ export function useChatMessageComposable() {
     });
   }
 
-  function confirmMessage(confirmed: boolean, ws: WebSocket) {
-    const msg = JSON.stringify({ prompt: confirmed ? 'yes' : 'no' });
+  function confirmMessage(result: boolean, ws: WebSocket) {
+    const msg = JSON.stringify({ prompt: result ? 'yes' : 'no' });
 
     ws.send(msg);
+
+    updateMessage({
+      ...currentMsg.value,
+      confirmation: {
+        action: currentMsg.value.confirmation?.action || null,
+        status: result ? ConfirmationStatus.Confirmed : ConfirmationStatus.Canceled
+      },
+    });
   }
 
   function getMessage(messageId: string) {
@@ -110,15 +127,23 @@ export function useChatMessageComposable() {
           }
 
           if (data.startsWith(Tag.McpResultStart) && data.endsWith(Tag.McpResultEnd)) {
-            currentMsg.value.linkActions = formatMessageLinkActions(data);
+            currentMsg.value.relatedResourcesActions = formatMessageRelatedResourcesActions(data);
             break;
           }
 
           if (data.startsWith(Tag.ConfirmationStart) && data.endsWith(Tag.ConfirmationEnd)) {
-            currentMsg.value.confirmationAction = formatConfirmationAction(data);
-            currentMsg.value.thinking = false;
-            currentMsg.value.completed = true;
-            break;
+            const confirmationAction = formatConfirmationAction(data);
+
+            if (confirmationAction) {
+              currentMsg.value.confirmation = {
+                action: confirmationAction,
+                status: ConfirmationStatus.Pending,
+              };
+              currentMsg.value.thinking = false;
+              currentMsg.value.completed = true;
+
+              break;
+            }
           }
 
           currentMsg.value.messageContent += data;
@@ -152,6 +177,20 @@ export function useChatMessageComposable() {
     });
   }
 
+  function downloadMessages() {
+    const principal = store.getters['rancher/byId'](NORMAN.PRINCIPAL, store.getters['auth/principalId']) || {};
+
+    downloadFile(
+      `Rancher-liz-chat-${ CHAT_ID }_${ new Date().toISOString().slice(0, 10) }.txt`,
+      formatFileMessages(principal, messages.value)
+    );
+  }
+
+  function resetMessages() {
+    // Should we reset ws connection too?
+    store.commit('rancher-ai-ui/chat/resetMessages', CHAT_ID);
+  }
+
   onMounted(() => {
     store.commit('rancher-ai-ui/chat/init', CHAT_ID);
   });
@@ -166,6 +205,9 @@ export function useChatMessageComposable() {
     confirmMessage,
     selectContext,
     resetChatError,
+    downloadMessages,
+    resetMessages,
+    pendingConfirmation,
     error
   };
 }

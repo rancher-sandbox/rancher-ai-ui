@@ -2,7 +2,7 @@
 import { type PropType } from 'vue';
 import { useStore } from 'vuex';
 import RcButton from '@components/RcButton/RcButton.vue';
-import { MessageActionSuggestion } from '../../../types';
+import { MessageActionSuggestion } from '../../types';
 
 const store = useStore();
 const t = store.getters['i18n/t'];

@@ -4,16 +4,16 @@ import { Store } from 'vuex';
 export abstract class HooksOverlay {
   protected selector = '';
   protected static defaultClassPrefix = 'context-overlay';
-  protected static modifierKeyPressed = false;
+  protected static allHooksKeyPressed = false;
   // eslint-disable-next-line no-unused-vars
-  abstract create(store: Store<any>, target: HTMLElement, el: HTMLElement, ctx: Context): void;
+  abstract create(store: Store<any>, target: HTMLElement, el: HTMLElement, ctx: Context, globalCtx?: Context[]): void;
   // eslint-disable-next-line no-unused-vars
-  abstract action(store: Store<any>, e: Event, overlay: HTMLElement, ctx: Context): void;
+  abstract action(store: Store<any>, e: Event, overlay: HTMLElement, ctx: Context, globalCtx?: Context[]): void;
   // eslint-disable-next-line no-unused-vars
   abstract destroy(target: HTMLElement): void;
 
-  static setModifierKeyPressed(value: boolean): void {
-    HooksOverlay.modifierKeyPressed = value;
+  static setAllHooksKeyPressed(value: boolean): void {
+    HooksOverlay.allHooksKeyPressed = value;
   }
 
   // eslint-disable-next-line no-unused-vars

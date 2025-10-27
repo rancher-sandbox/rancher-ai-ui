@@ -6,6 +6,7 @@ import { nextTick } from 'vue';
 import { HooksOverlay } from './index';
 import Chat from '../../chat';
 import TemplateMessage from '../template-message';
+import { formatMessageWithContext } from '../../../utils/format';
 
 const enum Theme {
   Light = 'light', // eslint-disable-line no-unused-vars
@@ -51,7 +52,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
     return out;
   }
 
-  create(store: Store<any>, target: HTMLElement, badge: HTMLElement, ctx: Context) {
+  create(store: Store<any>, target: HTMLElement, badge: HTMLElement, ctx: Context, globalCtx: Context[] = []) {
     const t = store.getters['i18n/t'];
     const theme = store.getters['prefs/theme'] as Theme;
 
@@ -92,17 +93,14 @@ class BadgeSlidingOverlay extends HooksOverlay {
     const icon = document.createElement('i');
 
     icon.classList.add('icon-ai');
-    icon.classList.add(badgeRect.height < 20 ? 'icon-lg' : 'icon');
     icon.style.display = 'inline-flex';
     icon.style.alignItems = 'center';
     icon.style.justifyContent = 'center';
     icon.style.flex = '0 0 auto';
     icon.style.width = `${ Math.max(16, Math.round(badgeRect.height * 0.6)) }px`;
     icon.style.height = `${ Math.max(16, Math.round(badgeRect.height * 0.6)) }px`;
-    icon.style.marginTop = '0';
-    icon.style.marginBottom = '1px';
-    icon.style.marginRight = `4px`;
-    icon.style.marginLeft = `8px`;
+    icon.style.marginLeft = `${ Math.round(badgeRect.height * 0.3) }px`;
+    icon.style.marginRight = `${ Math.round(badgeRect.height * 0.2) }px`;
     icon.style.lineHeight = '1';
     icon.style.color = overlayProps.color;
     icon.style.boxSizing = 'content-box';
@@ -117,24 +115,24 @@ class BadgeSlidingOverlay extends HooksOverlay {
     }, 10);
 
     overlay.addEventListener('click', (e) => {
-      this.action(store, e, overlay, ctx);
+      this.action(store, e, overlay, ctx, globalCtx);
     });
 
     overlay.addEventListener('mouseenter', () => {
-      overlay.style.width = `${ parseInt(overlay.style.width) + (55 + parseInt(badgeStyle.fontSize) * 3 + parseFloat(badgeStyle.marginRight) + parseFloat(badgeStyle.marginLeft)) }px`;
+      overlay.style.width = `${ parseInt(overlay.style.width) + (18 + (overlay.textContent?.length || 0) + parseInt(badgeStyle.fontSize) * 3 + parseFloat(badgeStyle.marginRight) + parseFloat(badgeStyle.marginLeft)) }px`;
       overlay.style.color = overlayProps.color;
     });
 
     overlay.addEventListener('mouseleave', () => {
-      if (!HooksOverlay.modifierKeyPressed) {
+      if (!HooksOverlay.allHooksKeyPressed) {
         this.destroy(target);
       } else {
-        overlay.style.width = `${ parseInt(overlay.style.width) - (55 + parseInt(badgeStyle.fontSize) * 3 + parseFloat(badgeStyle.marginRight) + parseFloat(badgeStyle.marginLeft)) }px`;
+        overlay.style.width = `${ parseInt(overlay.style.width) - (18 + (overlay.textContent?.length || 0) + parseInt(badgeStyle.fontSize) * 3 + parseFloat(badgeStyle.marginRight) + parseFloat(badgeStyle.marginLeft)) }px`;
       }
     });
   }
 
-  action(store: Store<any>, e: Event, overlay: HTMLElement, context: Context) {
+  action(store: Store<any>, e: Event, overlay: HTMLElement, ctx: Context, globalCtx: Context[]) {
     e.stopPropagation();
 
     // const obj = context.value as any;
@@ -151,11 +149,11 @@ class BadgeSlidingOverlay extends HooksOverlay {
     //   store.commit('rancher-ai-ui/context/add', ctx);
     // }
 
-    const filledMsg = TemplateMessage.fill(store, context);
+    const message = TemplateMessage.fill(ctx, globalCtx);
 
     store.dispatch('rancher-ai-ui/chat/init', {
       chatId:   'default',
-      messages: [filledMsg.message]
+      messages: [message],
     });
 
     nextTick(async() => {
@@ -171,7 +169,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
       const ws = store.getters['rancher-ai-ui/connection/ws'];
 
       if (!!ws) {
-        ws.send(filledMsg.payload);
+        ws.send(formatMessageWithContext(message.messageContent || '', message.contextContent || []));
       }
 
       overlay.remove();

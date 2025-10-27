@@ -3,7 +3,7 @@
 export interface ChatError {
   key?:     string;
   message?: string;
-  action?:  MessageActionLink;
+  action?:  MessageActionRelatedResource;
 }
 
 export interface ConnectionError extends ChatError {
@@ -76,13 +76,19 @@ export const enum ConfirmationType {
   Delete = 'delete',
 }
 
-export interface MessageActionConfirmation {
+export const enum ConfirmationStatus {
+  Pending = 'pending',
+  Confirmed = 'confirmed',
+  Canceled = 'canceled',
+}
+
+export interface MessageConfirmationAction {
   type: ConfirmationType | string;
   payload?: OperationPayload[];
   resource: ActionResource;
 }
 
-export interface MessageActionLink {
+export interface MessageActionRelatedResource {
   type: ActionType | string;
   label: string;
   tooltip?: string;
@@ -92,21 +98,27 @@ export interface MessageActionLink {
 
 export type MessageActionSuggestion = string;
 
+export interface MessageConfirmation {
+  action: MessageConfirmationAction | null;
+  status: ConfirmationStatus;
+}
+
 export interface Message {
   id?: number | string;
   role: Role;
   thinkingContent?: string;
   messageContent?: string;
   summaryContent?: string;
+  contextContent?: Context[];
   thinking?: boolean;
   completed?: boolean;
-  timestamp?: Date;
   showThinking?: boolean;
   showCompleteMessage?: boolean;
-  linkActions?: MessageActionLink[];
-  confirmationAction?: MessageActionConfirmation | null;
+  relatedResourcesActions?: MessageActionRelatedResource[];
   suggestionActions?: string[];
+  confirmation?: MessageConfirmation;
   source?: object;
+  timestamp?: Date;
 }
 
 export interface FormattedMessage extends Message {

@@ -6,9 +6,10 @@ import { useStore } from 'vuex';
 import { FormattedMessage, Role as RoleEnum } from '../../types';
 import Thinking from './Thinking.vue';
 import Actions from './action/index.vue';
-import Source from './source/index.vue';
-import Confirmation from './confirmation/index.vue';
-import Suggestions from './suggestion/index.vue';
+import Source from './Source.vue';
+import Confirmation from './Confirmation.vue';
+import Suggestions from './Suggestions.vue';
+import ContextTag from '../context/ContextTag.vue';
 import UserAvatar from './avatar/UserAvatar.vue';
 import SystemAvatar from './avatar/SystemAvatar.vue';
 import RcButton from '@components/RcButton/RcButton.vue';
@@ -22,6 +23,10 @@ const props = defineProps({
     default: () => ({} as FormattedMessage),
   },
   disabled: {
+    type:    Boolean,
+    default: false,
+  },
+  pendingConfirmation: {
     type:    Boolean,
     default: false,
   }
@@ -60,6 +65,10 @@ function handleCopy() {
   }, 1000);
 }
 
+function handleResendMessage() {
+  doActionAndScroll(() => emit('send:message', props.message.messageContent || ''));
+}
+
 function handleShowCompleteMessage() {
   props.message.showCompleteMessage = !props.message.showCompleteMessage;
 
@@ -71,10 +80,12 @@ function handleShowCompleteMessage() {
 function handleShowThinking() {
   props.message.showThinking = !props.message.showThinking;
 
+  doActionAndScroll(() => emit('update:message', props.message));
+}
+
+function doActionAndScroll(fn: () => void) {
   emit('enable:autoscroll', false);
-  nextTick(() => {
-    emit('update:message', props.message);
-  });
+  nextTick(() => fn());
   if (timeoutAutoscroll.value) {
     clearTimeout(timeoutAutoscroll.value);
   }
@@ -142,6 +153,16 @@ onBeforeUnmount(() => {
               }"
             />
           </button>
+          <button
+            v-if="props.message.role === RoleEnum.User && !pendingConfirmation"
+            v-clean-tooltip="t('ai.message.actions.tooltip.resend')"
+            class="bubble-action-btn btn header-btn role-tertiary"
+            type="button"
+            role="button"
+            @click="handleResendMessage"
+          >
+            <i class="icon icon-backup" />
+          </button>
         </div>
         <div class="chat-msg-text">
           <div v-if="isThinking">
@@ -177,11 +198,12 @@ onBeforeUnmount(() => {
           />
         </div>
         <div
-          v-if="props.message.confirmationAction"
+          v-if="props.message.confirmation"
           class="chat-msg-section-footer"
         >
           <Confirmation
-            :value="props.message.confirmationAction"
+            :value="props.message.confirmation"
+            :message-content="props.message.messageContent"
             @confirm="emit('confirm:message', $event)"
           />
         </div>
@@ -204,6 +226,18 @@ onBeforeUnmount(() => {
           <a>{{ props.message.showCompleteMessage ? t('ai.message.actions.hideCompleteMessage') : t('ai.message.actions.showCompleteMessage') }}</a>
         </RcButton>
       </div>
+      <div
+        v-if="props.message.role === RoleEnum.User && props.message.contextContent?.length"
+        class="chat-msg-section chat-msg-user-context-tags"
+      >
+        <ContextTag
+          v-for="(item, index) in props.message.contextContent"
+          :key="index"
+          :item="item"
+          :remove-enabled="false"
+          class="chat-msg-user-context-tag"
+        />
+      </div>
       <!-- TODO: replace with actual source when available -->
       <div
         v-if="props.message.source || (props.message.role === RoleEnum.Assistant && props.message.formattedMessageContent)"
@@ -212,11 +246,11 @@ onBeforeUnmount(() => {
         <Source />
       </div>
       <div
-        v-if="props.message.linkActions?.length"
+        v-if="props.message.relatedResourcesActions?.length"
         class="chat-msg-section"
       >
         <Actions
-          :actions="props.message.linkActions"
+          :actions="props.message.relatedResourcesActions"
         />
       </div>
       <div
@@ -386,5 +420,24 @@ onBeforeUnmount(() => {
     margin: 0;
     margin-top: -10px;
   }
+}
+
+.chat-msg-user-context-tags {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 100%;
+  align-items: center;
+  gap: 4px;
+}
+
+.chat-msg-user-context-tag {
+  background-color: transparent;
+  color: #9fabc6;
+  height: 16px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  border: 1px solid #9fabc6;
+  border-radius: 3px;
+  margin: 0;
 }
 </style>

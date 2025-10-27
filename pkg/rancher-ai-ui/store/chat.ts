@@ -70,6 +70,14 @@ const mutations = {
     }
   },
 
+  resetMessages(state: State, chatId: string) {
+    if (!chatId || !state.chats[chatId]) {
+      return;
+    }
+
+    state.chats[chatId].messages = {};
+  },
+
   setError(state: State, args: { chatId: string; error: MessageError | null }) {
     const { chatId, error } = args;
 

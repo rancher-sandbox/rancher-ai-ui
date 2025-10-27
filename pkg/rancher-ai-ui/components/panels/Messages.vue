@@ -19,6 +19,10 @@ const props = defineProps({
   errors: {
     type:    Array as PropType<ChatError[]>,
     default: () => [],
+  },
+  pendingConfirmation: {
+    type:    Boolean,
+    default: false,
   }
 });
 
@@ -31,7 +35,7 @@ const formattedMessages = computed<FormattedMessage[]>(() => {
   return [...props.messages]
     .filter((m) => m.messageContent ||
       m.thinkingContent ||
-      m.confirmationAction ||
+      m.confirmation ||
       m.suggestionActions?.length
     )
     .map((m) => ({
@@ -119,6 +123,7 @@ onBeforeUnmount(() => {
       :key="i"
       :message="message"
       :disabled="disabled"
+      :pending-confirmation="pendingConfirmation"
       @update:message="emit('update:message', message)"
       @confirm:message="emit('confirm:message', $event)"
       @send:message="emit('send:message', $event)"

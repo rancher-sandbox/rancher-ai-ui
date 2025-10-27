@@ -2,6 +2,7 @@
 import { ref, watch, type PropType } from 'vue';
 import { useStore } from 'vuex';
 import { Context } from '../../types';
+import ContextTag from './ContextTag.vue';
 import {
   RcDropdown,
   RcDropdownTrigger,
@@ -38,9 +39,7 @@ const props = defineProps({
 const selected = ref<Context[]>([]);
 const isOpen = ref(false);
 
-const emit = defineEmits([
-  'update',
-]);
+const emit = defineEmits(['update']);
 
 watch(() => props.autoSelect, (newVal) => {
   selected.value = newVal;
@@ -140,26 +139,12 @@ function reset() {
       </template>
     </rc-dropdown>
     <div class="tags">
-      <div
+      <ContextTag
         v-for="(item, index) in selected"
         :key="index"
-        v-clean-tooltip="item.description"
-        class="vs__selected tag"
-      >
-        <div class="tag-content">
-          <i
-            :class="item.icon"
-          />
-          <span>
-            {{ item.value }}
-          </span>
-        </div>
-        <button
-          type="button"
-          class="vs__deselect"
-          @click="removeItem(item)"
-        />
-      </div>
+        :item="item"
+        @remove="removeItem(item)"
+      />
     </div>
     <div
       v-if="options.length !== selected.length"
@@ -199,36 +184,6 @@ function reset() {
 
 .no-context {
   margin: 7px 0 7px 0;
-}
-
-.tag {
-  display: flex;
-  flex-direction: row;
-  gap: 5px;
-  height: 25px;
-  line-height: 1;
-  margin-right: 5px;
-  margin-left: 0;
-  padding: 0 5px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  cursor: pointer;
-
-  .tag-content {
-    display: flex;
-    justify-content: center;
-    gap: 5px;
-  }
-
-  .vs__deselect {
-    margin: 0;
-  }
-}
-
-.vs__selected {
-  border: solid 1px var(--active-nav);
-  color: var(--active-nav);
 }
 
 .icon-pin-outlined {

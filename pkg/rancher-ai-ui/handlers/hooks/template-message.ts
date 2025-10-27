@@ -1,6 +1,4 @@
-import { Store } from 'vuex';
 import { Context, Message, Role } from '../../types';
-import { formatMessageWithContext } from '../../utils/format';
 
 export interface MessageTemplateFill {
   message: Message;
@@ -13,14 +11,15 @@ export const enum ContextTag {
 }
 
 class TemplateMessageFactory {
-  fill(store: Store<any>, context: Context): MessageTemplateFill {
+  fill(ctx: Context, globalCtx: Context[]): Message {
     let messageContent = 'Hey Liz, please analyse the resource';
     let summaryContent = '';
+    const contextContent = globalCtx || [];
 
-    switch (context.tag) {
+    switch (ctx.tag) {
     case ContextTag.SortableTableRow:
     case ContextTag.DetailsState:
-      const resource = context.value as any;
+      const resource = ctx.value as any;
 
       summaryContent = `Hey Liz, please analyse ${ resource.kind }: <code>${ resource.name }</code> and troubleshoot any problems.`;
       messageContent = `Explain what the '${ resource.state }' state means for the ${ resource.kind }: ${ resource.name }.`;
@@ -33,23 +32,25 @@ class TemplateMessageFactory {
         messageContent += `
   - Confirm that this is the expected state and what it implies.`;
       }
+
+      if (contextContent.findIndex((c) => c.tag === resource?.kind?.toLowerCase() && c.value === resource?.name) === -1) {
+        contextContent.push({
+          tag:         resource?.kind?.toLowerCase(),
+          description: resource?.kind,
+          icon:        ctx.icon,
+          value:       resource?.name
+        });
+      }
       break;
     default:
       break;
     }
 
-    const payload = formatMessageWithContext(
-      messageContent,
-      store.getters['rancher-ai-ui/context/all']
-    );
-
     return {
-      message: {
-        role: Role.User,
-        messageContent,
-        summaryContent
-      },
-      payload,
+      role: Role.User,
+      messageContent,
+      summaryContent,
+      contextContent,
     };
   }
 }

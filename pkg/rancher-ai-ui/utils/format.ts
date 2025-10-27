@@ -1,6 +1,9 @@
 import MarkdownIt from 'markdown-it';
 import {
-  ActionType, MessageActionLink, MessageActionConfirmation, Tag, Context
+  ActionType, MessageConfirmationAction, Tag, Context,
+  Message,
+  Role,
+  MessageActionRelatedResource
 } from '../types';
 import { validateActionResource } from './validator';
 
@@ -30,7 +33,7 @@ export function formatMessageWithContext(prompt: string, selectedContext: Contex
   });
 }
 
-export function formatMessageLinkActions(value: string, actionType = ActionType.Button): MessageActionLink[] {
+export function formatMessageRelatedResourcesActions(value: string, actionType = ActionType.Button): MessageActionRelatedResource[] {
   value = value.replaceAll(Tag.McpResultStart, '').replaceAll(Tag.McpResultEnd, '').replace(/'([^']*)'/g, '"');
 
   if (value) {
@@ -38,7 +41,7 @@ export function formatMessageLinkActions(value: string, actionType = ActionType.
       const parsed = JSON.parse(value);
 
       if (Array.isArray(parsed)) {
-        return parsed.flatMap((item) => formatMessageLinkActions(JSON.stringify(item), actionType));
+        return parsed.flatMap((item) => formatMessageRelatedResourcesActions(JSON.stringify(item), actionType));
       }
 
       if (!validateActionResource(parsed)) {
@@ -66,7 +69,7 @@ export function formatMessageLinkActions(value: string, actionType = ActionType.
   return [];
 }
 
-export function formatConfirmationAction(value: string): MessageActionConfirmation | null {
+export function formatConfirmationAction(value: string): MessageConfirmationAction | null {
   value = value.replaceAll(Tag.ConfirmationStart, '').replaceAll(Tag.ConfirmationEnd, '').replace(/'([^']*)'/g, '"');
 
   if (value) {
@@ -101,4 +104,30 @@ export function formatSuggestionActions(suggestionActions: string[], remaining: 
     suggestionActions,
     remaining
   };
+}
+
+export function formatFileMessages(principal: any, messages: Message[]): string {
+  const avatar = {
+    [Role.User]:      `👤 ${ principal.name }`,
+    [Role.Assistant]: '🤖 Liz',
+    [Role.System]:    '🛠️ Liz',
+  };
+
+  return messages.map((msg) => {
+    const timestamp = msg.timestamp?.toLocaleTimeString([], {
+      hour:   '2-digit',
+      minute: '2-digit'
+    });
+
+    let body = msg.summaryContent ? `Summary: ${ msg.summaryContent }\n` : '';
+
+    body += msg.messageContent ? `${ msg.messageContent }\n` : '';
+    body += msg.thinkingContent ? `${ msg.thinkingContent }\n` : '';
+
+    if (msg.contextContent?.length) {
+      body += `Context: ${ JSON.stringify(msg.contextContent) }\n`;
+    }
+
+    return `[${ timestamp }] [${ avatar[msg.role] }]: ${ body }`;
+  }).join('\n');
 }

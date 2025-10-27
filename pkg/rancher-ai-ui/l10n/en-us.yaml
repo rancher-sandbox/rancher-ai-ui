@@ -20,6 +20,7 @@ ai:
     actions:
       tooltip:
         copy: Copy to Clipboard
+        resend: Resend Message
         showThinking: Show Thinking
         hideThinking: Hide Thinking
       hideThinking: Hide Thinking
@@ -65,14 +66,18 @@ ai:
         explain: Explain Error "{error}"
     overlay:
       badgeSliding:
-        label: Send this to Liz
+        label: Send to Liz
   settings:
     title: AI Assistant
     goToSettings: Settings
   confirmation:
-    message: Are you sure you want to proceed with this action?
-    yes: Confirm
-    no: Cancel
+    message:
+      question: Are you sure you want to proceed with this action?
+      description: 'I will <b>{op}</b> the value <code>{value}</code> in the path <code>{path}</code> to the <code>{name}</code> {kind} in the <code>{namespace}</code> namespace of the <code>{cluster}</code> cluster.'
+    confirm: Confirm
+    cancel: Cancel
+    confirmed: Confirmed
+    canceled: Canceled
   error:
     message:
       processing: Error processing messages. Please close the chat and try again.
@@ -84,6 +89,17 @@ ai:
       notFound: Rancher AI Agent not found. Please ensure the agent chart is installed.
       notActive: Rancher AI Agent is not active. Please ensure the agent is running properly.
       missingConfig: Rancher AI Agent configuration is missing. Please go to Global [Settings > AI Assistant] and configure the agent.
+  options:
+    chat:
+      reset:
+        label: Reset Chat
+        description: Clear the current chat and start a new conversation
+      download:
+        label: Download Messages
+        description: Download the current messages to a text file
+      help:
+        label: Chat Help
+        description: Get assistance with using the chat features
 
 aiConfig:
   label: AI Assistant
