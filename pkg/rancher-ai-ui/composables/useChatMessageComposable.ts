@@ -187,7 +187,6 @@ export function useChatMessageComposable() {
   }
 
   function resetMessages() {
-    // Should we reset ws connection too?
     store.commit('rancher-ai-ui/chat/resetMessages', CHAT_ID);
   }
 
