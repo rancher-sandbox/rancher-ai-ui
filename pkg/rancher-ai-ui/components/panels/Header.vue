@@ -22,7 +22,7 @@ const emit = defineEmits([
       <div class="chat-name">
         <i class="icon icon-ai icon-lg" />
         <span class="label">
-          {{ t('ai.title') }}
+          {{ t('ai.header.title') }}
         </span>
       </div>
     </div>

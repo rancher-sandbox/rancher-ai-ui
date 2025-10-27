@@ -12,7 +12,6 @@ import Messages from '../components/panels/Messages.vue';
 import Context from '../components/panels/Context.vue';
 import Console from '../components/panels/Console.vue';
 import Chat from '../handlers/chat';
-import HooksHandler from '../handlers/hooks';
 import { PRODUCT_NAME } from '../product';
 
 const store = useStore();
@@ -85,13 +84,6 @@ function routeToSettings() {
   });
 }
 
-function handleKeydown(event: KeyboardEvent) {
-  if (HooksHandler.isShowAllHooksKey(event)) {
-    event.stopPropagation();
-    event.preventDefault();
-  }
-}
-
 onMounted(() => {
   connect(AGENT_NAMESPACE, AGENT_NAME, AGENT_API_PATH);
   // Ensure disconnection on browser refresh/close
@@ -113,11 +105,7 @@ function unmount() {
 </script>
 
 <template>
-  <div
-    class="chat-container"
-    tabindex="0"
-    @keydown="handleKeydown"
-  >
+  <div class="chat-container">
     <div
       class="resize-bar"
       @mousedown.prevent.stop="resize"
