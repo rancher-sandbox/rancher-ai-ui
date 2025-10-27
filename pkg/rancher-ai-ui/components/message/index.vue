@@ -66,7 +66,7 @@ function handleCopy() {
 }
 
 function handleResendMessage() {
-  doActionAndScroll(() => emit('send:message', props.message.messageContent || ''));
+  doActionAndScroll(() => emit('send:message', props.message));
 }
 
 function handleShowCompleteMessage() {

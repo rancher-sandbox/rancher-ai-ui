@@ -3,7 +3,7 @@ import { useStore } from 'vuex';
 import { useContextComposable } from './useContextComposable';
 import { ConfirmationStatus, Message, Role, Tag } from '../types';
 import {
-  formatMessageWithContext, formatMessageRelatedResourcesActions, formatConfirmationAction, formatSuggestionActions, formatFileMessages
+  formatMessagePromptWithContext, formatMessageRelatedResourcesActions, formatConfirmationAction, formatSuggestionActions, formatFileMessages
 } from '../utils/format';
 import { downloadFile } from '@shell/utils/download';
 import { NORMAN } from '@shell/config/types';
@@ -25,16 +25,29 @@ export function useChatMessageComposable() {
 
   const { selectContext, selectedContext } = useContextComposable();
 
-  function sendMessage(prompt: string, ws: WebSocket) {
-    if (prompt) {
-      ws.send(formatMessageWithContext(prompt, selectedContext.value));
+  function sendMessage(msg: string | Message, ws: WebSocket) {
+    let role = Role.User;
 
-      addMessage({
-        role:           Role.User,
-        messageContent: prompt,
-        contextContent: selectedContext.value
-      });
-    }
+    let summaryContent = '';
+    let messageContent = msg as string;
+    let contextContent = selectedContext.value;
+
+    // msg is type of Message
+    if (msg && typeof msg === 'object' && msg.messageContent) {
+      role = msg.role;
+      summaryContent = msg.summaryContent || '';
+      messageContent = msg.messageContent || '';
+      contextContent = msg.contextContent || [];
+    } else { /* msg is type of string */ }
+
+    ws.send(formatMessagePromptWithContext(messageContent, selectedContext.value));
+
+    addMessage({
+      role,
+      summaryContent,
+      messageContent,
+      contextContent
+    });
   }
 
   async function addMessage(message: Message) {
