@@ -21,7 +21,7 @@ export function formatMessageContent(message: string) {
   return raw.replace(/(?:(?:<br\s*\/?>)|\r?\n|\s)+$/gi, '');
 }
 
-export function formatMessageWithContext(prompt: string, selectedContext: Context[]) {
+export function formatMessagePromptWithContext(prompt: string, selectedContext: Context[]) {
   const context = selectedContext.reduce((acc, ctx) => ({
     ...acc,
     [ctx.tag]: ctx.value

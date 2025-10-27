@@ -6,7 +6,7 @@ import { nextTick } from 'vue';
 import { HooksOverlay } from './index';
 import Chat from '../../chat';
 import TemplateMessage from '../template-message';
-import { formatMessageWithContext } from '../../../utils/format';
+import { formatMessagePromptWithContext } from '../../../utils/format';
 
 const enum Theme {
   Light = 'light', // eslint-disable-line no-unused-vars
@@ -245,7 +245,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
       const ws = store.getters['rancher-ai-ui/connection/ws'];
 
       if (!!ws) {
-        ws.send(formatMessageWithContext(message.messageContent || '', message.contextContent || []));
+        ws.send(formatMessagePromptWithContext(message.messageContent || '', message.contextContent || []));
       }
 
       overlay.remove();
