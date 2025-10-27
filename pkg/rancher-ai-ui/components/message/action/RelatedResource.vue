@@ -30,7 +30,7 @@ onMounted(async() => {
     } = props.value.resource;
 
     const inStore = store.getters['currentProduct'].inStore || 'management';
-    
+
     to.value = await store.dispatch(`${ inStore }/find`, {
       cluster,
       type,

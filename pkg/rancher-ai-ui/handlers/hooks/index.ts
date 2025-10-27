@@ -6,6 +6,10 @@ import { HooksOverlay } from './overlay';
 interface Target {
   target: HTMLElement;
   ctx: Context;
+  handlers?: {
+    mouseenter?: any;
+    mouseleave?: any;
+  };
 }
 
 class HooksHandler {
@@ -29,6 +33,20 @@ class HooksHandler {
     return target.classList.contains(overlay.getSelector()) ? target : (target.querySelector(`.${ overlay.getSelector() }`) as HTMLElement);
   }
 
+  private clearTargets() {
+    for (const t of this.targets) {
+      if (t.handlers) {
+        try {
+          t.target.removeEventListener('mouseenter', t.handlers.mouseenter!);
+        } catch {}
+        try {
+          t.target.removeEventListener('mouseleave', t.handlers.mouseleave!);
+        } catch {}
+      }
+    }
+    this.targets.clear();
+  }
+
   private toggleOverlays(store: Store<any>, target: HTMLElement, ctx: Context, show: boolean) {
     this.overlays.forEach((overlay) => {
       // Get the first element with the overlay selector class, including the target itself
@@ -50,27 +68,33 @@ class HooksHandler {
     watch(
       () => store.getters['ui-context/all'].filter((c: Context) => !!c.hookId),
       async(hooks) => {
-        this.targets.clear();
+        this.clearTargets();
 
         hooks.forEach((ctx: Context) => {
           const target = document.querySelector(`[ux-context-hook-id="${ ctx.hookId }"]`) as HTMLElement;
 
           if (target) {
-            this.targets.add({
-              target,
-              ctx
-            });
-
-            target.addEventListener('mouseenter', () => {
+            const onEnter = () => {
               if (!HooksHandler.allHooksKeyPressed) {
                 this.toggleOverlays(store, target, ctx, true);
               }
-            });
-
-            target.addEventListener('mouseleave', () => {
+            };
+            const onLeave = () => {
               if (!HooksHandler.allHooksKeyPressed) {
                 this.toggleOverlays(store, target, ctx, false);
               }
+            };
+
+            target.addEventListener('mouseenter', onEnter);
+            target.addEventListener('mouseleave', onLeave);
+
+            this.targets.add({
+              target,
+              ctx,
+              handlers: {
+                mouseenter: onEnter,
+                mouseleave: onLeave,
+              },
             });
           }
         });
