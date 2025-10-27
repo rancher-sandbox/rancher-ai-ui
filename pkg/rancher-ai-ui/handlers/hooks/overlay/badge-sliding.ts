@@ -176,7 +176,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
     });
   }
 
-  destroy(target: HTMLElement) {
+  destroy(target: HTMLElement, immediate = false) {
     (target.parentElement as HTMLElement).querySelectorAll(`.${ HooksOverlay.defaultClassPrefix }-${ this.getSelector() }`).forEach((overlay: any) => {
       if (overlay && !(overlay.matches(':hover') || (overlay.querySelector(':hover') !== null))) {
         // Animate width shrink before removing
@@ -186,7 +186,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
 
         setTimeout(() => {
           overlay.remove();
-        }, 500);
+        }, immediate ? 0 : 500);
       }
     });
   }
