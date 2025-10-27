@@ -29,7 +29,9 @@ onMounted(async() => {
       cluster, type, namespace, name
     } = props.value.resource;
 
-    to.value = await store.dispatch('management/find', {
+    const inStore = store.getters['currentProduct'].inStore || 'management';
+    
+    to.value = await store.dispatch(`${ inStore }/find`, {
       cluster,
       type,
       id: namespace ? `${ namespace }/${ name }` : name
