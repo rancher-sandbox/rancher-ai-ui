@@ -119,7 +119,7 @@ function reset() {
           v-clean-tooltip="opt.description"
           @click="toggleItem(opt)"
         >
-          {{ opt.tag }}:{{ opt.value }}
+          {{ opt.tag }}:{{ opt.valueLabel || opt.value }}
           <i
             v-if="selected.find((s: Context) => _id(s) === _id(opt))"
             :class="{

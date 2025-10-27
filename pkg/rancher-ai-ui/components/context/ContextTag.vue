@@ -26,7 +26,7 @@ const emit = defineEmits(['remove']);
     <div class="tag-content">
       <i :class="props.item.icon" />
       <span>
-        {{ props.item.value }}
+        {{ props.item.valueLabel || props.item.value }}
       </span>
     </div>
     <button

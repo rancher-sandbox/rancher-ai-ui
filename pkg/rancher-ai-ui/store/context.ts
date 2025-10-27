@@ -30,7 +30,8 @@ const getters = {
 
     const activeCluster = currentCluster ? [{
       tag:         ContextTag.CLUSTER,
-      value:       currentCluster.nameDisplay || currentCluster.name,
+      value:       currentCluster.name,
+      valueLabel:  currentCluster.nameDisplay || currentCluster.name,
       description: t('ai.context.resources.cluster'),
       icon:        'icon-cluster'
     }] : [];

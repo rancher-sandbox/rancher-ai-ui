@@ -136,6 +136,7 @@ export interface Agent {
 export interface Context {
   tag: string;
   value: string | object | null;
+  valueLabel?: string;
   hookId?: string;
   description?: string;
   icon?: string;

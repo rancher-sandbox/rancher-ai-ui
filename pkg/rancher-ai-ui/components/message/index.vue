@@ -439,5 +439,6 @@ onBeforeUnmount(() => {
   border: 1px solid #9fabc6;
   border-radius: 3px;
   margin: 0;
+  cursor: default;
 }
 </style>
