@@ -76,7 +76,6 @@ const emit = defineEmits([
     font-size: 1em;
     color: var(--on-active);
     margin: 0;
-    margin-top: 4px;
     width: 60px;
 
     .label {
