@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { useStore } from 'vuex';
 import { onMounted, onBeforeUnmount, computed, nextTick } from 'vue';
 import { AGENT_NAME, AGENT_NAMESPACE, AGENT_API_PATH } from '../product';
 import { useConnectionComposable } from '../composables/useConnectionComposable';
@@ -10,7 +11,10 @@ import Header from '../components/panels/Header.vue';
 import Messages from '../components/panels/Messages.vue';
 import Context from '../components/panels/Context.vue';
 import Console from '../components/panels/Console.vue';
+import Chat from '../handlers/chat';
 import HooksHandler from '../handlers/hooks';
+
+const store = useStore();
 
 const { agent, error: agentError } = useAgentComposable();
 
@@ -66,7 +70,8 @@ function close() {
 
 function resetChat() {
   resetMessages();
-  disconnect();
+  resetChatError();
+  disconnect({ showError: false });
   nextTick(() => {
     connect(AGENT_NAMESPACE, AGENT_NAME, AGENT_API_PATH);
   });
@@ -91,7 +96,10 @@ onBeforeUnmount(() => {
 });
 
 function unmount() {
-  disconnect();
+  // Clear connection when websocket is disconnected and chat is manually closed
+  if ((!Chat.isOpen(store) && ws.value?.readyState !== WebSocket.OPEN)) {
+    disconnect();
+  }
   restore();
 }
 </script>

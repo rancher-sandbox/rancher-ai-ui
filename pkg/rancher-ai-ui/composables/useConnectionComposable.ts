@@ -1,6 +1,5 @@
 import { computed } from 'vue';
 import { useStore } from 'vuex';
-import Chat from '../handlers/chat';
 
 export function useConnectionComposable(options: {
   onopen: () => void
@@ -31,11 +30,12 @@ export function useConnectionComposable(options: {
     });
   }
 
-  function disconnect() {
-    // Clear connection when websocket is disconnected and chat is manually closed
-    if (!Chat.isOpen(store) && ws.value?.readyState !== WebSocket.OPEN) {
-      store.commit('rancher-ai-ui/connection/close');
+  function disconnect(args: { showError?: boolean } = { showError: true }) {
+    if (args && args.showError !== undefined && !options.onclose && !args.showError) {
+      ws.value.onclose = null;
     }
+
+    store.commit('rancher-ai-ui/connection/close');
   }
 
   return {

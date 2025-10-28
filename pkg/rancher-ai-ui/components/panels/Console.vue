@@ -92,11 +92,9 @@ watch(() => text.value, () => {
 <template>
   <div
     class="chat-console-row"
-    :class="{ disabled: props.disabled }"
   >
     <div class="chat-console-menu">
       <ConsoleMenu
-        :disabled="props.disabled"
         @download:chat="emit('download:chat')"
         @reset:chat="emit('reset:chat')"
         @show:help="emit('show:help')"
@@ -105,6 +103,7 @@ watch(() => text.value, () => {
     <textarea
       ref="promptTextarea"
       class="chat-input"
+      :class="{ disabled: props.disabled }"
       rows="1"
       :value="text"
       :placeholder="props.disabled ? '' : t('ai.prompt.placeholder')"
@@ -113,7 +112,10 @@ watch(() => text.value, () => {
       @input="onInputMessage"
       @keydown="handleTextareaKeydown"
     ></textarea>
-    <div class="chat-input-send">
+    <div
+      class="chat-input-send"
+      :class="{ disabled: props.disabled }"
+    >
       <RcButton
         small
         :disabled="!text || props.disabled"
