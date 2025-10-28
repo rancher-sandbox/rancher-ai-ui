@@ -2,12 +2,16 @@
 import { defineEmits } from 'vue';
 import { useStore } from 'vuex';
 import RcButton from '@components/RcButton/RcButton.vue';
+import ConsoleMenu from '../console/Menu.vue';
 
 const store = useStore();
 const t = store.getters['i18n/t'];
 
 const emit = defineEmits([
   'close',
+  'download:chat',
+  'reset:chat',
+  'show:help',
 ]);
 </script>
 
@@ -20,6 +24,13 @@ const emit = defineEmits([
           {{ t('ai.title') }}
         </span>
       </div>
+    </div>
+    <div class="chat-menu">
+      <ConsoleMenu
+        @download:chat="emit('download:chat')"
+        @reset:chat="emit('reset:chat')"
+        @show:help="emit('show:help')"
+      />
     </div>
     <div class="chat-close-btn">
       <RcButton
@@ -45,7 +56,7 @@ const emit = defineEmits([
   padding: 12px 16px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 16px;
 }
 
 .chat-title {
@@ -53,18 +64,18 @@ const emit = defineEmits([
   flex-direction: row;
   align-items: baseline;
   min-width: 0; /* allow children to shrink so text-overflow works */
+  flex: 1;
 
   .chat-name {
+    display: flex;
+    gap: 12px;
+    align-items: center;
     font-weight: 600;
     font-size: 1em;
     color: var(--on-active);
     margin: 0;
     margin-top: 4px;
     width: 60px;
-
-    .icon {
-      margin-right: 3px;
-    }
 
     .label {
       font-size: 1.3em;

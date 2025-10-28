@@ -8,7 +8,6 @@ import {
 import { useStore } from 'vuex';
 import RcButton from '@components/RcButton/RcButton.vue';
 import { useInputComposable } from '../../composables/useInputComposable';
-import ConsoleMenu from '../console/Menu.vue';
 import { Agent } from '../../types';
 
 import type { PropType } from 'vue';
@@ -27,7 +26,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['input:content', 'download:chat', 'reset:chat', 'show:help']);
+const emit = defineEmits(['input:content']);
 
 const { inputText, updateInput, cleanInput } = useInputComposable();
 
@@ -101,13 +100,6 @@ watch(() => text.value, () => {
     <div
       class="chat-console-row"
     >
-      <div class="chat-console-menu">
-        <ConsoleMenu
-          @download:chat="emit('download:chat')"
-          @reset:chat="emit('reset:chat')"
-          @show:help="emit('show:help')"
-        />
-      </div>
       <textarea
         ref="promptTextarea"
         class="chat-input"
@@ -164,10 +156,6 @@ watch(() => text.value, () => {
   border-bottom-right-radius: 8px;
   border-top: 1px solid var(--border);
   min-height: 70px;
-}
-
-.chat-console-menu {
-  margin-bottom: 4px;
 }
 
 .chat-input {

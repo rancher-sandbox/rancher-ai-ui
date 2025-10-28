@@ -118,6 +118,9 @@ function unmount() {
     <div class="chat-panel">
       <Header
         @close="close"
+        @config:chat="routeToSettings"
+        @download:chat="downloadMessages"
+        @reset:chat="resetChat"
       />
       <Messages
         :messages="messages"
@@ -136,8 +139,6 @@ function unmount() {
         :disabled="!ws || ws.readyState === 3 || errors.length > 0 || !!pendingConfirmation"
         :agent="agent"
         @input:content="sendMessage($event, ws)"
-        @download:chat="downloadMessages"
-        @reset:chat="resetChat"
       />
     </div>
   </div>
