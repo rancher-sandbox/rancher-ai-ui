@@ -101,41 +101,44 @@ class HooksHandler {
   }
 
   private init(store: Store<any>) {
+    // Debounce the expensive handler so only the last update is processed
+    const handleHooksChange = debounce(async(hooks: Context[]) => {
+      this.addEasterEgg(store);
+      this.clearTargets();
+
+      hooks.forEach((ctx: Context) => {
+        const target = document.querySelector(`[ux-context-hook-id="${ ctx.hookId }"]`) as HTMLElement;
+
+        if (target) {
+          const onEnter = () => {
+            if (!HooksHandler.allHooksKeyPressed) {
+              this.toggleOverlays(store, target, ctx, true);
+            }
+          };
+          const onLeave = () => {
+            if (!HooksHandler.allHooksKeyPressed) {
+              this.toggleOverlays(store, target, ctx, false);
+            }
+          };
+
+          target.addEventListener('mouseenter', onEnter);
+          target.addEventListener('mouseleave', onLeave);
+
+          this.targets.add({
+            target,
+            ctx,
+            handlers: {
+              mouseenter: onEnter,
+              mouseleave: onLeave
+            },
+          });
+        }
+      });
+    }, 300);
+
     watch(
       () => store.getters['ui-context/all'].filter((c: Context) => !!c.hookId),
-      async(hooks) => {
-        this.addEasterEgg(store);
-        this.clearTargets();
-
-        hooks.forEach((ctx: Context) => {
-          const target = document.querySelector(`[ux-context-hook-id="${ ctx.hookId }"]`) as HTMLElement;
-
-          if (target) {
-            const onEnter = () => {
-              if (!HooksHandler.allHooksKeyPressed) {
-                this.toggleOverlays(store, target, ctx, true);
-              }
-            };
-            const onLeave = () => {
-              if (!HooksHandler.allHooksKeyPressed) {
-                this.toggleOverlays(store, target, ctx, false);
-              }
-            };
-
-            target.addEventListener('mouseenter', onEnter);
-            target.addEventListener('mouseleave', onLeave);
-
-            this.targets.add({
-              target,
-              ctx,
-              handlers: {
-                mouseenter: onEnter,
-                mouseleave: onLeave,
-              },
-            });
-          }
-        });
-      },
+      (hooks) => handleHooksChange(hooks),
       {
         immediate: true,
         deep:      true
