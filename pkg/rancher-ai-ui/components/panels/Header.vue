@@ -1,18 +1,10 @@
 <script lang="ts" setup>
-import { defineEmits, type PropType } from 'vue';
+import { defineEmits } from 'vue';
 import { useStore } from 'vuex';
-import { Agent } from '../../types';
 import RcButton from '@components/RcButton/RcButton.vue';
 
 const store = useStore();
 const t = store.getters['i18n/t'];
-
-const props = defineProps({
-  agent: {
-    type:     Object as PropType<Agent | null>,
-    default:  null,
-  }
-});
 
 const emit = defineEmits([
   'close',
@@ -28,9 +20,6 @@ const emit = defineEmits([
           {{ t('ai.title') }}
         </span>
       </div>
-      <span class="chat-model">
-        {{ !!props.agent ? t('ai.agent.label', { name: props.agent.name, model: props.agent.model }, true) : t('ai.agent.unknown') }}
-      </span>
     </div>
     <div class="chat-close-btn">
       <RcButton
@@ -80,16 +69,6 @@ const emit = defineEmits([
     .label {
       font-size: 1.3em;
     }
-  }
-
-  .chat-model {
-    font-size: 0.8rem;
-    color: var(--on-active);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-width: 0;
-    flex: 1 1 auto;
   }
 }
 

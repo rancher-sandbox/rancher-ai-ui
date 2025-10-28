@@ -40,7 +40,7 @@ ai:
       cluster: Cluster
       namespace: Namespace
   agent:
-    label: running {name} {model}
+    label: Uses AI (running {name} {model}). Always verify the results.
     models:
       ollama: Ollama
       openai: ChatGPT
