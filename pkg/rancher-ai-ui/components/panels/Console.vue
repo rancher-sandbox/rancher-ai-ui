@@ -138,6 +138,8 @@ watch(() => text.value, () => {
   flex-direction: column;
   padding: 16px 16px 16px 12px;
   gap: 0.75rem;
+  border-top: 1px solid var(--border);
+  min-height: 70px;
 }
 
 .chat-model {
@@ -154,8 +156,6 @@ watch(() => text.value, () => {
   gap: 8px;
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
-  border-top: 1px solid var(--border);
-  min-height: 70px;
 }
 
 .chat-input {
