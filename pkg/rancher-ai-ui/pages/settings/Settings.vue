@@ -70,7 +70,7 @@ const activeChatbotOptions = [
 ];
 
 const resource = useFetch(async() => {
-  return await store.dispatch(`cluster/find`, {
+  return await store.dispatch(`management/find`, {
     type: 'secret',
     id:   'cattle-ai-agent-system/llm-config',
     opt:  { watch: true }
