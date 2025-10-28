@@ -77,7 +77,7 @@ const resource = useFetch(async() => {
   });
 });
 
-const formData = ref<FormData>({});
+const formData = ref<FormData>(resource.value?.data?.data || {});
 const modelOptions = ref(models[ChatBotEnum.Local]);
 const chatbotConfigKey = ref<Settings.OLLAMA_URL | Settings.GOOGLE_API_KEY | Settings.OPENAI_API_KEY>(Settings.OLLAMA_URL);
 
@@ -184,9 +184,7 @@ const save = async(btnCB: (arg: boolean) => void) => { // eslint-disable-line no
     for (const key of Object.keys(formDataObject) as Array<keyof FormData>) {
       const value = formDataObject[key];
 
-      if (value) {
-        formDataToSave[key] = base64Encode(value);
-      }
+      formDataToSave[key] = base64Encode(value || '');
     }
 
     resource.value.data.data = formDataToSave;
