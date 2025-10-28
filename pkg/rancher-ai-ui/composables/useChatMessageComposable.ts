@@ -65,9 +65,7 @@ export function useChatMessageComposable() {
   }
 
   function confirmMessage(result: boolean, ws: WebSocket) {
-    const msg = JSON.stringify({ prompt: result ? 'yes' : 'no' });
-
-    ws.send(msg);
+    ws.send(formatMessagePromptWithContext(result ? 'yes' : 'no', []));
 
     updateMessage({
       ...currentMsg.value,
