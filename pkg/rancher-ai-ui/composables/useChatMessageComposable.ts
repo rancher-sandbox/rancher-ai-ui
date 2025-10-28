@@ -1,9 +1,12 @@
 import { ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useContextComposable } from './useContextComposable';
-import { ConfirmationStatus, Message, Role, Tag } from '../types';
 import {
-  formatMessagePromptWithContext, formatMessageRelatedResourcesActions, formatConfirmationAction, formatSuggestionActions, formatFileMessages
+  ChatError, ConfirmationStatus, Message, Role, Tag
+} from '../types';
+import {
+  formatMessagePromptWithContext, formatMessageRelatedResourcesActions, formatConfirmationAction, formatSuggestionActions, formatFileMessages,
+  formatErrorMessage
 } from '../utils/format';
 import { downloadFile } from '@shell/utils/download';
 import { NORMAN } from '@shell/config/types';
@@ -157,6 +160,12 @@ export function useChatMessageComposable() {
             }
           }
 
+          if (data.startsWith(Tag.ErrorStart) && data.endsWith(Tag.ErrorEnd)) {
+            const errorMessage = formatErrorMessage(data);
+
+            throw errorMessage;
+          }
+
           currentMsg.value.messageContent += data;
 
           if (currentMsg.value.messageContent?.includes(Tag.SuggestionsStart) && currentMsg.value.messageContent?.includes(Tag.SuggestionsEnd)) {
@@ -176,7 +185,7 @@ export function useChatMessageComposable() {
       console.error('Error processing messages:', err);
       store.commit('rancher-ai-ui/chat/setError', {
         chatId: CHAT_ID,
-        error:  { key: 'ai.error.message.processing' }
+        error:  { message: `${ t('ai.error.message.processing') } ${ (err as ChatError).message || err || '' }` }
       });
     }
   }

@@ -28,8 +28,6 @@ ai:
       hideCompleteMessage: Hide Complete Message
     suggestions:
       label: Recommended Actions
-    error:
-      processing: Error processing messages. Please close the chat and try again.
   prompt:
     placeholder: Ask Liz...
     send: Send
@@ -80,7 +78,7 @@ ai:
     canceled: Canceled
   error:
     message:
-      processing: Error processing messages. Please close the chat and try again.
+      processing: 'Error processing messages: '
     websocket:
       generic: WebSocket error occurred. Please try again later.
       connection: Failed to connect to Rancher AI Agent. Please try again later.

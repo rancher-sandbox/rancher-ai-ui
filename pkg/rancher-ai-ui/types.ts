@@ -40,6 +40,8 @@ export const enum Tag {
   ConfirmationEnd = '</confirmation-response>',
   SuggestionsStart = '<suggestion>',
   SuggestionsEnd = '</suggestion>',
+  ErrorStart = '<error>',
+  ErrorEnd = '</error>',
 }
 
 export const enum Role {

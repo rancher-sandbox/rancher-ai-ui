@@ -131,3 +131,19 @@ export function formatFileMessages(principal: any, messages: Message[]): string 
     return `[${ timestamp }] [${ avatar[msg.role] }]: ${ body }`;
   }).join('\n');
 }
+
+export function formatErrorMessage(value: string): { message: string } {
+  value = value.replaceAll(Tag.ErrorStart, '').replaceAll(Tag.ErrorEnd, '').replace(/'([^']*)'/g, '"');
+
+  if (value) {
+    try {
+      const parsed = JSON.parse(value);
+
+      return parsed;
+    } catch (e) {
+      console.error('Failed to parse error message:', e); /* eslint-disable-line no-console */
+    }
+  }
+
+  return { message: 'An error occurred.' };
+}
