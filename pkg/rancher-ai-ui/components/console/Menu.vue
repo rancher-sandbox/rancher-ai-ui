@@ -17,7 +17,12 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['download:chat', 'reset:chat', 'show:help']);
+const emit = defineEmits([
+  'download:chat',
+  'reset:chat',
+  'show:help',
+  'config:chat'
+]);
 
 const options = ref([
   {
@@ -34,6 +39,14 @@ const options = ref([
     icon:        'icon-backup',
     action:      () => {
       emit('reset:chat');
+    },
+  },
+  {
+    label:       t('ai.options.chat.config.label'),
+    description: t('ai.options.chat.config.description'),
+    icon:        'icon-gear',
+    action:      () => {
+      emit('config:chat');
     },
   },
   // {

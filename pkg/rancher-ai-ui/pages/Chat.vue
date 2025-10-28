@@ -13,6 +13,7 @@ import Context from '../components/panels/Context.vue';
 import Console from '../components/panels/Console.vue';
 import Chat from '../handlers/chat';
 import HooksHandler from '../handlers/hooks';
+import { PRODUCT_NAME } from '../product';
 
 const store = useStore();
 
@@ -75,6 +76,10 @@ function resetChat() {
   nextTick(() => {
     connect(AGENT_NAMESPACE, AGENT_NAME, AGENT_API_PATH);
   });
+}
+
+function routeToSettings() {
+  store.state.$router.push({ name: `c-cluster-settings-${ PRODUCT_NAME }` });
 }
 
 function handleKeydown(event: KeyboardEvent) {

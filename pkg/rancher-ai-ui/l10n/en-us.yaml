@@ -98,6 +98,9 @@ ai:
       help:
         label: Chat Help
         description: Get assistance with using the chat features
+      config:
+        label: Edit Configuration
+        description: Configure the AI model and provider for your assistant
 
 aiConfig:
   label: AI Assistant

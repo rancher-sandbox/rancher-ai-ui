@@ -12,6 +12,7 @@ const emit = defineEmits([
   'download:chat',
   'reset:chat',
   'show:help',
+  'config:chat'
 ]);
 </script>
 
@@ -30,6 +31,7 @@ const emit = defineEmits([
         @download:chat="emit('download:chat')"
         @reset:chat="emit('reset:chat')"
         @show:help="emit('show:help')"
+        @config:chat="emit('config:chat')"
       />
     </div>
     <div class="chat-close-btn">
