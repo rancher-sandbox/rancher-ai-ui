@@ -10,7 +10,7 @@ export enum Settings {
   OLLAMA_URL = 'OLLAMA_URL',
   OPENAI_API_KEY = 'OPENAI_API_KEY',
   SYSTEM_PROMPT = 'SYSTEM_PROMPT',
-  ACTIVE_CHATBOT = 'ACTIVE_CHATBOT',
+  ACTIVE_CHATBOT = 'ACTIVE_LLM',
 }
 
 export interface FormData {

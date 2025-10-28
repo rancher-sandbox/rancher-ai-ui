@@ -146,13 +146,13 @@ aiConfig:
       description: The key to authenticate requests to OpenAI’s services
     SYSTEM_PROMPT:
       label: System Prompt
-    ACTIVE_CHATBOT:
+    ACTIVE_LLM:
       label: AI Chatbot
       options:
-        local:
+        ollama:
           name: Local
           description: Run models locally with Ollama
-        openAi:
+        openai:
           name: OpenAI
           description: Use OpenAI's GPT models
         gemini:

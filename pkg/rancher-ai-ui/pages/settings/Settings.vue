@@ -21,9 +21,15 @@ import { Settings, FormData } from './types';
 const store = useStore();
 const { t } = useI18n(store);
 
+const enum ChatBotEnum {
+  Local = 'ollama', // eslint-disable-line no-unused-vars
+  OpenAI = 'openai', // eslint-disable-line no-unused-vars
+  Gemini = 'gemini', // eslint-disable-line no-unused-vars
+}
+
 const models = {
-  Local:  ['qwen3:4b'],
-  OpenAI: [
+  [ChatBotEnum.Local]:  ['qwen3:4b'],
+  [ChatBotEnum.OpenAI]: [
     'gpt-4o',
     'gpt-4o-mini',
     'o3-mini',
@@ -33,7 +39,7 @@ const models = {
     'gpt-4',
     'gpt-3.5-turbo',
   ],
-  Gemini: [
+  [ChatBotEnum.Gemini]: [
     'gemini-2.0-flash',
     'gemini-2.0-flash-lite',
     'gemini-2.5-pro',
@@ -44,22 +50,22 @@ const models = {
 
 const activeChatbotOptions = [
   {
-    name:        t(`aiConfig.form.${ Settings.ACTIVE_CHATBOT }.options.local.name`),
-    description: t(`aiConfig.form.${ Settings.ACTIVE_CHATBOT }.options.local.description`, {}, true),
+    name:        t(`aiConfig.form.${ Settings.ACTIVE_CHATBOT }.options.${ ChatBotEnum.Local }.name`),
+    description: t(`aiConfig.form.${ Settings.ACTIVE_CHATBOT }.options.${ ChatBotEnum.Local }.description`, {}, true),
     icon:        'icon-ollama',
-    value:       'Local',
+    value:       ChatBotEnum.Local,
   },
   {
-    name:        t(`aiConfig.form.${ Settings.ACTIVE_CHATBOT }.options.openAi.name`),
-    description: t(`aiConfig.form.${ Settings.ACTIVE_CHATBOT }.options.openAi.description`, {}, true),
+    name:        t(`aiConfig.form.${ Settings.ACTIVE_CHATBOT }.options.${ ChatBotEnum.OpenAI }.name`),
+    description: t(`aiConfig.form.${ Settings.ACTIVE_CHATBOT }.options.${ ChatBotEnum.OpenAI }.description`, {}, true),
     icon:        'icon-openai',
-    value:       'OpenAI',
+    value:       ChatBotEnum.OpenAI,
   },
   {
-    name:        t(`aiConfig.form.${ Settings.ACTIVE_CHATBOT }.options.gemini.name`),
-    description: t(`aiConfig.form.${ Settings.ACTIVE_CHATBOT }.options.gemini.description`, {}, true),
+    name:        t(`aiConfig.form.${ Settings.ACTIVE_CHATBOT }.options.${ ChatBotEnum.Gemini }.name`),
+    description: t(`aiConfig.form.${ Settings.ACTIVE_CHATBOT }.options.${ ChatBotEnum.Gemini }.description`, {}, true),
     icon:        'icon-gemini',
-    value:       'Gemini',
+    value:       ChatBotEnum.Gemini,
   },
 ];
 
@@ -71,8 +77,8 @@ const resource = useFetch(async() => {
   });
 });
 
-const formData = ref<FormData>({});
-const modelOptions = ref(models.Local);
+const formData = ref<FormData>(resource.value?.data?.data || {});
+const modelOptions = ref(models[ChatBotEnum.Local]);
 const chatbotConfigKey = ref<Settings.OLLAMA_URL | Settings.GOOGLE_API_KEY | Settings.OPENAI_API_KEY>(Settings.OLLAMA_URL);
 
 const chatbotConfigComponent = computed(() => {
@@ -85,27 +91,48 @@ const chatbotConfigComponent = computed(() => {
  * @param chatbot The selected chatbot provider ('OpenAI', 'Gemini', or
  * 'Local').
  */
-const updateFormConfig = (chatbot: string | undefined) => {
+const updateFormConfig = (chatbot: ChatBotEnum) => {
   const modelField = formData.value[Settings.MODEL];
 
   if (modelField) {
+    modelOptions.value = models[chatbot as ChatBotEnum];
+
     switch (chatbot) {
-    case 'OpenAI':
+    case ChatBotEnum.OpenAI:
       chatbotConfigKey.value = Settings.OPENAI_API_KEY;
-      modelOptions.value = models.OpenAI;
       break;
-    case 'Gemini':
+    case ChatBotEnum.Gemini:
       chatbotConfigKey.value = Settings.GOOGLE_API_KEY;
-      modelOptions.value = models.Gemini;
       break;
-    case 'Local':
+    case ChatBotEnum.Local:
     default:
       chatbotConfigKey.value = Settings.OLLAMA_URL;
-      modelOptions.value = models.Local;
       break;
     }
   }
 };
+
+/**
+ * Selects the default chatbot based on values in the form data.
+ * If no chatbot is currently selected, it calculates the default chatbot in the order: Ollama, Gemini and OpenAI
+ */
+function updateChatBotConfig() {
+  if (!![ChatBotEnum.Gemini, ChatBotEnum.OpenAI, ChatBotEnum.Local].find((c) => c === formData.value[Settings.ACTIVE_CHATBOT])) {
+    return;
+  }
+
+  let chatBot = ChatBotEnum.Local;
+
+  if (formData.value[Settings.OLLAMA_URL]) {
+    chatBot = ChatBotEnum.Local;
+  } else if (formData.value[Settings.GOOGLE_API_KEY]) {
+    chatBot = ChatBotEnum.Gemini;
+  } else if (formData.value[Settings.OPENAI_API_KEY]) {
+    chatBot = ChatBotEnum.OpenAI;
+  }
+
+  formData.value[Settings.ACTIVE_CHATBOT] = chatBot;
+}
 
 /**
  * Watches for changes in the resource and updates the form data.
@@ -121,32 +148,10 @@ watch(resource, (newResource) => {
 
   formData.value = resourceClone;
 
-  selectChatbot();
+  updateChatBotConfig();
 
-  updateFormConfig(formData.value[Settings.ACTIVE_CHATBOT]);
+  updateFormConfig(formData.value[Settings.ACTIVE_CHATBOT] as ChatBotEnum);
 });
-
-/**
- * Selects the default chatbot based on values in the form data.
- * If no chatbot is currently selected, it calculates the default chatbot in the order: Ollama, Gemini and OpenAI
- */
-function selectChatbot() {
-  if (formData.value[Settings.ACTIVE_CHATBOT]) {
-    return;
-  }
-
-  let chatBot = 'Local';
-
-  if (formData.value[Settings.OLLAMA_URL]) {
-    chatBot = 'Local';
-  } else if (formData.value[Settings.GOOGLE_API_KEY]) {
-    chatBot = 'Gemini';
-  } else if (formData.value[Settings.OPENAI_API_KEY]) {
-    chatBot = 'OpenAI';
-  }
-
-  formData.value[Settings.ACTIVE_CHATBOT] = chatBot;
-}
 
 /**
  * Updates the form data value for a given key.
@@ -156,11 +161,11 @@ function selectChatbot() {
  * @param key The key in the form data to update.
  * @param val The value to set for the key.
  */
-const updateValue = (key: Settings, val: string | undefined) => {
+const updateValue = (key: Settings, val: ChatBotEnum | string) => {
   formData.value[key] = val;
 
   if (key === Settings.ACTIVE_CHATBOT) {
-    updateFormConfig(val);
+    updateFormConfig(val as ChatBotEnum);
     formData.value[Settings.MODEL] = models[val as keyof typeof models][0];
   }
 };
@@ -179,9 +184,7 @@ const save = async(btnCB: (arg: boolean) => void) => { // eslint-disable-line no
     for (const key of Object.keys(formDataObject) as Array<keyof FormData>) {
       const value = formDataObject[key];
 
-      if (value) {
-        formDataToSave[key] = base64Encode(value);
-      }
+      formDataToSave[key] = base64Encode(value || '');
     }
 
     resource.value.data.data = formDataToSave;
@@ -207,7 +210,7 @@ const save = async(btnCB: (arg: boolean) => void) => { // eslint-disable-line no
       <ToggleGroup
         :model-value="formData[Settings.ACTIVE_CHATBOT]"
         :items="activeChatbotOptions"
-        @update:model-value="(val: string | undefined) => updateValue(Settings.ACTIVE_CHATBOT, val)"
+        @update:model-value="(val: string | undefined) => updateValue(Settings.ACTIVE_CHATBOT, val as ChatBotEnum)"
       />
       <banner
         v-if="formData[Settings.ACTIVE_CHATBOT] !== 'Local'"
