@@ -8,7 +8,9 @@ import {
 import { useStore } from 'vuex';
 import RcButton from '@components/RcButton/RcButton.vue';
 import { useInputComposable } from '../../composables/useInputComposable';
-import ConsoleMenu from '../console/Menu.vue';
+import { Agent } from '../../types';
+
+import type { PropType } from 'vue';
 
 const store = useStore();
 const t = store.getters['i18n/t'];
@@ -18,9 +20,13 @@ const props = defineProps({
     type:    Boolean,
     default: false,
   },
+  agent: {
+    type:     Object as PropType<Agent | null>,
+    default:  null,
+  }
 });
 
-const emit = defineEmits(['input:content', 'download:chat', 'reset:chat', 'show:help']);
+const emit = defineEmits(['input:content']);
 
 const { inputText, updateInput, cleanInput } = useInputComposable();
 
@@ -90,58 +96,66 @@ watch(() => text.value, () => {
 </script>
 
 <template>
-  <div
-    class="chat-console-row"
-  >
-    <div class="chat-console-menu">
-      <ConsoleMenu
-        @download:chat="emit('download:chat')"
-        @reset:chat="emit('reset:chat')"
-        @show:help="emit('show:help')"
-      />
-    </div>
-    <textarea
-      ref="promptTextarea"
-      class="chat-input"
-      :class="{ disabled: props.disabled }"
-      rows="1"
-      :value="text"
-      :placeholder="props.disabled ? '' : t('ai.prompt.placeholder')"
-      :disabled="props.disabled"
-      autocomplete="off"
-      @input="onInputMessage"
-      @keydown="handleTextareaKeydown"
-    ></textarea>
+  <div class="chat-console">
     <div
-      class="chat-input-send"
-      :class="{ disabled: props.disabled }"
+      class="chat-console-row"
     >
-      <RcButton
-        small
-        :disabled="!text || props.disabled"
-        @click="sendContent"
-        @keydown.enter="sendContent"
+      <textarea
+        ref="promptTextarea"
+        class="chat-input"
+        :class="{ disabled: props.disabled }"
+        rows="1"
+        :value="text"
+        :placeholder="props.disabled ? '' : t('ai.prompt.placeholder')"
+        :disabled="props.disabled"
+        autocomplete="off"
+        @input="onInputMessage"
+        @keydown="handleTextareaKeydown"
+      />
+      <div
+        class="chat-input-send"
+        :class="{ disabled: props.disabled }"
       >
-        <i class="icon icon-lg icon-send" />
-      </RcButton>
+        <RcButton
+          small
+          :disabled="!text || props.disabled"
+          @click="sendContent"
+          @keydown.enter="sendContent"
+        >
+          <i class="icon icon-lg icon-send" />
+        </RcButton>
+      </div>
     </div>
+    <span class="chat-model label text-deemphasized">
+      {{ !!props.agent ? t('ai.agent.label', { name: props.agent.name, model: props.agent.model }, true) : t('ai.agent.unknown') }}
+    </span>
   </div>
 </template>
 
 <style lang='scss' scoped>
-.chat-console-row {
+.chat-console {
   display: flex;
-  align-items: end;
-  gap: 8px;
+  flex-direction: column;
   padding: 16px 16px 16px 12px;
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
+  gap: 0.75rem;
   border-top: 1px solid var(--border);
   min-height: 70px;
 }
 
-.chat-console-menu {
-  margin-bottom: 4px;
+.chat-model {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.chat-console-row {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
 }
 
 .chat-input {

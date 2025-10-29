@@ -13,6 +13,7 @@ import Context from '../components/panels/Context.vue';
 import Console from '../components/panels/Console.vue';
 import Chat from '../handlers/chat';
 import HooksHandler from '../handlers/hooks';
+import { PRODUCT_NAME } from '../product';
 
 const store = useStore();
 
@@ -77,6 +78,13 @@ function resetChat() {
   });
 }
 
+function routeToSettings() {
+  store.state.$router.push({
+    name:   `c-cluster-settings-${ PRODUCT_NAME }`,
+    params: { cluster: store.state.$route.params.cluster || 'local' },
+  });
+}
+
 function handleKeydown(event: KeyboardEvent) {
   if (HooksHandler.isShowAllHooksKey(event)) {
     event.stopPropagation();
@@ -117,8 +125,10 @@ function unmount() {
     />
     <div class="chat-panel">
       <Header
-        :agent="agent"
         @close="close"
+        @config:chat="routeToSettings"
+        @download:chat="downloadMessages"
+        @reset:chat="resetChat"
       />
       <Messages
         :messages="messages"
@@ -135,9 +145,8 @@ function unmount() {
       />
       <Console
         :disabled="!ws || ws.readyState === 3 || errors.length > 0 || !!pendingConfirmation"
+        :agent="agent"
         @input:content="sendMessage($event, ws)"
-        @download:chat="downloadMessages"
-        @reset:chat="resetChat"
       />
     </div>
   </div>

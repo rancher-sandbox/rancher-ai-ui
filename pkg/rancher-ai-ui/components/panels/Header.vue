@@ -1,21 +1,18 @@
 <script lang="ts" setup>
-import { defineEmits, type PropType } from 'vue';
+import { defineEmits } from 'vue';
 import { useStore } from 'vuex';
-import { Agent } from '../../types';
 import RcButton from '@components/RcButton/RcButton.vue';
+import ConsoleMenu from '../console/Menu.vue';
 
 const store = useStore();
 const t = store.getters['i18n/t'];
 
-const props = defineProps({
-  agent: {
-    type:     Object as PropType<Agent | null>,
-    default:  null,
-  }
-});
-
 const emit = defineEmits([
   'close',
+  'download:chat',
+  'reset:chat',
+  'show:help',
+  'config:chat'
 ]);
 </script>
 
@@ -28,9 +25,14 @@ const emit = defineEmits([
           {{ t('ai.title') }}
         </span>
       </div>
-      <span class="chat-model">
-        {{ !!props.agent ? t('ai.agent.label', { name: props.agent.name, model: props.agent.model }, true) : t('ai.agent.unknown') }}
-      </span>
+    </div>
+    <div class="chat-menu">
+      <ConsoleMenu
+        @download:chat="emit('download:chat')"
+        @reset:chat="emit('reset:chat')"
+        @show:help="emit('show:help')"
+        @config:chat="emit('config:chat')"
+      />
     </div>
     <div class="chat-close-btn">
       <RcButton
@@ -56,7 +58,7 @@ const emit = defineEmits([
   padding: 12px 16px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 16px;
 }
 
 .chat-title {
@@ -64,32 +66,21 @@ const emit = defineEmits([
   flex-direction: row;
   align-items: baseline;
   min-width: 0; /* allow children to shrink so text-overflow works */
+  flex: 1;
 
   .chat-name {
+    display: flex;
+    gap: 12px;
+    align-items: center;
     font-weight: 600;
     font-size: 1em;
     color: var(--on-active);
     margin: 0;
-    margin-top: 4px;
     width: 60px;
-
-    .icon {
-      margin-right: 3px;
-    }
 
     .label {
       font-size: 1.3em;
     }
-  }
-
-  .chat-model {
-    font-size: 0.8rem;
-    color: var(--on-active);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-width: 0;
-    flex: 1 1 auto;
   }
 }
 
