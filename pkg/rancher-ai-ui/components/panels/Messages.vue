@@ -71,9 +71,11 @@ function handleScroll() {
 
 watch(
   () => props.messages,
-  () => {
+  (messages) => {
     nextTick(() => {
-      if (messagesView.value && autoScrollEnabled.value) {
+      const toScroll = autoScrollEnabled.value || (messages && messages[messages.length - 1]?.role === Role.User);
+
+      if (messagesView.value && toScroll) {
         messagesView.value.scrollTop = messagesView.value.scrollHeight;
       }
     });
@@ -127,7 +129,6 @@ onBeforeUnmount(() => {
       @update:message="emit('update:message', message)"
       @confirm:message="emit('confirm:message', $event)"
       @send:message="emit('send:message', $event)"
-      @enable:autoscroll="autoScrollEnabled = $event"
     />
     <MessageComponent
       v-for="(error, i) in errorMessages"

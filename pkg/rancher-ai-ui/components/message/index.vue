@@ -32,7 +32,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['update:message', 'confirm:message', 'send:message', 'enable:autoscroll']);
+const emit = defineEmits(['update:message', 'confirm:message', 'send:message']);
 
 const isThinking = computed(() => props.message.role === RoleEnum.Assistant &&
   !props.message.completed &&
@@ -40,7 +40,6 @@ const isThinking = computed(() => props.message.role === RoleEnum.Assistant &&
 );
 const showCopySuccess = ref(false);
 const timeoutCopy = ref<any>(null);
-const timeoutAutoscroll = ref<any>(null);
 
 function handleCopy() {
   if (!props.message.summaryContent && !props.message.messageContent && !props.message.thinkingContent) {
@@ -74,7 +73,7 @@ function handleCopy() {
 }
 
 function handleResendMessage() {
-  doActionAndScroll(() => emit('send:message', props.message));
+  nextTick(() => emit('send:message', props.message));
 }
 
 function handleShowCompleteMessage() {
@@ -88,26 +87,12 @@ function handleShowCompleteMessage() {
 function handleShowThinking() {
   props.message.showThinking = !props.message.showThinking;
 
-  doActionAndScroll(() => emit('update:message', props.message));
-}
-
-function doActionAndScroll(fn: () => void) {
-  emit('enable:autoscroll', false);
-  nextTick(() => fn());
-  if (timeoutAutoscroll.value) {
-    clearTimeout(timeoutAutoscroll.value);
-  }
-  timeoutAutoscroll.value = setTimeout(() => {
-    emit('enable:autoscroll', true);
-  }, 500);
+  nextTick(() => emit('update:message', props.message));
 }
 
 onBeforeUnmount(() => {
   if (timeoutCopy.value) {
     clearTimeout(timeoutCopy.value);
-  }
-  if (timeoutAutoscroll.value) {
-    clearTimeout(timeoutAutoscroll.value);
   }
 });
 </script>
