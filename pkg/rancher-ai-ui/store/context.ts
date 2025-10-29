@@ -27,8 +27,9 @@ const getters = {
 
     // Get current cluster from the store
     const currentCluster = rootGetters['currentCluster'];
+    const currentPath = rootState?.targetRoute?.path || '';
 
-    const activeCluster = currentCluster ? [{
+    const activeCluster = currentCluster && currentPath.includes(`/c/${ currentCluster.name }`) ? [{
       tag:         ContextTag.CLUSTER,
       value:       currentCluster.name,
       valueLabel:  currentCluster.nameDisplay || currentCluster.name,
