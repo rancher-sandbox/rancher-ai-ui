@@ -66,6 +66,8 @@ ai:
     overlay:
       badgeSliding:
         label: Ask Liz
+      bannerButton:
+        label: Ask Liz
   settings:
     title: AI Assistant
     goToSettings: Settings

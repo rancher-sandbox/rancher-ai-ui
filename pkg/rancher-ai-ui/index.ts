@@ -10,6 +10,7 @@ import contextStore from './store/context';
 import Chat from './handlers/chat';
 import Hooks from './handlers/hooks/index';
 import BadgeSlidingOverlay from './handlers/hooks/overlay/badge-sliding';
+import BannerButtonOverlay from  './handlers/hooks/overlay/banner-button';
 import { NotificationLevel } from '@shell/types/notifications';
 
 // Init the package
@@ -67,5 +68,6 @@ export default function(plugin: IPlugin, { store }: any): void {
 
   // Inject hooks in the main window
   Hooks.inject(BadgeSlidingOverlay, store);
+  Hooks.inject(BannerButtonOverlay, store);
   // Add more overlays here
 }
