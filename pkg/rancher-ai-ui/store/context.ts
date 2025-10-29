@@ -1,15 +1,11 @@
 import { Context } from 'types';
 import { PRODUCT_NAME } from '../product';
 import { CoreStoreSpecifics, CoreStoreConfig } from '@shell/core/types';
+import { ContextTag, HookContextTag } from '../types';
 
 const enum ContextType {
   ALL       = 'all',       // eslint-disable-line no-unused-vars
   CLUSTER   = 'cluster',   // eslint-disable-line no-unused-vars
-  NAMESPACE = 'namespace', // eslint-disable-line no-unused-vars
-}
-
-export const enum ContextTag {
-  CLUSTER   = 'cluster', // eslint-disable-line no-unused-vars
   NAMESPACE = 'namespace', // eslint-disable-line no-unused-vars
 }
 
@@ -112,9 +108,28 @@ const getters = {
         }));
     }
 
+    /**
+     * Add resource's namespace as context if available
+     *
+     * This is added here to ensure it is included in the final context list
+     * This will work only in Details pages where the context is set by the hook
+     *
+     * TODO for the long term, consider refactoring how context is managed and added.
+     */
+    const uiContext = rootGetters['ui-context/all'] || [];
+    const resourceDetailsContext = uiContext.find((c: Context) => c.tag === HookContextTag.DetailsState);
+
+    const resourceNamespaceCtx = resourceDetailsContext?.value?.namespace ? [{
+      tag:         ContextTag.NAMESPACE,
+      description: t('ai.context.resources.namespace'),
+      icon:        'icon-namespace',
+      value:       resourceDetailsContext?.value?.namespace
+    }] : [];
+
     const all = [
       ...activeCluster,
       ...activeNamespaces,
+      ...resourceNamespaceCtx,
       ...getters.default,
       ...state.context,
     ];

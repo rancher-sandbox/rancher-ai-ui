@@ -1,15 +1,9 @@
 import { Store } from 'vuex';
-import { Context, Message, Role } from '../../types';
+import { Context, Message, Role, HookContextTag } from '../../types';
 
 export interface MessageTemplateFill {
   message: Message;
   payload: string;
-}
-
-export const enum ContextTag {
-  SortableTableRow = '__sortable-table-row', // eslint-disable-line no-unused-vars
-  DetailsState = '__details-state', // eslint-disable-line no-unused-vars
-  StatusBanner = '__details-state-banner', // eslint-disable-line no-unused-vars
 }
 
 class TemplateMessageFactory {
@@ -38,8 +32,8 @@ class TemplateMessageFactory {
     }] : [];
 
     switch (ctx.tag) {
-    case ContextTag.SortableTableRow:
-    case ContextTag.DetailsState:
+    case HookContextTag.SortableTableRow:
+    case HookContextTag.DetailsState:
       summaryContent = t('ai.message.template.summary.analyseKindAndTroubleshoot', {
         kind: resource.kind,
         name: resource.name
@@ -56,7 +50,7 @@ class TemplateMessageFactory {
         messageContent += `\n  - ${ t('ai.message.template.bullet.confirmExpectedState') }`;
       }
       break;
-    case ContextTag.StatusBanner:
+    case HookContextTag.StatusBanner:
       const { label, color } = resource.bannerProps || {};
 
       const issueText = color === 'error' ? t('ai.message.template.theError') : t('ai.message.template.anyProblems');
