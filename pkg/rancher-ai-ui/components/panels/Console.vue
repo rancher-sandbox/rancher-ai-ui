@@ -146,7 +146,7 @@ watch(() => text.value, () => {
 .chat-console {
   display: flex;
   flex-direction: column;
-  padding: 16px 16px 16px 12px;
+  padding: 16px 16px 16px 16px;
   gap: 0.75rem;
   border-top: 1px solid var(--border);
   min-height: 70px;
