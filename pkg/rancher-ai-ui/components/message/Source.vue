@@ -2,6 +2,8 @@
 import { ref } from 'vue';
 import { useStore } from 'vuex';
 
+import ContextTag from '../context/ContextTag.vue';
+
 const store = useStore();
 const t = store.getters['i18n/t'];
 
@@ -12,7 +14,6 @@ const isCollapsed = ref(true);
 <template>
   <div class="chat-source-container">
     <div class="chat-msg-source-label">
-      <i class="icon icon-sources" />
       <span>{{ t('ai.message.source.label') }}</span>
       <i
         class="icon icon-sm"
@@ -27,8 +28,20 @@ const isCollapsed = ref(true);
       v-if="!isCollapsed"
       class="chat-msg-source-tags"
     >
-      <span class="chat-msg-source-tag">Cluster Management Guide</span>
-      <span class="chat-msg-source-tag">Best Practices</span>
+      <context-tag
+        :remove-enabled="false"
+        type="user"
+        class="chat-msg-user-context-tag"
+      >
+        Cluster Management Guide
+      </context-tag>
+      <context-tag
+        :remove-enabled="false"
+        type="user"
+        class="chat-msg-user-context-tag"
+      >
+        Best Practices
+      </context-tag>
     </div>
   </div>
 </template>
@@ -37,7 +50,7 @@ const isCollapsed = ref(true);
 .chat-msg-source-label {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
   color: #9fabc6;
 
   span {
@@ -50,7 +63,7 @@ const isCollapsed = ref(true);
   display: flex;
   gap: 4px;
   flex-wrap: wrap;
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
 .chat-msg-source-tag {

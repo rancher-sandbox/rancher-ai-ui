@@ -228,6 +228,7 @@ onBeforeUnmount(() => {
           :key="index"
           :item="item"
           :remove-enabled="false"
+          type="user"
           class="chat-msg-user-context-tag"
         />
       </div>
@@ -435,20 +436,5 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: flex-end;
   gap: 4px;
-}
-
-.chat-msg-user-context-tag {
-  background-color: transparent;
-  color: #9fabc6;
-  min-height: 16px;
-  height: fit-content;
-  border-radius: 8px;
-  font-size: 0.75rem;
-  border: 1px solid #9fabc6;
-  border-radius: 3px;
-  margin: 0;
-  cursor: default;
-  word-break: break-word;
-  white-space: pre-line;
 }
 </style>

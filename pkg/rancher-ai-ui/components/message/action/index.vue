@@ -18,7 +18,6 @@ const props = defineProps({
 <template>
   <div class="chat-actions-container">
     <div class="chat-msg-action-title">
-      <i class="icon icon-quick-action" />
       <span>{{ t('ai.message.relatedResources.label') }}</span>
     </div>
     <div class="chat-msg-action-tags">
