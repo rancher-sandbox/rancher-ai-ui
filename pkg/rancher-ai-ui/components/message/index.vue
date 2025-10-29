@@ -43,19 +43,27 @@ const timeoutCopy = ref<any>(null);
 const timeoutAutoscroll = ref<any>(null);
 
 function handleCopy() {
-  if (!props.message.messageContent && !props.message.thinkingContent) {
+  if (!props.message.summaryContent && !props.message.messageContent && !props.message.thinkingContent) {
     return;
   }
 
   let text = '';
 
   if (RoleEnum.Assistant && props.message.showThinking) {
-    text = props.message.thinkingContent || '';
+    text += props.message.thinkingContent ? `${ props.message.thinkingContent }\n` : '';
   }
 
-  text += (props.message.messageContent || '');
+  if (props.message.summaryContent) {
+    text += props.message.summaryContent;
 
-  navigator.clipboard.writeText(text);
+    if (props.message.showCompleteMessage) {
+      text += `\n${ props.message.messageContent || '' }`;
+    }
+  } else {
+    text += (props.message.messageContent || '');
+  }
+
+  navigator.clipboard.writeText(text.trim());
   showCopySuccess.value = true;
   if (timeoutCopy.value) {
     clearTimeout(timeoutCopy.value);
