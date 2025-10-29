@@ -1,10 +1,11 @@
 ai:
-  title: Liz
   action:
     openChat: Ask Liz
   nonPrime:
     title: Rancher AI Assistant requires Rancher Prime
     message: The Rancher AI Assistant requires a Rancher Prime subscription. Please upgrade to Prime or uninstall this extension.
+  header:
+    title: Liz
   message:
     system:
       welcome: Hello! I am Liz, your AI assistant. How can I help you today?

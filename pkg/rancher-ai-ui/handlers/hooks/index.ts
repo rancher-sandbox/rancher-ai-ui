@@ -2,6 +2,7 @@ import { Context } from '../../types';
 import { Store } from 'vuex';
 import { watch } from 'vue';
 import { HooksOverlay } from './overlay';
+import { debounce } from 'lodash';
 
 interface Target {
   target: HTMLElement;
@@ -17,17 +18,52 @@ class HooksHandler {
   private overlays: HooksOverlay[] = [];
 
   private static initialized = false;
-
+  private static headerBtn: HTMLElement | null = null;
   private static allHooksKeyPressed = false;
 
   // Key chain: Ctrl + Alt + L
-  public isShowAllHooksKey(e: KeyboardEvent) {
+  private isShowAllHooksKey(e: KeyboardEvent) {
     if (HooksHandler.allHooksKeyPressed) {
       return e.type === 'keyup' && (e.key === 'Control' || e.key === 'Alt' || e.key?.toLowerCase() === 'l');
     } else {
       return e.ctrlKey && e.altKey && e.key?.toLowerCase() === 'l';
     }
   };
+
+  private addEasterEgg(store: Store<any>) {
+    if (HooksHandler.headerBtn) {
+      const prev = (HooksHandler.headerBtn as any).__easterHandlers;
+
+      if (prev) {
+        try {
+          HooksHandler.headerBtn.removeEventListener('mouseenter', prev.onEnter);
+        } catch {}
+        try {
+          HooksHandler.headerBtn.removeEventListener('mouseleave', prev.onLeave);
+        } catch {}
+      }
+      (HooksHandler.headerBtn as any).__easterHandlers = undefined;
+      HooksHandler.headerBtn = null;
+    }
+
+    HooksHandler.headerBtn = document.querySelector('.header-btn .icon-ai')?.closest('.header-btn') as HTMLElement | null;
+
+    if (HooksHandler.headerBtn) {
+      const onEnter = debounce(() => {
+        this.toggleAllHooksOverlay(store, true);
+      }, 150);
+      const onLeave = debounce(() => {
+        this.toggleAllHooksOverlay(store, false);
+      }, 150);
+
+      (HooksHandler.headerBtn as any).__easterHandlers = {
+        onEnter,
+        onLeave
+      };
+      HooksHandler.headerBtn.addEventListener('mouseenter', onEnter);
+      HooksHandler.headerBtn.addEventListener('mouseleave', onLeave);
+    }
+  }
 
   private getOverlayHTMLElement(target: HTMLElement, overlay: HooksOverlay) {
     return target.classList.contains(overlay.getSelector()) ? target : (target.querySelector(`.${ overlay.getSelector() }`) as HTMLElement);
@@ -65,40 +101,44 @@ class HooksHandler {
   }
 
   private init(store: Store<any>) {
+    // Debounce the expensive handler so only the last update is processed
+    const handleHooksChange = debounce(async(hooks: Context[]) => {
+      this.addEasterEgg(store);
+      this.clearTargets();
+
+      hooks.forEach((ctx: Context) => {
+        const target = document.querySelector(`[ux-context-hook-id="${ ctx.hookId }"]`) as HTMLElement;
+
+        if (target) {
+          const onEnter = () => {
+            if (!HooksHandler.allHooksKeyPressed) {
+              this.toggleOverlays(store, target, ctx, true);
+            }
+          };
+          const onLeave = () => {
+            if (!HooksHandler.allHooksKeyPressed) {
+              this.toggleOverlays(store, target, ctx, false);
+            }
+          };
+
+          target.addEventListener('mouseenter', onEnter);
+          target.addEventListener('mouseleave', onLeave);
+
+          this.targets.add({
+            target,
+            ctx,
+            handlers: {
+              mouseenter: onEnter,
+              mouseleave: onLeave
+            },
+          });
+        }
+      });
+    }, 300);
+
     watch(
       () => store.getters['ui-context/all'].filter((c: Context) => !!c.hookId),
-      async(hooks) => {
-        this.clearTargets();
-
-        hooks.forEach((ctx: Context) => {
-          const target = document.querySelector(`[ux-context-hook-id="${ ctx.hookId }"]`) as HTMLElement;
-
-          if (target) {
-            const onEnter = () => {
-              if (!HooksHandler.allHooksKeyPressed) {
-                this.toggleOverlays(store, target, ctx, true);
-              }
-            };
-            const onLeave = () => {
-              if (!HooksHandler.allHooksKeyPressed) {
-                this.toggleOverlays(store, target, ctx, false);
-              }
-            };
-
-            target.addEventListener('mouseenter', onEnter);
-            target.addEventListener('mouseleave', onLeave);
-
-            this.targets.add({
-              target,
-              ctx,
-              handlers: {
-                mouseenter: onEnter,
-                mouseleave: onLeave,
-              },
-            });
-          }
-        });
-      },
+      (hooks) => handleHooksChange(hooks),
       {
         immediate: true,
         deep:      true
@@ -117,17 +157,13 @@ class HooksHandler {
 
     window.addEventListener('keydown', (e) => {
       if (this.isShowAllHooksKey(e)) {
-        HooksHandler.allHooksKeyPressed = true;
-        HooksOverlay.setAllHooksKeyPressed(true);
-        this.targets.forEach(({ target, ctx }) => this.toggleOverlays(store, target, ctx, true));
+        this.toggleAllHooksOverlay(store, true);
       }
     });
 
     window.addEventListener('keyup', (e) => {
       if (this.isShowAllHooksKey(e)) {
-        HooksHandler.allHooksKeyPressed = false;
-        HooksOverlay.setAllHooksKeyPressed(false);
-        this.targets.forEach(({ target, ctx }) => this.toggleOverlays(store, target, ctx, false));
+        this.toggleAllHooksOverlay(store, false);
       }
     });
   }
@@ -144,6 +180,12 @@ class HooksHandler {
 
     this.overlays.push(overlay);
   };
+
+  public toggleAllHooksOverlay(store: Store<any>, value: boolean) {
+    HooksHandler.allHooksKeyPressed = value;
+    HooksOverlay.setAllHooksKeyPressed(value);
+    this.targets.forEach(({ target, ctx }) => this.toggleOverlays(store, target, ctx, value));
+  }
 }
 
 export default new HooksHandler();
