@@ -18,7 +18,7 @@ const to = ref<any>(null);
 const tooltip = ref<string>('');
 
 function goTo() {
-  (store as any).$router.push(to.value.detailLocation);
+  store.state.$router.push(to.value.detailLocation);
 }
 
 onMounted(async() => {
@@ -37,16 +37,6 @@ onMounted(async() => {
       id: namespace ? `${ namespace }/${ name }` : name
     });
   }
-
-  // if (to.value) {
-  //   const {
-  //     namespace, name, kind
-  //   } = to.value;
-
-  //   tooltip.value = t('ai.message.relatedResources.tooltip', { kind, name, namespace, cluster: props.value.resource.cluster }, true);
-
-  //   console.log('tooltip', tooltip.value);
-  // }
 });
 
 </script>
