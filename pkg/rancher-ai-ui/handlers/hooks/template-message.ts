@@ -1,3 +1,4 @@
+import { Store } from 'vuex';
 import { Context, Message, Role } from '../../types';
 
 export interface MessageTemplateFill {
@@ -12,8 +13,10 @@ export const enum ContextTag {
 }
 
 class TemplateMessageFactory {
-  fill(ctx: Context, globalCtx: Context[]): Message {
-    let messageContent = 'Hey Liz, please analyse the resource';
+  fill(store: Store<any>, ctx: Context, globalCtx: Context[]): Message {
+    const t = store.getters['i18n/t'];
+
+    let messageContent = t('ai.message.template.heyAnalyzeResource');
     let summaryContent = '';
 
     const resource = ctx.value as any;
@@ -29,7 +32,7 @@ class TemplateMessageFactory {
     // Add resource's namespace as context if available
     const resourceNamespaceCtx = resource?.namespace ? [{
       tag:         'namespace',
-      description: 'Namespace',
+      description: t('ai.message.template.namespace'),
       icon:        'icon-namespace',
       value:       resource?.namespace
     }] : [];
@@ -37,31 +40,41 @@ class TemplateMessageFactory {
     switch (ctx.tag) {
     case ContextTag.SortableTableRow:
     case ContextTag.DetailsState:
-      summaryContent = `Hey Liz, please analyse ${ resource.kind }: <strong>${ resource.name }</strong> and troubleshoot any problems.`;
-      messageContent = `Explain what the '${ resource.state }' state means for the ${ resource.kind }: ${ resource.name }.`;
+      summaryContent = t('ai.message.template.summary.analyseKindAndTroubleshoot', {
+        kind: resource.kind,
+        name: resource.name
+      }, true);
+      messageContent = t('ai.message.template.message.explainStateForResource', {
+        state: resource.state,
+        kind:  resource.kind,
+        name:  resource.name
+      }, true);
 
       if (resource.state !== 'active' && resource.state !== 'running' && resource.state !== 'ready') {
-        messageContent += `
-  - Identify the cause of the issue: analyze the resource status and the associated events and determine the most likely reason it is in this state.
-  - Provide a numbered list of actions to fix the issue.`;
+        messageContent += `\n  - ${ t('ai.message.template.bullet.identifyCause') }\n  - ${ t('ai.message.template.bullet.provideActions') }`;
       } else {
-        messageContent += `
-  - Confirm that this is the expected state and what it implies.`;
+        messageContent += `\n  - ${ t('ai.message.template.bullet.confirmExpectedState') }`;
       }
       break;
     case ContextTag.StatusBanner:
       const { label, color } = resource.bannerProps || {};
 
-      summaryContent = `Hey Liz, please analyse the <strong>"${ label }"</strong> message and troubleshoot ${ color === 'error' ? 'the error' : 'any problems' }.`;
-      messageContent = `Explain what the '${ resource.state }' state means for the ${ resource.kind }: ${ resource.name }.`;
+      const issueText = color === 'error' ? t('ai.message.template.theError') : t('ai.message.template.anyProblems');
+
+      summaryContent = t('ai.message.template.summary.analyseBanner', {
+        label,
+        issue: issueText
+      }, true);
+      messageContent = t('ai.message.template.message.explainStateForResource', {
+        state: resource.state,
+        kind:  resource.kind,
+        name:  resource.name
+      }, true);
 
       if (resource.state !== 'active' && resource.state !== 'running' && resource.state !== 'ready') {
-        messageContent += `
-  - Identify the cause of the issue: analyze the resource status and the associated events and determine the most likely reason it is in this state.
-  - Provide a numbered list of actions to fix the issue.`;
+        messageContent += `\n  - ${ t('ai.message.template.bullet.identifyCause') }\n  - ${ t('ai.message.template.bullet.provideActions') }`;
       } else {
-        messageContent += `
-  - Confirm that this is the expected state and what it implies.`;
+        messageContent += `\n  - ${ t('ai.message.template.bullet.confirmExpectedState') }`;
       }
       break;
     default:

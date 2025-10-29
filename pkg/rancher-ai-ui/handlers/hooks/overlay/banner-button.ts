@@ -106,7 +106,7 @@ class BannerButtonOverlay extends HooksOverlay {
   action(store: Store<any>, e: Event, overlay: HTMLElement, ctx: Context, globalCtx: Context[]) {
     e.stopPropagation();
 
-    const message = TemplateMessage.fill({
+    const message = TemplateMessage.fill(store, {
       ...ctx,
       value: {
         ...(ctx.value as any)?.resource || {},

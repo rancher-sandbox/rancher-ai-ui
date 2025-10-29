@@ -225,7 +225,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
     //   store.commit('rancher-ai-ui/context/add', ctx);
     // }
 
-    const message = TemplateMessage.fill(ctx, globalCtx);
+    const message = TemplateMessage.fill(store, ctx, globalCtx);
 
     store.dispatch('rancher-ai-ui/chat/init', {
       chatId:   'default',
