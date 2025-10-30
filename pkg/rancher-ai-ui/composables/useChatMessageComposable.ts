@@ -2,7 +2,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useContextComposable } from './useContextComposable';
 import {
-  ChatError, ConfirmationStatus, Message, Role, Tag
+  ChatError, ConfirmationStatus, Message, MessageTemplateComponent, Role, Tag
 } from '../types';
 import {
   formatMessagePromptWithContext, formatMessageRelatedResourcesActions, formatConfirmationAction, formatSuggestionActions, formatFileMessages,
@@ -17,6 +17,8 @@ const EXPAND_THINKING = false;
 export function useChatMessageComposable() {
   const store = useStore();
   const t = store.getters['i18n/t'];
+
+  const principal = store.getters['rancher/byId'](NORMAN.PRINCIPAL, store.getters['auth/principalId']) || {};
 
   const messages = computed(() => Object.values(store.getters['rancher-ai-ui/chat/messages'](CHAT_ID)) as Message[]);
   const currentMsg = ref<Message>({} as Message);
@@ -92,8 +94,12 @@ export function useChatMessageComposable() {
     }
 
     addMessage({
-      role:           Role.System,
-      messageContent: t('ai.message.system.welcome'),
+      role:            Role.System,
+      templateContent: {
+        component: MessageTemplateComponent.Welcome,
+        props:     { principal }
+      },
+      suggestionActions: [],
     });
   }
 
@@ -198,8 +204,6 @@ export function useChatMessageComposable() {
   }
 
   function downloadMessages() {
-    const principal = store.getters['rancher/byId'](NORMAN.PRINCIPAL, store.getters['auth/principalId']) || {};
-
     downloadFile(
       `Rancher-liz-chat-${ CHAT_ID }_${ new Date().toISOString().slice(0, 10) }.txt`,
       formatFileMessages(principal, messages.value)

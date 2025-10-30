@@ -8,6 +8,10 @@ const store = useStore();
 const t = store.getters['i18n/t'];
 
 const props = defineProps({
+  label: {
+    type:    String,
+    default: () => '',
+  },
   suggestions: {
     type:    Array as PropType<MessageActionSuggestion[]>,
     default: () => ([] as MessageActionSuggestion[]),
@@ -20,7 +24,7 @@ const emit = defineEmits(['select']);
 <template>
   <div class="suggestions-container">
     <div class="suggestions-header">
-      {{ t('ai.message.suggestions.label') }}
+      {{ props.label || t('ai.message.suggestions.label') }}
     </div>
     <ul class="suggestions-list">
       <li
@@ -45,7 +49,7 @@ const emit = defineEmits(['select']);
 <style lang='scss' scoped>
 .suggestions-header {
   margin-bottom: 8px;
-  font-weight: 600; /* make header bold */
+  font-weight: 600;
 }
 .suggestions-list {
   padding: 0;
