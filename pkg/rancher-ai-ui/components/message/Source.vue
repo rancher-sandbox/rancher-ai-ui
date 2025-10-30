@@ -9,6 +9,11 @@ const t = store.getters['i18n/t'];
 
 const isCollapsed = ref(true);
 
+const items = [
+  { value: 'Cluster Management Guide' },
+  { value: 'Best Practices' },
+];
+
 </script>
 
 <template>
@@ -28,20 +33,18 @@ const isCollapsed = ref(true);
       v-if="!isCollapsed"
       class="chat-msg-source-tags"
     >
-      <context-tag
-        :remove-enabled="false"
-        type="user"
-        class="chat-msg-user-context-tag"
+      <template
+        v-for="item in items"
+        :key="item.value"
       >
-        Cluster Management Guide
-      </context-tag>
-      <context-tag
-        :remove-enabled="false"
-        type="user"
-        class="chat-msg-user-context-tag"
-      >
-        Best Practices
-      </context-tag>
+        <context-tag
+          :remove-enabled="false"
+          :item="item"
+          type="user"
+          class="chat-msg-user-context-tag"
+        >
+        </context-tag>
+      </template>
     </div>
   </div>
 </template>
