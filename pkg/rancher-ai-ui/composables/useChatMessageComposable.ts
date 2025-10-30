@@ -101,10 +101,9 @@ export function useChatMessageComposable() {
     const ws = event.target;
 
     if (ws) {
-      const initPrompt = `
-        Hi! Provide a list of 3 suggestions based on the context.
-          - If the context is empty, provide generic suggestions.
-          - Do not ask for any confirmation or additional information.
+      const initPrompt = `Hi!
+        - Send me a message with 3 ${ selectedContext.value?.length ? 'suggestions based on the context.' : 'generic suggestions.' }.
+        - DO NOT ask for any confirmation or additional information.
       `;
 
       ws.send(formatMessagePromptWithContext(initPrompt, selectedContext.value));
@@ -133,22 +132,21 @@ export function useChatMessageComposable() {
   async function processWelcomeData(data: string) {
     switch (data) {
     case Tag.MessageStart:
-      currentMsg.value = {
-        role:      Role.System,
-        completed: false,
-      };
-      break;
-    case Tag.MessageEnd:
-      currentMsg.value.completed = true;
-
-      addMessage({
-        ...currentMsg.value,
-        messageContent:  '',
+      const msgId = await addMessage({
+        role:            Role.System,
         templateContent: {
           component: MessageTemplateComponent.Welcome,
           props:     { principal }
         },
+        completed: false,
       });
+
+      currentMsg.value = getMessage(msgId);
+      break;
+    case Tag.MessageEnd:
+      currentMsg.value.messageContent = t('ai.message.system.welcome.info');
+      currentMsg.value.completed = true;
+
       break;
     default:
       if (currentMsg.value.completed === false) {

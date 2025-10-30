@@ -81,10 +81,13 @@ const user = computed(() => {
         />
       </div>
     </div>
-    <div class="chat-welcome-msg-bubble">
+    <div
+      v-if="message.messageContent"
+      class="chat-welcome-msg-bubble"
+    >
       <div class="chat-welcome-msg-text">
         <span>
-          {{ t('ai.message.system.welcome.info') }}
+          {{ message.messageContent }}
         </span>
       </div>
     </div>
