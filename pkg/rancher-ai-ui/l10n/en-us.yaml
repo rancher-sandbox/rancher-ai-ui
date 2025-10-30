@@ -29,6 +29,20 @@ ai:
       hideCompleteMessage: See Less
     suggestions:
       label: Recommended Actions
+    template:
+      heyAnalyzeResource: 'Hey Liz, please analyse the resource'
+      namespace: 'Namespace'
+      summary:
+        analyseKindAndTroubleshoot: 'Please analyse the {kind} "<strong>{name}</strong>" and troubleshoot any problems.'
+        analyseBanner: 'Hey Liz, please analyse the "<strong>{label}</strong>" message and troubleshoot {issue}.'
+      message:
+        explainStateForResource: 'Explain what the "{state}" state means for the {kind}: {name}.'
+      bullet:
+        identifyCause: 'Identify the cause of the issue: analyze the resource status and the associated events and determine the most likely reason it is in this state.'
+        provideActions: 'Provide a numbered list of actions to fix the issue.'
+        confirmExpectedState: 'Confirm that this is the expected state and what it implies.'
+      theError: 'the error'
+      anyProblems: 'any problems'
   prompt:
     placeholder: Ask Liz...
     send: Send
@@ -65,6 +79,8 @@ ai:
         explain: Explain Error "{error}"
     overlay:
       badgeSliding:
+        label: Ask Liz
+      bannerButton:
         label: Ask Liz
   settings:
     title: AI Assistant

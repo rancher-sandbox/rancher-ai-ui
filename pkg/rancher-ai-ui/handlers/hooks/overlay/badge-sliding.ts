@@ -31,7 +31,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
     const bgColor = getComputedStyle(document.body).getPropertyValue('--body-bg');
     const opacity = theme === Theme.Dark ? '30%' : '10%';
 
-    badge.classList.forEach((c) => {
+    (badge?.classList || []).forEach((c) => {
       if (c.startsWith('bg-')) {
         const classId = c.replaceAll('bg-', '');
         const classBgColor = getComputedStyle(document.body).getPropertyValue(`--${ classId }`);
@@ -225,7 +225,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
     //   store.commit('rancher-ai-ui/context/add', ctx);
     // }
 
-    const message = TemplateMessage.fill(ctx, globalCtx);
+    const message = TemplateMessage.fill(store, ctx, globalCtx);
 
     store.dispatch('rancher-ai-ui/chat/init', {
       chatId:   'default',
@@ -273,7 +273,9 @@ class BadgeSlidingOverlay extends HooksOverlay {
     nextTick(() => {
       const { badge: badgeProps } = this.computeThemeProperties(badge, theme);
 
-      badge.style.background = badgeProps.background;
+      if (badge) {
+        badge.style.background = badgeProps.background;
+      }
     });
   }
 }
