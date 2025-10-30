@@ -26,3 +26,17 @@ export interface FormData {
   [Settings.SYSTEM_PROMPT]?: string;
   [Settings.ACTIVE_CHATBOT]?: string;
 }
+
+export interface Workload {
+  nameDisplay: string;
+  type: string;
+  schema?: any;
+  spec: {
+    template: {
+      metadata?: {
+        annotations?: Record<string, string>;
+      };
+    };
+  };
+  save: () => Promise<void>;
+}

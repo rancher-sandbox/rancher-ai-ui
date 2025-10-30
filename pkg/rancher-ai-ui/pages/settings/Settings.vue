@@ -16,7 +16,9 @@ import AdvancedSection from '@shell/components/AdvancedSection.vue';
 import Loading from '@shell/components/Loading.vue';
 import Password from '@shell/components/form/Password.vue';
 import ToggleGroup from '../../components/toggle/toggle-group.vue';
-import { Settings, FormData } from './types';
+import { AGENT_NAME, AGENT_NAMESPACE } from '../../product';
+import { Settings, FormData, Workload } from './types';
+import dayjs from 'dayjs';
 
 const store = useStore();
 const { t } = useI18n(store);
@@ -189,6 +191,20 @@ const save = async(btnCB: (arg: boolean) => void) => { // eslint-disable-line no
 
     resource.value.data.data = formDataToSave;
     await resource.value.data.save();
+
+    // redeploy the rancher-ai-agent deployment after save
+    const deployment = await store.dispatch('management/find', {
+      type: 'apps.deployment',
+      id:   `${ AGENT_NAMESPACE }/${ AGENT_NAME }`,
+    }) as Workload;
+
+    const metadata = deployment.spec.template.metadata ??= {};
+    const annotations = metadata.annotations ??= {};
+
+    annotations['cattle.io/timestamp'] = dayjs().toISOString();
+
+    await deployment.save();
+
     btnCB(true);
   } catch (err) { // eslint-disable-line no-unused-vars
     btnCB(false);
