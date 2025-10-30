@@ -54,7 +54,10 @@ export default function(plugin: IPlugin, { store }: any): void {
     {},
     {
       tooltipKey: 'ai.action.openChat',
-      shortcut: 'i',
+      shortcut: { 
+        windows: ['alt', 'shift', 'k'], 
+        mac: ['alt', 'shift', 'k'] 
+      },
       icon: 'icon-ai',
       invoke: () => Chat.open(store),
     }
