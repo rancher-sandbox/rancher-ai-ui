@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { ref, watch, toValue, computed } from 'vue';
+import {
+  ref, watch, toValue, computed, onBeforeMount
+} from 'vue';
 import { useStore } from 'vuex';
 import { cloneDeep } from 'lodash';
 
@@ -18,6 +20,7 @@ import Password from '@shell/components/form/Password.vue';
 import ToggleGroup from '../../components/toggle/toggle-group.vue';
 import { AGENT_NAME, AGENT_NAMESPACE, AGENT_CONFIG_SECRET_NAME } from '../../product';
 import { Settings, FormData, Workload } from './types';
+import { SECRET } from '@shell/config/types';
 import dayjs from 'dayjs';
 
 const store = useStore();
@@ -71,12 +74,25 @@ const activeChatbotOptions = [
   },
 ];
 
+const canListSecrets = computed(() => {
+  return store.getters['management/canList'](SECRET);
+});
+
+onBeforeMount(() => {
+  if (!canListSecrets.value) {
+    store.state.$router.push({
+      name:   'c-cluster-settings',
+      params: { cluster: 'local' }
+    });
+  }
+});
+
 const resource = useFetch(async() => {
   let data;
 
   try {
     data = await store.dispatch(`management/find`, {
-      type: 'secret',
+      type: SECRET,
       id:   `${ AGENT_NAMESPACE }/${ AGENT_CONFIG_SECRET_NAME }`,
       opt:  { watch: true }
     });
@@ -87,7 +103,7 @@ const resource = useFetch(async() => {
     if (!data) {
       // create a new secret if one does not exist
       data = await store.dispatch('management/create', {
-        type:     'secret',
+        type:     SECRET,
         metadata: {
           namespace: AGENT_NAMESPACE,
           name:      AGENT_CONFIG_SECRET_NAME,
