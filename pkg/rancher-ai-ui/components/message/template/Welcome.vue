@@ -70,7 +70,7 @@ const user = computed(() => {
       </div>
     </div>
     <div
-      v-if="props.message.suggestionActions?.length"
+      v-if="props.message.completed && props.message.suggestionActions?.length"
       class="chat-welcome-msg-bubble chat-welcome-suggestions"
     >
       <div class="chat-welcome-msg-text">
@@ -82,12 +82,12 @@ const user = computed(() => {
       </div>
     </div>
     <div
-      v-if="message.messageContent"
+      v-if="props.message.completed && props.message.messageContent"
       class="chat-welcome-msg-bubble"
     >
       <div class="chat-welcome-msg-text">
         <span>
-          {{ message.messageContent }}
+          {{ props.message.messageContent }}
         </span>
       </div>
     </div>
