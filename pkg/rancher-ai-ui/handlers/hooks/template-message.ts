@@ -82,10 +82,11 @@ class TemplateMessageFactory {
     ].filter((item, index, self) => index === self.findIndex((c) => c.tag === item.tag && c.value === item.value));
 
     return {
-      role: Role.User,
+      role:      Role.User,
       messageContent,
       summaryContent,
       contextContent,
+      completed: true
     };
   }
 }

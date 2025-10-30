@@ -143,8 +143,10 @@ onBeforeUnmount(() => {
         :class="{
           'chat-message-template-welcome': formattedMessages.length > 1,
         }"
+        :disabled="disabled"
         :principal="message.templateContent?.props?.principal"
         :message="message"
+        @send:message="emit('send:message', $event)"
       />
       <MessageComponent
         v-else

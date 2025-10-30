@@ -18,7 +18,13 @@ const props = defineProps({
     type:    Object as PropType<Message>,
     default: () => ({} as Message),
   },
+  disabled: {
+    type:    Boolean,
+    default: false,
+  },
 });
+
+const emit = defineEmits(['send:message']);
 
 const user = computed(() => {
   const out = { name: props.principal?.name || 'User' };
@@ -32,7 +38,12 @@ const user = computed(() => {
 </script>
 
 <template>
-  <div class="chat-welcome-message">
+  <div
+    class="chat-welcome-message"
+    :class="{
+      disabled: props.disabled
+    }"
+  >
     <div class="chat-welcome-msg-splash">
       <div class="chat-welcome-msg-avatar-panel">
         <div class="chat-welcome-msg-avatar-circle">
@@ -66,6 +77,7 @@ const user = computed(() => {
         <Suggestions
           :label="t('ai.message.system.welcome.suggestions.label')"
           :suggestions="props.message.suggestionActions"
+          @select="(suggestion: string) => emit('send:message', suggestion)"
         />
       </div>
     </div>
