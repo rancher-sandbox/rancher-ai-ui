@@ -108,7 +108,7 @@ export function formatSuggestionActions(suggestionActions: string[], remaining: 
 
 export function formatFileMessages(principal: any, messages: Message[]): string {
   const avatar = {
-    [Role.User]:      `👤 ${ principal.name }`,
+    [Role.User]:      `👤 ${ principal?.name || 'user' }`,
     [Role.Assistant]: '🤖 Liz',
     [Role.System]:    '🛠️ Liz',
   };

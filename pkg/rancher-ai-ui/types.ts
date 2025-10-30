@@ -143,3 +143,14 @@ export interface Context {
   description?: string;
   icon?: string;
 }
+
+export const enum ContextTag {
+  CLUSTER   = 'cluster',
+  NAMESPACE = 'namespace',
+}
+
+export const enum HookContextTag {
+  SortableTableRow = '__sortable-table-row',
+  DetailsState = '__details-state',
+  StatusBanner = '__details-state-banner',
+}

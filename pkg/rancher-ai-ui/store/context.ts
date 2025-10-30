@@ -1,11 +1,67 @@
 import { Context } from 'types';
 import { PRODUCT_NAME } from '../product';
 import { CoreStoreSpecifics, CoreStoreConfig } from '@shell/core/types';
+import { ContextTag, HookContextTag } from '../types';
 
-export const enum ContextTag {
-  CLUSTER   = 'cluster', // eslint-disable-line no-unused-vars
+const enum ContextType {
+  ALL       = 'all',       // eslint-disable-line no-unused-vars
+  CLUSTER   = 'cluster',   // eslint-disable-line no-unused-vars
   NAMESPACE = 'namespace', // eslint-disable-line no-unused-vars
 }
+
+/**
+ * Determine if context should be allowed based on cluster and path
+ *
+ * Excludes context if not in the current cluster path
+ */
+function allowCluster(rootState: any, currentCluster: any): boolean {
+  const currentPath = rootState?.targetRoute?.path || '';
+
+  return currentCluster && currentPath.includes(`/c/${ currentCluster.name }`);
+};
+
+/**
+ * Determine if context should be allowed based on namespace and path
+ *
+ * Excludes context if not in the active namespace filters
+ *
+ * Possible activeNamespaceFilters values:
+ *
+ * ['all://user']  // Only User Namespaces
+ * ['all://system']  // Only System Namespaces
+ * ['namespaced://true']  // All Namespaced Resources
+ * ['namespaced://false']  // All Cluster Resources
+ * ['ns://{namespace}', 'ns://{namespace2}', ...] // One or more Specific Namespace
+ *
+ * The logic below only handles the 'ns://' case, as the others are not handled.
+ */
+function allowNamespace(rootGetters: any): boolean {
+  const activeNamespaceFilters = rootGetters['activeNamespaceFilters'] || [];
+
+  return !!activeNamespaceFilters.find((n: string) => n?.startsWith('ns://'));
+}
+
+/**
+ * Determine if context should be allowed based on product and path
+ *
+ * Excludes context if in home, settings, or auth paths
+ *
+ * @param contextType - The type of context to check (cluster, namespace, or all)
+ */
+function allowProduct(rootState: any, contextType: ContextType = ContextType.ALL): boolean {
+  const currentPath = rootState?.targetRoute?.path || '';
+
+  switch (contextType) {
+  case ContextType.CLUSTER:
+  case ContextType.NAMESPACE:
+  case ContextType.ALL:
+    return !currentPath.includes('/home') &&
+        rootState.productId !== 'settings' &&
+        rootState.productId !== 'auth';
+  default:
+    return true;
+  }
+};
 
 interface State {
   context: Context[];
@@ -27,9 +83,8 @@ const getters = {
 
     // Get current cluster from the store
     const currentCluster = rootGetters['currentCluster'];
-    const currentPath = rootState?.targetRoute?.path || '';
 
-    const activeCluster = currentCluster && currentPath.includes(`/c/${ currentCluster.name }`) ? [{
+    const activeCluster = allowProduct(rootState) && allowCluster(rootState, currentCluster) ? [{
       tag:         ContextTag.CLUSTER,
       value:       currentCluster.name,
       valueLabel:  currentCluster.nameDisplay || currentCluster.name,
@@ -39,22 +94,10 @@ const getters = {
 
     // Get active namespaces from the store
     const namespaces = rootGetters['namespaces']() || {};
-    const activeNamespaceFilters = rootGetters['activeNamespaceFilters'] || [];
 
-    /**
-     * Possible namespace filters:
-     *
-     * ['all://user']  // Only User Namespaces
-     * ['all://system']  // Only System Namespaces
-     * ['namespaced://true']  // All Namespaced Resources
-     * ['namespaced://false']  // All Cluster Resources
-     * ['ns://{namespace}', 'ns://{namespace2}', ...] // One or more Specific Namespace
-     *
-     * Below logic only handles the 'ns://' case, as the others are not handled.
-     */
     let activeNamespaces: Context[] = [];
 
-    if (!!activeNamespaceFilters.find((n: string) => n?.startsWith('ns://'))) {
+    if (allowProduct(rootState) && allowNamespace(rootGetters)) {
       activeNamespaces = Object.keys(namespaces)
         .filter((k) => !!namespaces[k])
         .map((value) => ({
@@ -65,9 +108,28 @@ const getters = {
         }));
     }
 
+    /**
+     * Add resource's namespace as context if available
+     *
+     * This is added here to ensure it is included in the final context list
+     * This will work only in Details pages where the context is set by the hook
+     *
+     * TODO for the long term, consider refactoring how context is managed and added.
+     */
+    const uiContext = rootGetters['ui-context/all'] || [];
+    const resourceDetailsContext = uiContext.find((c: Context) => c.tag === HookContextTag.DetailsState);
+
+    const resourceNamespaceCtx = resourceDetailsContext?.value?.namespace ? [{
+      tag:         ContextTag.NAMESPACE,
+      description: t('ai.context.resources.namespace'),
+      icon:        'icon-namespace',
+      value:       resourceDetailsContext?.value?.namespace
+    }] : [];
+
     const all = [
       ...activeCluster,
       ...activeNamespaces,
+      ...resourceNamespaceCtx,
       ...getters.default,
       ...state.context,
     ];

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, type PropType } from 'vue';
 import { useStore } from 'vuex';
+import { warn } from '../../../utils/log';
 import RcButton from '@components/RcButton/RcButton.vue';
 import { MessageActionRelatedResource } from '../../../types';
 import { ActionType } from '../../../types';
@@ -31,11 +32,16 @@ onMounted(async() => {
 
     const inStore = store.getters['currentProduct'].inStore || 'management';
 
-    to.value = await store.dispatch(`${ inStore }/find`, {
-      cluster,
-      type,
-      id: namespace ? `${ namespace }/${ name }` : name
-    });
+    try {
+      to.value = await store.dispatch(`${ inStore }/find`, {
+        cluster,
+        type,
+        id: namespace ? `${ namespace }/${ name }` : name
+      });
+    } catch (e) {
+      warn('RelatedResource - Could not find related resource', e);
+      to.value = null;
+    }
   }
 });
 
