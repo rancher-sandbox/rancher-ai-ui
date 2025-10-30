@@ -94,7 +94,7 @@ const resource = useFetch(async() => {
         },
         data: {
           [Settings.ACTIVE_CHATBOT]:      base64Encode(ChatBotEnum.Local),
-          [Settings.OLLAMA_URL]:          base64Encode('http://10.144.122.2'),
+          [Settings.OLLAMA_URL]:          base64Encode(''),
           [Settings.OPENAI_API_KEY]:      base64Encode(''),
           [Settings.GOOGLE_API_KEY]:      base64Encode(''),
           [Settings.MODEL]:               base64Encode(models[ChatBotEnum.Local][0]),
