@@ -373,6 +373,18 @@ onBeforeUnmount(() => {
   list-style-position: inside;
 }
 
+.chat-msg-text :deep(code) {
+  padding: initial;
+  border: initial;
+  border-radius: initial;
+  background-color: transparent;
+  color: #025937;
+}
+
+.theme-dark .chat-msg-text :deep(code) {
+  color: #C0EFDE;
+}
+
 .chat-msg-section {
   margin-top: 8px;
 }
