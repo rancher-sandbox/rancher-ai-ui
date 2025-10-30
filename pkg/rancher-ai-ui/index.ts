@@ -59,7 +59,9 @@ export default function(plugin: IPlugin, { store }: any): void {
         mac: ['alt', 'shift', 'k'] 
       },
       icon: 'icon-ai',
-      invoke: () => Chat.open(store),
+      invoke: () => {
+        Chat.isOpen(store) ? Chat.close(store) : Chat.open(store);
+      },
     }
   );
 
