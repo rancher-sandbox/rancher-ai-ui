@@ -2,7 +2,7 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 
 export function useConnectionComposable(options: {
-  onopen: () => void
+  onopen: (event: { target: WebSocket }) => void // eslint-disable-line no-unused-vars
   onmessage: (event: MessageEvent) => Promise<void>, // eslint-disable-line no-unused-vars
   onclose?: (event: CloseEvent) => void, // eslint-disable-line no-unused-vars
 }) {

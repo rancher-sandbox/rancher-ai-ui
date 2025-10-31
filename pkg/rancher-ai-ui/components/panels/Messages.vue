@@ -4,8 +4,11 @@ import {
 } from 'vue';
 import type { PropType } from 'vue';
 import { useStore } from 'vuex';
-import { Message, FormattedMessage, Role, ChatError } from '../../types';
+import {
+  Message, FormattedMessage, Role, ChatError, MessageTemplateComponent
+} from '../../types';
 import MessageComponent from '../message/index.vue';
+import Welcome from '../message/template/Welcome.vue';
 import { formatMessageContent } from '../../utils/format';
 
 const store = useStore();
@@ -36,7 +39,8 @@ const formattedMessages = computed<FormattedMessage[]>(() => {
     .filter((m) => m.messageContent ||
       m.thinkingContent ||
       m.confirmation ||
-      m.suggestionActions?.length
+      m.suggestionActions?.length ||
+      m.templateContent
     )
     .map((m) => ({
       ...m,
@@ -58,6 +62,15 @@ const errorMessages = computed<FormattedMessage[]>(() => {
 });
 
 const disabled = computed(() => props.errors.length > 0);
+
+function getMessageTemplate(component: MessageTemplateComponent) {
+  switch (component) {
+  case MessageTemplateComponent.Welcome:
+    return Welcome;
+  default:
+    return null;
+  }
+}
 
 function handleScroll() {
   const container = messagesView.value;
@@ -120,16 +133,31 @@ onBeforeUnmount(() => {
     ref="messagesView"
     class="chat-messages"
   >
-    <MessageComponent
+    <template
       v-for="(message, i) in formattedMessages"
       :key="i"
-      :message="message"
-      :disabled="disabled"
-      :pending-confirmation="pendingConfirmation"
-      @update:message="emit('update:message', message)"
-      @confirm:message="emit('confirm:message', $event)"
-      @send:message="emit('send:message', $event)"
-    />
+    >
+      <component
+        :is="getMessageTemplate(message.templateContent?.component)"
+        v-if="!!message.templateContent"
+        :class="{
+          'chat-message-template-welcome': formattedMessages.length > 1,
+        }"
+        :disabled="disabled"
+        :principal="message.templateContent?.props?.principal"
+        :message="message"
+        @send:message="emit('send:message', $event)"
+      />
+      <MessageComponent
+        v-else
+        :message="message"
+        :disabled="disabled"
+        :pending-confirmation="pendingConfirmation"
+        @update:message="emit('update:message', message)"
+        @confirm:message="emit('confirm:message', $event)"
+        @send:message="emit('send:message', $event)"
+      />
+    </template>
     <MessageComponent
       v-for="(error, i) in errorMessages"
       :key="i"
@@ -142,9 +170,13 @@ onBeforeUnmount(() => {
 .chat-messages {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 10px 0 8px;
+  padding: 16px 12px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.chat-message-template-welcome {
+  margin-bottom: 16px;
 }
 </style>

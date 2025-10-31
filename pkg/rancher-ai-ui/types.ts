@@ -105,6 +105,17 @@ export interface MessageConfirmation {
   status: ConfirmationStatus;
 }
 
+export const enum MessageTemplateComponent {
+  Welcome = 'welcome',
+}
+
+export interface MessageTemplate {
+  component: MessageTemplateComponent;
+  props?: {
+    principal: any;
+  };
+}
+
 export interface Message {
   id?: number | string;
   role: Role;
@@ -112,6 +123,7 @@ export interface Message {
   messageContent?: string;
   summaryContent?: string;
   contextContent?: Context[];
+  templateContent?: MessageTemplate;
   thinking?: boolean;
   completed?: boolean;
   showThinking?: boolean;

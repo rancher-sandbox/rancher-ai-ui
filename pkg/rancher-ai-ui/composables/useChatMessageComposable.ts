@@ -2,7 +2,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useContextComposable } from './useContextComposable';
 import {
-  ChatError, ConfirmationStatus, Message, Role, Tag
+  ChatError, ConfirmationStatus, Message, MessageTemplateComponent, Role, Tag
 } from '../types';
 import {
   formatMessagePromptWithContext, formatMessageRelatedResourcesActions, formatConfirmationAction, formatSuggestionActions, formatFileMessages,
@@ -18,9 +18,15 @@ export function useChatMessageComposable() {
   const store = useStore();
   const t = store.getters['i18n/t'];
 
+  const principal = store.getters['rancher/byId'](NORMAN.PRINCIPAL, store.getters['auth/principalId']) || {};
+
   const messages = computed(() => Object.values(store.getters['rancher-ai-ui/chat/messages'](CHAT_ID)) as Message[]);
   const currentMsg = ref<Message>({} as Message);
   const error = computed(() => store.getters['rancher-ai-ui/chat/error'](CHAT_ID));
+
+  const pendingConversationInitialization = computed(() => {
+    return !messages.value.find((msg) => msg.completed);
+  });
 
   const pendingConfirmation = computed(() => {
     return messages.value.find((msg) => msg.confirmation?.status === ConfirmationStatus.Pending);
@@ -86,99 +92,32 @@ export function useChatMessageComposable() {
     });
   }
 
-  function onopen() {
+  function onopen(event: { target: WebSocket }) {
+    // Conversation is already started
     if (messages.value.length > 0) {
       return;
     }
 
-    addMessage({
-      role:           Role.System,
-      messageContent: t('ai.message.system.welcome'),
-    });
+    const ws = event.target;
+
+    if (ws) {
+      const initPrompt = `Hi!
+        - Send me a message with 3 ${ selectedContext.value?.length ? 'suggestions based on the context.' : 'generic suggestions.' }.
+        - DO NOT ask for any confirmation or additional information.
+      `;
+
+      ws.send(formatMessagePromptWithContext(initPrompt, selectedContext.value));
+    }
   }
 
   async function onmessage(event: MessageEvent) {
     const data = event.data;
 
     try {
-      switch (data) {
-      case Tag.MessageStart:
-        const msgId = await addMessage({
-          role:                     Role.Assistant,
-          thinkingContent: '',
-          messageContent:  '',
-          showThinking:             EXPAND_THINKING,
-          thinking:                 false,
-          completed:                false
-        });
-
-        currentMsg.value = getMessage(msgId);
-        break;
-      case Tag.ThinkingStart: {
-        currentMsg.value.thinking = true;
-        break;
-      }
-      case Tag.ThinkingEnd: {
-        currentMsg.value.thinking = false;
-        break;
-      }
-      case Tag.MessageEnd:
-        currentMsg.value.messageContent = currentMsg.value.messageContent?.replace(/[\r\n]+$/, '');
-        currentMsg.value.thinking = false;
-        currentMsg.value.completed = true;
-        break;
-      default:
-        if (currentMsg.value.completed === false && currentMsg.value.thinking === true) {
-          if (!currentMsg.value.thinkingContent && data.trim() === '') {
-            break;
-          }
-          currentMsg.value.thinkingContent += data;
-          break;
-        }
-        if (currentMsg.value.completed === false && currentMsg.value.thinking === false) {
-          if (!currentMsg.value.messageContent && data.trim() === '') {
-            break;
-          }
-
-          if (data.startsWith(Tag.McpResultStart) && data.endsWith(Tag.McpResultEnd)) {
-            currentMsg.value.relatedResourcesActions = formatMessageRelatedResourcesActions(data);
-            break;
-          }
-
-          if (data.startsWith(Tag.ConfirmationStart) && data.endsWith(Tag.ConfirmationEnd)) {
-            const confirmationAction = formatConfirmationAction(data);
-
-            if (confirmationAction) {
-              currentMsg.value.confirmation = {
-                action: confirmationAction,
-                status: ConfirmationStatus.Pending,
-              };
-              currentMsg.value.thinking = false;
-              currentMsg.value.completed = true;
-
-              break;
-            }
-          }
-
-          if (data.startsWith(Tag.ErrorStart) && data.endsWith(Tag.ErrorEnd)) {
-            const errorMessage = formatErrorMessage(data);
-
-            throw errorMessage;
-          }
-
-          currentMsg.value.messageContent += data;
-
-          if (currentMsg.value.messageContent?.includes(Tag.SuggestionsStart) && currentMsg.value.messageContent?.includes(Tag.SuggestionsEnd)) {
-            const { suggestionActions, remaining } = formatSuggestionActions(currentMsg.value.suggestionActions || [], currentMsg.value.messageContent);
-
-            currentMsg.value.suggestionActions = suggestionActions;
-            currentMsg.value.messageContent = remaining;
-            break;
-          }
-
-          break;
-        }
-        break;
+      if (pendingConversationInitialization.value) {
+        await processWelcomeData(data);
+      } else {
+        await processMessageData(data);
       }
     } catch (err) {
       // eslint-disable-next-line no-console
@@ -190,6 +129,129 @@ export function useChatMessageComposable() {
     }
   }
 
+  async function processWelcomeData(data: string) {
+    switch (data) {
+    case Tag.MessageStart:
+      const msgId = await addMessage({
+        role:            Role.System,
+        templateContent: {
+          component: MessageTemplateComponent.Welcome,
+          props:     { principal }
+        },
+        completed: false,
+      });
+
+      currentMsg.value = getMessage(msgId);
+      break;
+    case Tag.MessageEnd:
+      currentMsg.value.messageContent = t('ai.message.system.welcome.info');
+      currentMsg.value.completed = true;
+
+      break;
+    default:
+      if (currentMsg.value.completed === false) {
+        if (data.startsWith(Tag.ErrorStart) && data.endsWith(Tag.ErrorEnd)) {
+          const errorMessage = formatErrorMessage(data);
+
+          throw errorMessage;
+        }
+
+        currentMsg.value.messageContent += data;
+
+        if (currentMsg.value.messageContent?.includes(Tag.SuggestionsStart) && currentMsg.value.messageContent?.includes(Tag.SuggestionsEnd)) {
+          const { suggestionActions, remaining } = formatSuggestionActions(currentMsg.value.suggestionActions || [], currentMsg.value.messageContent);
+
+          currentMsg.value.suggestionActions = suggestionActions;
+          currentMsg.value.messageContent = remaining;
+          break;
+        }
+      }
+      break;
+    }
+  }
+
+  async function processMessageData(data: string) {
+    switch (data) {
+    case Tag.MessageStart:
+      const msgId = await addMessage({
+        role:                     Role.Assistant,
+        thinkingContent: '',
+        messageContent:  '',
+        showThinking:             EXPAND_THINKING,
+        thinking:                 false,
+        completed:                false
+      });
+
+      currentMsg.value = getMessage(msgId);
+      break;
+    case Tag.ThinkingStart: {
+      currentMsg.value.thinking = true;
+      break;
+    }
+    case Tag.ThinkingEnd: {
+      currentMsg.value.thinking = false;
+      break;
+    }
+    case Tag.MessageEnd:
+      currentMsg.value.messageContent = currentMsg.value.messageContent?.replace(/[\r\n]+$/, '');
+      currentMsg.value.thinking = false;
+      currentMsg.value.completed = true;
+      break;
+    default:
+      if (currentMsg.value.completed === false && currentMsg.value.thinking === true) {
+        if (!currentMsg.value.thinkingContent && data.trim() === '') {
+          break;
+        }
+        currentMsg.value.thinkingContent += data;
+        break;
+      }
+      if (currentMsg.value.completed === false && currentMsg.value.thinking === false) {
+        if (!currentMsg.value.messageContent && data.trim() === '') {
+          break;
+        }
+
+        if (data.startsWith(Tag.McpResultStart) && data.endsWith(Tag.McpResultEnd)) {
+          currentMsg.value.relatedResourcesActions = formatMessageRelatedResourcesActions(data);
+          break;
+        }
+
+        if (data.startsWith(Tag.ConfirmationStart) && data.endsWith(Tag.ConfirmationEnd)) {
+          const confirmationAction = formatConfirmationAction(data);
+
+          if (confirmationAction) {
+            currentMsg.value.confirmation = {
+              action: confirmationAction,
+              status: ConfirmationStatus.Pending,
+            };
+            currentMsg.value.thinking = false;
+            currentMsg.value.completed = true;
+
+            break;
+          }
+        }
+
+        if (data.startsWith(Tag.ErrorStart) && data.endsWith(Tag.ErrorEnd)) {
+          const errorMessage = formatErrorMessage(data);
+
+          throw errorMessage;
+        }
+
+        currentMsg.value.messageContent += data;
+
+        if (currentMsg.value.messageContent?.includes(Tag.SuggestionsStart) && currentMsg.value.messageContent?.includes(Tag.SuggestionsEnd)) {
+          const { suggestionActions, remaining } = formatSuggestionActions(currentMsg.value.suggestionActions || [], currentMsg.value.messageContent);
+
+          currentMsg.value.suggestionActions = suggestionActions;
+          currentMsg.value.messageContent = remaining;
+          break;
+        }
+
+        break;
+      }
+      break;
+    }
+  }
+
   function resetChatError() {
     store.commit('rancher-ai-ui/chat/setError', {
       chatId: CHAT_ID,
@@ -198,8 +260,6 @@ export function useChatMessageComposable() {
   }
 
   function downloadMessages() {
-    const principal = store.getters['rancher/byId'](NORMAN.PRINCIPAL, store.getters['auth/principalId']) || {};
-
     downloadFile(
       `Rancher-liz-chat-${ CHAT_ID }_${ new Date().toISOString().slice(0, 10) }.txt`,
       formatFileMessages(principal, messages.value)
@@ -226,6 +286,7 @@ export function useChatMessageComposable() {
     resetChatError,
     downloadMessages,
     resetMessages,
+    pendingConversationInitialization,
     pendingConfirmation,
     error
   };
