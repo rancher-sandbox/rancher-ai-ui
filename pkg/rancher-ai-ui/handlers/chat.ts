@@ -8,7 +8,7 @@ class ChatHandler {
   panelPosition = PANEL_POSITION;
 
   isOpen(store: Store<any>) {
-    return store.getters['wm/isOpen'](PRODUCT_NAME);
+    return store.getters['wm/isOpen'](PANEL_POSITION);
   }
 
   open(store: Store<any>) {
