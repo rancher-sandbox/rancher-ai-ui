@@ -69,6 +69,13 @@ const user = computed(() => {
         </span>
       </div>
     </div>
+    <div class="chat-welcome-msg-bubble">
+      <div class="chat-welcome-msg-text">
+        <span>
+          {{ t('ai.message.system.welcome.info') }}
+        </span>
+      </div>
+    </div>
     <div
       v-if="props.message.completed && props.message.suggestionActions?.length"
       class="chat-welcome-msg-bubble chat-welcome-suggestions"
@@ -79,16 +86,6 @@ const user = computed(() => {
           :suggestions="props.message.suggestionActions"
           @select="(suggestion: string) => emit('send:message', suggestion)"
         />
-      </div>
-    </div>
-    <div
-      v-if="props.message.completed && props.message.messageContent"
-      class="chat-welcome-msg-bubble"
-    >
-      <div class="chat-welcome-msg-text">
-        <span>
-          {{ props.message.messageContent }}
-        </span>
       </div>
     </div>
   </div>
