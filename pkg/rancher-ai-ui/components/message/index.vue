@@ -3,8 +3,8 @@ import {
   computed, nextTick, onBeforeUnmount, ref, type PropType
 } from 'vue';
 import { useStore } from 'vuex';
-import { FormattedMessage, Role as RoleEnum } from '../../types';
-import Thinking from './Thinking.vue';
+import { FormattedMessage, MessagePhase, Role as RoleEnum } from '../../types';
+import Processing from '../Processing.vue';
 import Actions from './action/index.vue';
 import Source from './Source.vue';
 import Confirmation from './Confirmation.vue';
@@ -158,8 +158,10 @@ onBeforeUnmount(() => {
           </button>
         </div>
         <div class="chat-msg-text">
-          <div v-if="isThinking">
-            <Thinking />
+          <div v-if="!props.disabled && isThinking">
+            <Processing
+              :phase="MessagePhase.Thinking"
+            />
           </div>
           <span v-if="props.message.showThinking">
             <br v-if="isThinking">

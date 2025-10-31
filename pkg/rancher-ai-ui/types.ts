@@ -166,3 +166,20 @@ export const enum HookContextTag {
   DetailsState = '__details-state',
   StatusBanner = '__details-state-banner',
 }
+
+export const enum MessagePhase {
+  Idle = 'idle',
+  Initializing = 'initializing',
+  Thinking = 'thinking',
+  Working = 'working',
+  Processing = 'processing',
+  GeneratingResponse = 'generatingResponse',
+  Finalizing = 'finalizing',
+}
+
+export const enum ConnectionPhase {
+  Idle = 'idle',
+  Connecting = 'connecting',
+  Connected = 'connected',
+  Disconnected = 'disconnected'
+}

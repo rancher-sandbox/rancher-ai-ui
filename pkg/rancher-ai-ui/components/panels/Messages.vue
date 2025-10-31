@@ -1,16 +1,16 @@
 <script lang="ts" setup>
 import {
-  ref, computed, watch, nextTick, onMounted, onBeforeUnmount
+  ref, computed, watch, nextTick, onMounted, onBeforeUnmount, type PropType,
 } from 'vue';
-import type { PropType } from 'vue';
 import { useStore } from 'vuex';
 import {
   Message, FormattedMessage, Role, ChatError, MessageTemplateComponent
 } from '../../types';
-import MessageComponent from '../message/index.vue';
-import FastScroll from '../FastScroll.vue';
-import Welcome from '../message/template/Welcome.vue';
 import { formatMessageContent } from '../../utils/format';
+import MessageComponent from '../message/index.vue';
+import Welcome from '../message/template/Welcome.vue';
+import FastScroll from '../FastScroll.vue';
+import Processing from '../Processing.vue';
 
 const store = useStore();
 const t = store.getters['i18n/t'];
@@ -27,6 +27,10 @@ const props = defineProps({
   pendingConfirmation: {
     type:    Boolean,
     default: false,
+  },
+  messagePhase: {
+    type:    String,
+    default: '',
   }
 });
 
@@ -179,6 +183,15 @@ onBeforeUnmount(() => {
       class="chat-message-fast-scroll"
       @scroll="scrollToBottom"
     />
+    <Processing
+      v-if="!disabled"
+      class="chat-message-processing-label text-label"
+      :class="{
+        /* It avoids pushing the System messages up (Welcome template) */
+        'sticky-bottom': formattedMessages.filter(m => m.role === Role.User).length > 0
+      }"
+      :phase="messagePhase"
+    />
   </div>
 </template>
 
@@ -200,5 +213,17 @@ onBeforeUnmount(() => {
   position: sticky;
   bottom: 0px;
   margin-left: auto;
+}
+
+.chat-message-processing-label {
+  color: #9fabc6;
+  font-family: "Inter", Arial, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0;
+
+  &.sticky-bottom {
+    margin-top: auto;
+  }
 }
 </style>
