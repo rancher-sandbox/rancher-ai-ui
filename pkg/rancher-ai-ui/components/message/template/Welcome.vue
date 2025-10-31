@@ -187,7 +187,6 @@ const user = computed(() => {
   border-radius: 12px;
   box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
   padding: 12px;
-  font-size: 0.95rem;
   display: flex;
   flex-direction: column;
   gap: 6px;
