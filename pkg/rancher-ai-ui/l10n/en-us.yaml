@@ -62,7 +62,20 @@ ai:
       cluster: Cluster
       namespace: Namespace
   agent:
-    label: Uses AI (running {name} {model}). Always verify the results.
+    label: Uses AI (running {name} {model}).
+    verifyResults:
+      button:
+        label: Verify the results.
+      disclaimer:
+        section1:
+          title: Verify All Results
+          body: The AI may produce incorrect, incomplete, or outdated information. You are solely responsible for independently verifying the accuracy and appropriateness of all responses.
+        section2:
+          title: Use at Your Own Risk
+          body: Never apply commands, YAML configurations, or technical advice to a production environment without first validating them in a safe, isolated test setting. SUSE is not liable for any damages or losses (including data loss, system downtime, or security vulnerabilities) resulting from the use of information provided by this bot.
+        section3:
+          title: Do Not Share Secrets
+          body: Do not input any sensitive data, credentials, API keys, or other confidential information. Furthermore, do not input any data that could be used to identify a living person (such as names and contact details) or any other personally identifiable information into the chat.
     models:
       ollama: Ollama
       openai: ChatGPT
