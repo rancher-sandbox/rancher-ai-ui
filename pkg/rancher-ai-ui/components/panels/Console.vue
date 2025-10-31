@@ -9,7 +9,7 @@ import { Agent } from '../../types';
 import { useStore } from 'vuex';
 import RcButton from '@components/RcButton/RcButton.vue';
 import TextLabelPopover from '../popover/TextLabel.vue';
-import VerifyResultsDisclaimer from '../static/VerifyResultsDisclaimer.vue';
+import VerifyResultsDisclaimer from '../../static/VerifyResultsDisclaimer.vue';
 import { useInputComposable } from '../../composables/useInputComposable';
 
 import type { PropType } from 'vue';
