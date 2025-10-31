@@ -26,7 +26,6 @@ const emit = defineEmits(['remove']);
     :class="{ ['user-context']: props.type === 'user'}"
   >
     <div class="tag-content">
-      <i :class="props.item.icon" />
       <span>
         {{ props.item.valueLabel || props.item.value }}
       </span>
