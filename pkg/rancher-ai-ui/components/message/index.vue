@@ -389,6 +389,14 @@ onBeforeUnmount(() => {
     margin: 0;
     padding-left: 1rem;
   }
+
+  &:deep(th) {
+    text-align: left;
+  }
+
+  &:deep(pre) {
+    margin: 0;
+  }
 }
 
 .theme-dark .chat-msg-text :deep(code) {
