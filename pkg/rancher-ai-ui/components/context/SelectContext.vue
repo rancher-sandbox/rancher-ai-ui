@@ -168,6 +168,7 @@ function reset() {
 .context-trigger {
   display: flex;
   gap: 8px;
+  min-height: 24px;
 }
 
 .context-select {
