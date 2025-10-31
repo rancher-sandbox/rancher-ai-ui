@@ -12,6 +12,8 @@ import FastScroll from '../FastScroll.vue';
 import Welcome from '../message/template/Welcome.vue';
 import { formatMessageContent } from '../../utils/format';
 
+import { NORMAN } from '@shell/config/types';
+
 const store = useStore();
 const t = store.getters['i18n/t'];
 
@@ -32,17 +34,19 @@ const props = defineProps({
 
 const emit = defineEmits(['update:message', 'confirm:message', 'send:message']);
 
+const principal = computed(() => store.getters['rancher/byId'](NORMAN.PRINCIPAL, store.getters['auth/principalId']) || {});
+
 const messagesView = ref<HTMLDivElement | null>(null);
 const autoScrollEnabled = ref(true);
 const fastScrollEnabled = ref(false);
 
 const formattedMessages = computed<FormattedMessage[]>(() => {
   return [...props.messages]
-    .filter((m) => m.messageContent ||
+    .filter((m) => (m.messageContent ||
       m.thinkingContent ||
       m.confirmation ||
       m.suggestionActions?.length ||
-      m.templateContent
+      m.templateContent) && m.templateContent?.component !== 'welcome'
     )
     .map((m) => ({
       ...m,
@@ -50,6 +54,11 @@ const formattedMessages = computed<FormattedMessage[]>(() => {
       formattedThinkingContent: m.role === Role.Assistant ? formatMessageContent(m.thinkingContent || '') : '',
     }))
     .sort((a, b) => ((Number(a.timestamp) || 0) - (Number(b.timestamp) || 0)) || (`${ a.id  }`).localeCompare(`${ b.id  }`));
+});
+
+const welcomeMessage = computed(() => {
+  return [...props.messages]
+    .find((message) => message.templateContent?.component === MessageTemplateComponent.Welcome);
 });
 
 const errorMessages = computed<FormattedMessage[]>(() => {
@@ -64,15 +73,6 @@ const errorMessages = computed<FormattedMessage[]>(() => {
 });
 
 const disabled = computed(() => props.errors.length > 0);
-
-function getMessageTemplate(component: MessageTemplateComponent) {
-  switch (component) {
-  case MessageTemplateComponent.Welcome:
-    return Welcome;
-  default:
-    return null;
-  }
-}
 
 function handleScroll() {
   const container = messagesView.value;
@@ -144,23 +144,20 @@ onBeforeUnmount(() => {
     ref="messagesView"
     class="chat-messages"
   >
+    <welcome
+      :class="{
+        'chat-message-template-welcome': formattedMessages.length > 1,
+      }"
+      :message="welcomeMessage"
+      :disabled="disabled"
+      :principal="principal"
+      @send:message="emit('send:message', $event)"
+    />
     <template
       v-for="(message, i) in formattedMessages"
       :key="i"
     >
-      <component
-        :is="getMessageTemplate(message.templateContent?.component)"
-        v-if="!!message.templateContent"
-        :class="{
-          'chat-message-template-welcome': formattedMessages.length > 1,
-        }"
-        :disabled="disabled"
-        :principal="message.templateContent?.props?.principal"
-        :message="message"
-        @send:message="emit('send:message', $event)"
-      />
       <MessageComponent
-        v-else
         :message="message"
         :disabled="disabled"
         :pending-confirmation="pendingConfirmation"
