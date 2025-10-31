@@ -375,12 +375,20 @@ onBeforeUnmount(() => {
   list-style-position: inside;
 }
 
-.chat-msg-text :deep(code) {
-  padding: initial;
-  border: initial;
-  border-radius: initial;
-  background-color: transparent;
-  color: #025937;
+.chat-msg-text {
+  &:deep(code) {
+    padding: initial;
+    border: initial;
+    border-radius: initial;
+    background-color: transparent;
+    color: #025937;
+  }
+
+  &:deep(ul) {
+    white-space: normal;
+    margin: 0;
+    padding-left: 1rem;
+  }
 }
 
 .theme-dark .chat-msg-text :deep(code) {
