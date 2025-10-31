@@ -192,6 +192,7 @@ const user = computed(() => {
   flex-direction: column;
   gap: 6px;
   width: 100%;
+  line-height: 21px;
 }
 
 .chat-welcome-msg-text, :deep() pre {
