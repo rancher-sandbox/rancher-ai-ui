@@ -157,6 +157,7 @@ watch(() => text.value, () => {
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
+  font-size: 12px;
 }
 
 .chat-console-row {
