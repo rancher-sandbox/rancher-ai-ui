@@ -8,6 +8,7 @@ import {
   Message, FormattedMessage, Role, ChatError, MessageTemplateComponent
 } from '../../types';
 import MessageComponent from '../message/index.vue';
+import FastScroll from '../FastScroll.vue';
 import Welcome from '../message/template/Welcome.vue';
 import { formatMessageContent } from '../../utils/format';
 
@@ -33,6 +34,7 @@ const emit = defineEmits(['update:message', 'confirm:message', 'send:message']);
 
 const messagesView = ref<HTMLDivElement | null>(null);
 const autoScrollEnabled = ref(true);
+const fastScrollEnabled = ref(false);
 
 const formattedMessages = computed<FormattedMessage[]>(() => {
   return [...props.messages]
@@ -80,6 +82,15 @@ function handleScroll() {
   }
 
   autoScrollEnabled.value = container.scrollTop + container.clientHeight >= container.scrollHeight - 2;
+  fastScrollEnabled.value = container.scrollTop + container.clientHeight < container.scrollHeight - 150;
+}
+
+function scrollToBottom() {
+  if (!messagesView.value) {
+    return;
+  }
+
+  messagesView.value.scrollTop = messagesView.value.scrollHeight;
 }
 
 watch(
@@ -88,8 +99,8 @@ watch(
     nextTick(() => {
       const toScroll = autoScrollEnabled.value || (messages && messages[messages.length - 1]?.role === Role.User);
 
-      if (messagesView.value && toScroll) {
-        messagesView.value.scrollTop = messagesView.value.scrollHeight;
+      if (toScroll) {
+        scrollToBottom();
       }
     });
   },
@@ -163,6 +174,11 @@ onBeforeUnmount(() => {
       :key="i"
       :message="error"
     />
+    <FastScroll
+      v-if="fastScrollEnabled && !disabled"
+      class="chat-message-fast-scroll"
+      @scroll="scrollToBottom"
+    />
   </div>
 </template>
 
@@ -178,5 +194,11 @@ onBeforeUnmount(() => {
 
 .chat-message-template-welcome {
   margin-bottom: 16px;
+}
+
+.chat-message-fast-scroll {
+  position: sticky;
+  bottom: 0px;
+  margin-left: auto;
 }
 </style>
