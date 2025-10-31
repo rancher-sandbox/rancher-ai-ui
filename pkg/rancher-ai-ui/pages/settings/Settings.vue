@@ -287,7 +287,7 @@ const save = async(btnCB: (arg: boolean) => void) => { // eslint-disable-line no
         <span>
           <b>{{ t('aiConfig.form.section.provider.banner.header', {}, true) }}</b>
           <br>
-          {{ t('aiConfig.form.section.provider.banner.description') }}
+          <span v-clean-html="t('aiConfig.form.section.provider.banner.description', {}, true)" />
         </span>
       </banner>
 
