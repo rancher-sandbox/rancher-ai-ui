@@ -291,6 +291,7 @@ onBeforeUnmount(() => {
   box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
   padding: 12px;
   font-size: 0.95rem;
+  line-height: 21px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -371,6 +372,18 @@ onBeforeUnmount(() => {
   word-break: break-word;
   white-space: pre-line;
   list-style-position: inside;
+}
+
+.chat-msg-text :deep(code) {
+  padding: initial;
+  border: initial;
+  border-radius: initial;
+  background-color: transparent;
+  color: #025937;
+}
+
+.theme-dark .chat-msg-text :deep(code) {
+  color: #C0EFDE;
 }
 
 .chat-msg-section {
