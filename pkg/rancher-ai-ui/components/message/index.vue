@@ -440,12 +440,15 @@ onBeforeUnmount(() => {
 .chat-msg-user-context-tag {
   background-color: transparent;
   color: #9fabc6;
-  height: 16px;
+  min-height: 16px;
+  height: fit-content;
   border-radius: 8px;
   font-size: 0.75rem;
   border: 1px solid #9fabc6;
   border-radius: 3px;
   margin: 0;
   cursor: default;
+  word-break: break-word;
+  white-space: pre-line;
 }
 </style>
