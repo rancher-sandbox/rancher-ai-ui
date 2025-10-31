@@ -5,10 +5,12 @@ import {
   watch,
   onUpdated
 } from 'vue';
+import { Agent } from '../../types';
 import { useStore } from 'vuex';
 import RcButton from '@components/RcButton/RcButton.vue';
+import TextLabelPopover from '../popover/TextLabel.vue';
+import VerifyResultsDisclaimer from '../static/VerifyResultsDisclaimer.vue';
 import { useInputComposable } from '../../composables/useInputComposable';
-import { Agent } from '../../types';
 
 import type { PropType } from 'vue';
 
@@ -126,9 +128,17 @@ watch(() => text.value, () => {
         </RcButton>
       </div>
     </div>
-    <span class="chat-model label text-deemphasized">
-      {{ !!props.agent ? t('ai.agent.label', { name: props.agent.name, model: props.agent.model }, true) : t('ai.agent.unknown') }}
-    </span>
+    <div class="chat-console-row chat-console-chat-text-info">
+      <span class="chat-model label text-deemphasized">
+        {{ !!props.agent ? t('ai.agent.label', { name: props.agent.name, model: props.agent.model }, true) : t('ai.agent.unknown') }}
+      </span>
+      <TextLabelPopover
+        :label="t('ai.agent.verifyResults.button.label')"
+        :disabled="props.disabled"
+      >
+        <VerifyResultsDisclaimer />
+      </TextLabelPopover>
+    </div>
   </div>
 </template>
 
@@ -147,7 +157,6 @@ watch(() => text.value, () => {
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
-  flex: 1 1 auto;
 }
 
 .chat-console-row {
@@ -183,5 +192,9 @@ watch(() => text.value, () => {
   .btn {
     height: 36px;
   }
+}
+
+.chat-console-chat-text-info {
+  justify-content: flex-start;
 }
 </style>
