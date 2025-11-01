@@ -95,11 +95,12 @@ function scrollToBottom() {
 
 watch(
   () => props.messages,
-  (messages) => {
+  (neu, old) => {
     nextTick(() => {
-      const toScroll = autoScrollEnabled.value || (messages && messages[messages.length - 1]?.role === Role.User);
+      // Auto scroll only if enabled or if NEW user messages are added
+      const doScroll = autoScrollEnabled.value || (old && neu && neu.length > old.length && neu[neu.length - 1].role === Role.User);
 
-      if (toScroll) {
+      if (doScroll) {
         scrollToBottom();
       }
     });

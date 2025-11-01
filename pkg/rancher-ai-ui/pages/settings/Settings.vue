@@ -5,6 +5,7 @@ import {
 import { useStore } from 'vuex';
 import { cloneDeep } from 'lodash';
 
+import { warn } from '../../utils/log';
 import { useFetch } from '@shell/components/Resource/Detail/FetchLoader/composables';
 import { useI18n } from '@shell/composables/useI18n';
 import { base64Decode, base64Encode } from '@shell/utils/crypto';
@@ -97,8 +98,7 @@ const resource = useFetch(async() => {
       opt:  { watch: true }
     });
   } catch (err) {
-    // eslint-disable-next-line no-console
-    console.warn('Unable to fetch secret: ', { err });
+    warn('Unable to fetch secret: ', { err });
   } finally {
     if (!data) {
       // create a new secret if one does not exist
