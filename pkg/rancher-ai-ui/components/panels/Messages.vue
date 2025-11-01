@@ -9,7 +9,7 @@ import {
 import { formatMessageContent } from '../../utils/format';
 import MessageComponent from '../message/index.vue';
 import Welcome from '../message/template/Welcome.vue';
-import FastScroll from '../FastScroll.vue';
+import ScrollButton from '../ScrollButton.vue';
 import Processing from '../Processing.vue';
 
 const store = useStore();
@@ -178,11 +178,6 @@ onBeforeUnmount(() => {
       :key="i"
       :message="error"
     />
-    <FastScroll
-      v-if="fastScrollEnabled && !disabled"
-      class="chat-message-fast-scroll"
-      @scroll="scrollToBottom"
-    />
     <Processing
       v-if="!disabled"
       class="chat-message-processing-label text-label"
@@ -191,6 +186,11 @@ onBeforeUnmount(() => {
         'sticky-bottom': formattedMessages.filter(m => m.role === Role.User).length > 0
       }"
       :phase="messagePhase"
+    />
+    <ScrollButton
+      v-if="fastScrollEnabled && !disabled"
+      class="chat-message-fast-scroll"
+      @scroll="scrollToBottom"
     />
   </div>
 </template>
