@@ -1,11 +1,14 @@
 import { PRODUCT_NAME } from '../product';
 import { CoreStoreSpecifics, CoreStoreConfig } from '@shell/core/types';
-import { Message, MessageError } from '../types';
+import {
+  ConfirmationStatus, Message, MessageError, MessagePhase, Role
+} from '../types';
 
 interface Chat {
   id: string;
-  messages: Record<string, Message>;
   msgIdCnt?: number;
+  messages: Record<string, Message>;
+  phase?: MessagePhase;
   error?: MessageError | null;
 }
 
@@ -19,6 +22,30 @@ const getters = {
   },
   message: (state: State) => ({ chatId, messageId }: { chatId: string; messageId: number | string }) => {
     return state.chats[chatId]?.messages[messageId] || null;
+  },
+  phase: (state: State) => (chatId: string) => {
+    const messages = Object.values(state.chats[chatId]?.messages || {});
+
+    if (messages.length && messages[messages.length - 1]?.confirmation?.status === ConfirmationStatus.Confirmed) {
+      return MessagePhase.Confirming;
+    }
+
+    // If there is a message pending confirmation, enforce AwaitingConfirmation phase
+    if (messages.find((msg) => msg.confirmation?.status === ConfirmationStatus.Pending)) {
+      return MessagePhase.AwaitingConfirmation;
+    }
+
+    // If last message is from user, It mocks the MessagePhase.Processing phase in wsSend in advance
+    if (messages.length && messages[messages.length - 1]?.role === Role.User) {
+      return state.chats[chatId]?.phase;
+    }
+
+    // Enforce current phase if there is a message being processed
+    if (!!messages.find((msg) => msg.completed !== undefined && msg.completed === false)) {
+      return state.chats[chatId]?.phase;
+    }
+
+    return MessagePhase.Idle;
   },
   error: (state: State) => (chatId: string) => {
     return state.chats[chatId]?.error || null;
@@ -76,6 +103,16 @@ const mutations = {
     }
 
     state.chats[chatId].messages = {};
+  },
+
+  setPhase(state: State, args: { chatId: string; phase: MessagePhase }) {
+    const { chatId, phase } = args;
+
+    if (!chatId || !state.chats[chatId]) {
+      return;
+    }
+
+    state.chats[chatId].phase = phase;
   },
 
   setError(state: State, args: { chatId: string; error: MessageError | null }) {
