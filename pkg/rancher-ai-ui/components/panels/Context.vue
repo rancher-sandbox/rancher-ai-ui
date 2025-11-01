@@ -34,7 +34,7 @@ const emit = defineEmits(['select']);
 <style lang='scss' scoped>
 .chat-context {
   border-top: 1px solid var(--border);
-  padding: 12px 16px;
+  padding: 16px 16px;
   display: flex;
   align-items: center;
   gap: 8px;

@@ -91,14 +91,10 @@ function reset() {
       <rc-dropdown-trigger
         ghost
         small
+        class="context-trigger"
         :disabled="props.disabled"
       >
-        <i
-          v-if="!props.disabled"
-          class="icon icon-pin-outlined"
-        />
         <span
-          class="text-label mr-5"
           :class="{ 'ml-5': props.disabled }"
         >
           {{ t('ai.context.add') }}
@@ -106,8 +102,8 @@ function reset() {
         <template #after>
           <i
             :class="{
-              'icon icon-chevron-up text-label': isOpen,
-              'icon icon-chevron-down text-label': !isOpen
+              'icon icon-chevron-up': isOpen,
+              'icon icon-chevron-down': !isOpen
             }"
           />
         </template>
@@ -169,12 +165,27 @@ function reset() {
 </template>
 
 <style lang="scss" scoped>
-.context-select, .tags {
+.context-trigger {
+  display: flex;
+  gap: 8px;
+  min-height: 24px;
+}
+
+.context-select {
   display: flex;
   flex-wrap: wrap;
   max-width: 100%;
   align-items: center;
   gap: 5px;
+  color: var(--active-nav);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 100%;
+  align-items: center;
+  gap: 8px;
   color: var(--active-nav);
 }
 
