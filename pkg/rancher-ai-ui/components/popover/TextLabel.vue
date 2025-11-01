@@ -27,7 +27,10 @@ const props = defineProps({
         small
         :disabled="props.disabled"
       >
-        <span class="inline-button label text-deemphasized">
+        <span
+          class="inline-button label text-deemphasized"
+          :class="{ 'btn-disabled': props.disabled }"
+        >
           {{ label }}
         </span>
       </rc-dropdown-trigger>
@@ -46,6 +49,7 @@ const props = defineProps({
   }
   :deep() .v-popper__inner {
     padding: 16px !important;
+    border: 1.5px solid var(--border);
   }
   :deep() .v-popper__wrapper {
     width: 95%;
@@ -62,10 +66,13 @@ const props = defineProps({
 }
 
 .inline-button {
-  cursor: pointer;
   user-select: none;
-  text-decoration: underline;
   white-space: nowrap;
   margin-bottom: 2px;
+
+  &:not(.btn-disabled) {
+    cursor: pointer;
+    text-decoration: underline;
+  }
 }
 </style>
