@@ -173,7 +173,9 @@ export const enum MessagePhase {
   Thinking = 'thinking',
   Working = 'working',
   Processing = 'processing',
+  AwaitingConfirmation = 'awaitingConfirmation',
   GeneratingResponse = 'generatingResponse',
+  Confirming = 'confirming',
   Finalizing = 'finalizing',
 }
 
