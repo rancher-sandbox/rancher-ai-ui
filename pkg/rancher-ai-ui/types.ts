@@ -175,6 +175,7 @@ export const enum MessagePhase {
   Processing = 'processing',
   AwaitingConfirmation = 'awaitingConfirmation',
   GeneratingResponse = 'generatingResponse',
+  Confirming = 'confirming',
   Finalizing = 'finalizing',
 }
 
