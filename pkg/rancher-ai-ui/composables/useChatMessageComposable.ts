@@ -29,11 +29,12 @@ export function useChatMessageComposable() {
     return !messages.value.find((msg) => msg.completed);
   });
 
-  const pendingConfirmation = computed(() => {
-    return messages.value.find((msg) => msg.confirmation?.status === ConfirmationStatus.Pending);
-  });
-
   const phase = computed(() => {
+    // If there is a message pending confirmation, enforce AwaitingConfirmation phase
+    if (messages.value.find((msg) => msg.confirmation?.status === ConfirmationStatus.Pending)) {
+      return MessagePhase.AwaitingConfirmation;
+    }
+
     // If last message is from user, It mocks the MessagePhase.Processing phase in wsSend in advance
     if (messages.value.length && messages.value[messages.value.length - 1]?.role === Role.User) {
       return _phase.value;
@@ -325,7 +326,6 @@ export function useChatMessageComposable() {
     downloadMessages,
     resetMessages,
     pendingConversationInitialization,
-    pendingConfirmation,
     phase,
     error
   };

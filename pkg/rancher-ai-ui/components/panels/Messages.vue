@@ -4,7 +4,7 @@ import {
 } from 'vue';
 import { useStore } from 'vuex';
 import {
-  Message, FormattedMessage, Role, ChatError, MessageTemplateComponent
+  Message, FormattedMessage, Role, ChatError, MessageTemplateComponent, MessagePhase
 } from '../../types';
 import { formatMessageContent } from '../../utils/format';
 import MessageComponent from '../message/index.vue';
@@ -23,10 +23,6 @@ const props = defineProps({
   errors: {
     type:    Array as PropType<ChatError[]>,
     default: () => [],
-  },
-  pendingConfirmation: {
-    type:    Boolean,
-    default: false,
   },
   messagePhase: {
     type:    String,
@@ -167,7 +163,7 @@ onBeforeUnmount(() => {
         v-else
         :message="message"
         :disabled="disabled"
-        :pending-confirmation="pendingConfirmation"
+        :pending-confirmation="messagePhase === MessagePhase.AwaitingConfirmation"
         @update:message="emit('update:message', message)"
         @confirm:message="emit('confirm:message', $event)"
         @send:message="emit('send:message', $event)"
