@@ -97,13 +97,13 @@ export function useChatMessageComposable() {
     });
   }
 
-  function confirmMessage(result: boolean, ws: WebSocket) {
+  function confirmMessage({ message, result }: { message: Message; result: boolean }, ws: WebSocket) {
     wsSend(ws, formatMessagePromptWithContext(result ? 'yes' : 'no', []));
 
     updateMessage({
-      ...currentMsg.value,
+      ...message,
       confirmation: {
-        action: currentMsg.value.confirmation?.action || null,
+        action: message.confirmation?.action || null,
         status: result ? ConfirmationStatus.Confirmed : ConfirmationStatus.Canceled
       },
     });

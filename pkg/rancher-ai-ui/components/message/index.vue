@@ -199,7 +199,10 @@ onBeforeUnmount(() => {
           <Confirmation
             :value="props.message.confirmation"
             :message-content="props.message.messageContent"
-            @confirm="emit('confirm:message', $event)"
+            @confirm="emit('confirm:message', {
+              message: props.message,
+              result: $event
+            })"
           />
         </div>
         <RcButton
