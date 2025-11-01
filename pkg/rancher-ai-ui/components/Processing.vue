@@ -12,17 +12,26 @@ const now = ref(Date.now());
 
 let interval: any;
 
-const props = defineProps({
-  label: {
-    type:    String,
-    default: '',
-  },
+const props = withDefaults(defineProps<{
+  phases?: string[];
+  phase?: string | null;
+}>(), {
+  phases: () => [],
+  phase:  null,
 });
 
 const dots = computed(() => {
   const cycle = Math.floor((now.value / 500) % 4);
 
   return '.'.repeat(cycle);
+});
+
+const label = computed(() => {
+  if (props.phase && props.phase !== 'idle' && (!props.phases.length || props.phases.includes(props.phase))) {
+    return t(`ai.phase.${ props.phase }`);
+  }
+
+  return '';
 });
 
 onMounted(() => {
@@ -39,9 +48,12 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="thinking-message">
+  <div
+    v-if="label"
+    class="thinking-message"
+  >
     <span>
-      {{ props.label || t('ai.message.assistant.thinking.inProgress') }}
+      {{ label }}
     </span>
     <div class="dots">
       <span>

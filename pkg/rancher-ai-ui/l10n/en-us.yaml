@@ -113,6 +113,18 @@ ai:
     cancel: Cancel
     confirmed: Confirmed
     canceled: Canceled
+  phase:
+    idle: ''
+    initializing: 'Initializing'
+    thinking: 'Thinking'
+    working: 'Working'
+    processing: 'Processing'
+    generatingResponse: 'Generating Response'
+    finalizing: 'Finalizing'
+    connecting: 'Connecting'
+    connected: 'Connected'
+    disconnected: 'Disconnected'
+    reconnecting: 'Reconnecting'
   error:
     message:
       processing: 'Error processing messages: '

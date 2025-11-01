@@ -1,7 +1,6 @@
-import { Context } from 'types';
 import { PRODUCT_NAME } from '../product';
 import { CoreStoreSpecifics, CoreStoreConfig } from '@shell/core/types';
-import { ContextTag, HookContextTag } from '../types';
+import { ContextTag, Context, HookContextTag } from '../types';
 
 const enum ContextType {
   ALL       = 'all',       // eslint-disable-line no-unused-vars

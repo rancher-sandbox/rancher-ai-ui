@@ -1,5 +1,6 @@
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
+import { ConnectionPhase } from '../types';
 
 export function useConnectionComposable(options: {
   onopen: (event: { target: WebSocket }) => void // eslint-disable-line no-unused-vars
@@ -9,6 +10,7 @@ export function useConnectionComposable(options: {
   const store = useStore();
 
   const ws = computed(() => store.getters['rancher-ai-ui/connection/ws']);
+  const phase = ref<ConnectionPhase>(ConnectionPhase.Idle); // Not handled at the moment
   const error = computed(() => store.getters['rancher-ai-ui/connection/error']);
 
   async function connect(
@@ -40,6 +42,7 @@ export function useConnectionComposable(options: {
 
   return {
     ws,
+    phase,
     error,
     connect,
     disconnect
