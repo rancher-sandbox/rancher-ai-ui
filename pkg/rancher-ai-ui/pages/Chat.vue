@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { useStore } from 'vuex';
 import { onMounted, onBeforeUnmount, computed, nextTick } from 'vue';
-import { PRODUCT_NAME } from '../product';
-import { AGENT_NAME, AGENT_NAMESPACE, AGENT_API_PATH } from '../product';
+import { PRODUCT_NAME, AGENT_NAME, AGENT_NAMESPACE, AGENT_API_PATH } from '../product';
+import { MessagePhase } from '../types';
 import { useConnectionComposable } from '../composables/useConnectionComposable';
 import { useChatMessageComposable } from '../composables/useChatMessageComposable';
 import { useContextComposable } from '../composables/useContextComposable';
@@ -29,7 +29,6 @@ const {
   resetMessages,
   selectContext,
   resetChatError,
-  pendingConfirmation,
   phase: messagePhase,
   error: messageError
 } = useChatMessageComposable();
@@ -122,7 +121,6 @@ function unmount() {
       <Messages
         :messages="messages"
         :errors="errors"
-        :pending-confirmation="!!pendingConfirmation"
         :message-phase="messagePhase"
         @update:message="updateMessage"
         @confirm:message="confirmMessage($event, ws)"
@@ -134,7 +132,7 @@ function unmount() {
         @select="selectContext"
       />
       <Console
-        :disabled="!ws || ws.readyState === 3 || errors.length > 0 || !!pendingConfirmation"
+        :disabled="!ws || ws.readyState === 3 || errors.length > 0 || messagePhase === MessagePhase.AwaitingConfirmation"
         :agent="agent"
         @input:content="sendMessage($event, ws)"
       />
