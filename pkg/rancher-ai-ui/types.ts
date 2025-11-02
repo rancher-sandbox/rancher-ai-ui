@@ -111,8 +111,9 @@ export const enum MessageTemplateComponent {
 
 export interface MessageTemplate {
   component: MessageTemplateComponent;
-  props?: {
+  content: {
     principal: any;
+    message: string;
   };
 }
 

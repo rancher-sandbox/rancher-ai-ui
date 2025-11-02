@@ -167,7 +167,10 @@ export function useChatMessageComposable() {
         role:            Role.System,
         templateContent: {
           component: MessageTemplateComponent.Welcome,
-          props:     { principal }
+          content:   {
+            principal,
+            message: t('ai.message.system.welcome.info'),
+          }
         },
         completed: false,
       });
@@ -176,7 +179,7 @@ export function useChatMessageComposable() {
       break;
     case Tag.MessageEnd:
       setPhase(MessagePhase.Idle);
-      currentMsg.value.messageContent = t('ai.message.system.welcome.info');
+      currentMsg.value.messageContent = '';
       currentMsg.value.completed = true;
 
       break;
