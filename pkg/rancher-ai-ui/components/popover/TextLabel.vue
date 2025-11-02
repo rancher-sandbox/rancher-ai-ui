@@ -44,7 +44,9 @@ const props = defineProps({
 <style lang='scss' scoped>
 .textlabel-popper {
   :deep() .v-popper__popper {
-    width: 95%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border: none;
   }
   :deep() .v-popper__inner {

@@ -132,6 +132,14 @@ const confirmationText = computed(() => {
 .confirmation-message {
   margin-bottom: 12px;
 
+  &:deep(code) {
+    padding: initial;
+    border: initial;
+    border-radius: initial;
+    background-color: transparent;
+    color: #025937;
+  }
+
   span {
     word-break: break-word;
     white-space: pre-line;

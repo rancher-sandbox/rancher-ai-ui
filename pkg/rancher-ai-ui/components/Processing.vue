@@ -50,7 +50,7 @@ onBeforeUnmount(() => {
 <template>
   <div
     v-if="label"
-    class="thinking-message"
+    class="processing-message"
   >
     <span>
       {{ label }}
@@ -64,7 +64,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped lang="scss">
-.thinking-message {
+.processing-message {
   .dots {
     display: inline-flex;
     width: 12px;
