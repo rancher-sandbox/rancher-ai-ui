@@ -1,6 +1,4 @@
-import {
-  ref, computed, onMounted, watch, nextTick
-} from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
 import { debounce } from 'lodash';
 import { NORMAN } from '@shell/config/types';
@@ -78,9 +76,7 @@ export function useChatMessageComposable() {
       contextContent
     });
 
-    nextTick(() => {
-      setPhase(MessagePhase.Processing);
-    });
+    setPhase(MessagePhase.Processing);
   }
 
   async function addMessage(message: Message) {

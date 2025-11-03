@@ -81,8 +81,10 @@ function handleScroll() {
     return;
   }
 
-  autoScrollEnabled.value = container.scrollTop + container.clientHeight >= container.scrollHeight - 2;
-  fastScrollEnabled.value = container.scrollTop + container.clientHeight < container.scrollHeight - 150;
+  nextTick(() => {
+    autoScrollEnabled.value = container.scrollTop + container.clientHeight >= container.scrollHeight - 2;
+    fastScrollEnabled.value = container.scrollTop + container.clientHeight < container.scrollHeight - 150;
+  });
 }
 
 function scrollToBottom() {
