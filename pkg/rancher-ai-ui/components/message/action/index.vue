@@ -4,7 +4,7 @@ import { computed, type PropType } from 'vue';
 import { useStore } from 'vuex';
 import RelatedResource from './RelatedResource.vue';
 
-const THRESHOLD = 14; // Maximum number of actions is 7 rows of 2 buttons each = 14
+const THRESHOLD = 7; // Maximum number of actions for human readability
 
 const store = useStore();
 const t = store.getters['i18n/t'];
