@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { MessageActionRelatedResource } from '../../../types';
-import { computed, type PropType } from 'vue';
+import { computed, type PropType, ref } from 'vue';
 import { useStore } from 'vuex';
 import RelatedResource from './RelatedResource.vue';
 
@@ -16,6 +16,8 @@ const props = defineProps({
   },
 });
 
+const showRemaining = ref(false);
+
 const actions = computed(() => {
   if (props.actions.length > THRESHOLD) {
     return props.actions.slice(0, THRESHOLD);
@@ -24,6 +26,17 @@ const actions = computed(() => {
   return props.actions;
 });
 
+const remaining = computed(() => {
+  if (props.actions.length > THRESHOLD) {
+    return props.actions.slice(THRESHOLD);
+  }
+
+  return [];
+});
+
+const toggleRemaining = () => {
+  showRemaining.value = !showRemaining.value;
+};
 </script>
 
 <template>
@@ -40,12 +53,34 @@ const actions = computed(() => {
         >
           <RelatedResource :value="action" />
         </div>
+        <template v-if="showRemaining">
+          <div
+            v-for="(action, index) in remaining"
+            :key="index"
+            class="mt-2 chat-msg-actions"
+          >
+            <RelatedResource :value="action" />
+          </div>
+        </template>
       </div>
       <span
-        v-if="props.actions.length > THRESHOLD"
+        v-if="remaining.length > 0"
         class="chat-msg-actions-more"
+        @click="toggleRemaining"
       >
-        {{ t('ai.message.relatedResources.more', { count: props.actions.length - THRESHOLD }, true) }}
+        <template v-if="!showRemaining">
+          {{ t('ai.message.relatedResources.more', { count: remaining.length }, true) }}
+        </template>
+        <template v-else>
+          {{ t('ai.message.relatedResources.less', {}, true) }}
+        </template>
+        <i
+          class="icon icon-sm"
+          :class="{
+            'icon icon-chevron-down text-label': !showRemaining,
+            'icon icon-chevron-up text-label': showRemaining,
+          }"
+        />
       </span>
     </div>
   </div>
@@ -86,5 +121,6 @@ const actions = computed(() => {
 
 .chat-msg-actions-more {
   color: #94a3b8;
+  cursor: pointer;
 }
 </style>
