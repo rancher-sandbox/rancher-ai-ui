@@ -1,5 +1,7 @@
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
+import { debounce } from 'lodash';
+import { NORMAN } from '@shell/config/types';
 import { useContextComposable } from './useContextComposable';
 import {
   ChatError, ConfirmationStatus, Message, MessagePhase, MessageTemplateComponent, Role, Tag
@@ -9,7 +11,6 @@ import {
   formatErrorMessage
 } from '../utils/format';
 import { downloadFile } from '@shell/utils/download';
-import { NORMAN } from '@shell/config/types';
 
 const CHAT_ID = 'default';
 const EXPAND_THINKING = false;
@@ -22,30 +23,24 @@ export function useChatMessageComposable() {
 
   const messages = computed(() => Object.values(store.getters['rancher-ai-ui/chat/messages'](CHAT_ID)) as Message[]);
   const currentMsg = ref<Message>({} as Message);
-  const _phase = ref<MessagePhase>(MessagePhase.Idle);
   const error = computed(() => store.getters['rancher-ai-ui/chat/error'](CHAT_ID));
 
-  const pendingConversationInitialization = computed(() => {
-    return !messages.value.find((msg) => msg.completed);
-  });
+  // Get phase from store with debounce to avoid rapid changes
+  const _phase = computed(() => store.getters['rancher-ai-ui/chat/phase'](CHAT_ID));
+  const phase = ref(_phase.value || MessagePhase.Initializing);
+  const applyPhase = debounce((v) => {
+    phase.value = v;
+  }, 150);
 
-  const pendingConfirmation = computed(() => {
-    return messages.value.find((msg) => msg.confirmation?.status === ConfirmationStatus.Pending);
-  });
+  watch(_phase, (v) => applyPhase(v), { immediate: true });
 
-  const phase = computed(() => {
-    // If last message is from user, It mocks the MessagePhase.Processing phase in wsSend in advance
-    if (messages.value.length && messages.value[messages.value.length - 1]?.role === Role.User) {
-      return _phase.value;
-    }
-
-    // Enforce current phase if there is a message being processed
-    if (!!messages.value.find((msg) => msg.completed !== undefined && msg.completed === false)) {
-      return _phase.value;
-    }
-
-    return MessagePhase.Idle;
-  });
+  // Set phase in store
+  const setPhase = (phase: MessagePhase) => {
+    store.commit('rancher-ai-ui/chat/setPhase', {
+      chatId: CHAT_ID,
+      phase
+    });
+  };
 
   const { selectContext, selectedContext } = useContextComposable();
 
@@ -55,7 +50,6 @@ export function useChatMessageComposable() {
     }
 
     ws.send(value);
-    _phase.value = MessagePhase.Processing;
   }
 
   function sendMessage(msg: string | Message, ws: WebSocket) {
@@ -81,6 +75,8 @@ export function useChatMessageComposable() {
       messageContent,
       contextContent
     });
+
+    setPhase(MessagePhase.Processing);
   }
 
   async function addMessage(message: Message) {
@@ -97,13 +93,13 @@ export function useChatMessageComposable() {
     });
   }
 
-  function confirmMessage(result: boolean, ws: WebSocket) {
+  function confirmMessage({ message, result }: { message: Message; result: boolean }, ws: WebSocket) {
     wsSend(ws, formatMessagePromptWithContext(result ? 'yes' : 'no', []));
 
     updateMessage({
-      ...currentMsg.value,
+      ...message,
       confirmation: {
-        action: currentMsg.value.confirmation?.action || null,
+        action: message.confirmation?.action || null,
         status: result ? ConfirmationStatus.Confirmed : ConfirmationStatus.Canceled
       },
     });
@@ -118,7 +114,7 @@ export function useChatMessageComposable() {
 
   function onopen(event: { target: WebSocket }) {
     // Phase is set to processing here because message could be sent outisde of wsSend function (hooks handlers)
-    _phase.value = MessagePhase.Processing;
+    setPhase(MessagePhase.Processing);
 
     // Conversation is already started
     if (messages.value.length > 0) {
@@ -134,6 +130,7 @@ export function useChatMessageComposable() {
       `;
 
       wsSend(ws, formatMessagePromptWithContext(initPrompt, selectedContext.value));
+      setPhase(MessagePhase.Processing);
     }
   }
 
@@ -141,7 +138,8 @@ export function useChatMessageComposable() {
     const data = event.data;
 
     try {
-      if (pendingConversationInitialization.value) {
+      if (!messages.value.find((msg) => msg.completed)) {
+        setPhase(MessagePhase.Initializing);
         await processWelcomeData(data);
       } else {
         await processMessageData(data);
@@ -154,20 +152,21 @@ export function useChatMessageComposable() {
         error:  { message: `${ t('ai.error.message.processing') } ${ (err as ChatError).message || err || '' }` }
       });
 
-      _phase.value = MessagePhase.Idle;
+      setPhase(MessagePhase.Idle);
     }
   }
 
   async function processWelcomeData(data: string) {
-    _phase.value = MessagePhase.Initializing;
-
     switch (data) {
     case Tag.MessageStart:
       const msgId = await addMessage({
         role:            Role.System,
         templateContent: {
           component: MessageTemplateComponent.Welcome,
-          props:     { principal }
+          content:   {
+            principal,
+            message: t('ai.message.system.welcome.info'),
+          }
         },
         completed: false,
       });
@@ -175,8 +174,8 @@ export function useChatMessageComposable() {
       currentMsg.value = getMessage(msgId);
       break;
     case Tag.MessageEnd:
-      _phase.value = MessagePhase.Idle;
-      currentMsg.value.messageContent = t('ai.message.system.welcome.info');
+      setPhase(MessagePhase.Idle);
+      currentMsg.value.messageContent = '';
       currentMsg.value.completed = true;
 
       break;
@@ -205,7 +204,7 @@ export function useChatMessageComposable() {
   async function processMessageData(data: string) {
     switch (data) {
     case Tag.MessageStart:
-      _phase.value = MessagePhase.Working;
+      setPhase(MessagePhase.Working);
 
       const msgId = await addMessage({
         role:                     Role.Assistant,
@@ -219,23 +218,23 @@ export function useChatMessageComposable() {
       currentMsg.value = getMessage(msgId);
       break;
     case Tag.ThinkingStart: {
-      _phase.value = MessagePhase.Thinking;
+      setPhase(MessagePhase.Thinking);
       currentMsg.value.thinking = true;
       break;
     }
     case Tag.ThinkingEnd: {
-      _phase.value = MessagePhase.GeneratingResponse;
+      setPhase(MessagePhase.GeneratingResponse);
       currentMsg.value.thinking = false;
       break;
     }
     case Tag.MessageEnd:
-      _phase.value = MessagePhase.Idle;
+      setPhase(MessagePhase.Idle);
       currentMsg.value.messageContent = currentMsg.value.messageContent?.replace(/[\r\n]+$/, '');
       currentMsg.value.thinking = false;
       currentMsg.value.completed = true;
       break;
     default:
-      _phase.value = MessagePhase.GeneratingResponse;
+      setPhase(MessagePhase.GeneratingResponse);
       if (currentMsg.value.completed === false && currentMsg.value.thinking === true) {
         if (!currentMsg.value.thinkingContent && data.trim() === '') {
           break;
@@ -249,6 +248,7 @@ export function useChatMessageComposable() {
         }
 
         if (data.startsWith(Tag.McpResultStart) && data.endsWith(Tag.McpResultEnd)) {
+          setPhase(MessagePhase.Finalizing);
           currentMsg.value.relatedResourcesActions = formatMessageRelatedResourcesActions(data);
           break;
         }
@@ -324,8 +324,6 @@ export function useChatMessageComposable() {
     resetChatError,
     downloadMessages,
     resetMessages,
-    pendingConversationInitialization,
-    pendingConfirmation,
     phase,
     error
   };

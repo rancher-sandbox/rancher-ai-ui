@@ -176,8 +176,20 @@ function reset() {
   flex-wrap: wrap;
   max-width: 100%;
   align-items: center;
-  gap: 5px;
+  gap: 10px;
   color: var(--active-nav);
+}
+
+.context-reset {
+  height: 28px;
+  .btn {
+    height: 28px;
+    min-height: 28px;;
+  }
+}
+
+.no-context {
+  margin: 7px 0 7px 0;
 }
 
 .tags {
@@ -187,14 +199,6 @@ function reset() {
   align-items: center;
   gap: 8px;
   color: var(--active-nav);
-}
-
-.context-select {
-  gap: 10px;
-}
-
-.no-context {
-  margin: 7px 0 7px 0;
 }
 
 .icon-pin-outlined {

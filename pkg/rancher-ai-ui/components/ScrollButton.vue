@@ -11,9 +11,9 @@ const emit = defineEmits(['scroll']);
 </script>
 
 <template>
-  <div class="fast-scroll">
+  <div class="scroll-button">
     <button
-      class="fast-scroll-btn role-tertiary"
+      class="scroll-button-btn role-tertiary"
       type="button"
       role="button"
       @click="emit('scroll', props.direction)"
@@ -24,7 +24,7 @@ const emit = defineEmits(['scroll']);
 </template>
 
 <style scoped lang="scss">
-.fast-scroll-btn {
+.scroll-button-btn {
   width: 20px;
   height: 20px;
   min-height: 0;
@@ -41,19 +41,19 @@ const emit = defineEmits(['scroll']);
   outline: none;
 }
 
-.fast-scroll-btn:hover,
-.fast-scroll-btn:focus {
+.scroll-button-btn:hover,
+.scroll-button-btn:focus {
   transform: translateY(-1px);
 
   .icon {
   }
 }
 
-.fast-scroll-btn:active {
+.scroll-button-btn:active {
   transform: translateY(0);
 }
 
-.fast-scroll {
+.scroll-button {
   pointer-events: auto;
 }
 </style>

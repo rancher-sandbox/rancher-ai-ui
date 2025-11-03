@@ -6,13 +6,27 @@ import Suggestions from '../Suggestions.vue';
 // @ts-expect-error FIXME: Cannot find module '../../../assets/liz-icon.svg'... Remove this comment to see the full error message
 import lizIcon from '../../../assets/liz-icon.svg';
 
+interface Content {
+  principal: {
+    name: string;
+    loginName: string;
+  };
+  message: string;
+}
+
 const store = useStore();
 const t = store.getters['i18n/t'];
 
 const props = defineProps({
-  principal: {
-    type:    Object as PropType<{ name: string; loginName: string }>,
-    default: () => {},
+  content: {
+    type:    Object as PropType<Content>,
+    default: () => ({
+      principal: {
+        name:      'User',
+        loginName: 'user'
+      },
+      templateMessage: ''
+    }),
   },
   message: {
     type:    Object as PropType<Message>,
@@ -27,10 +41,10 @@ const props = defineProps({
 const emit = defineEmits(['send:message']);
 
 const user = computed(() => {
-  const out = { name: props.principal?.name || 'User' };
+  const out = { name: props.content?.principal?.name || 'User' };
 
-  if (props.principal?.loginName === 'admin') {
-    out.name = props.principal?.loginName;
+  if (props.content?.principal?.loginName === 'admin') {
+    out.name = props.content?.principal?.loginName;
   }
 
   return out;
@@ -70,15 +84,13 @@ const user = computed(() => {
       </div>
     </div>
     <div
-      v-if="props.message.completed && props.message.suggestionActions?.length"
-      class="chat-welcome-msg-bubble chat-welcome-suggestions"
+      v-if="props.content.message"
+      class="chat-welcome-msg-bubble"
     >
       <div class="chat-welcome-msg-text">
-        <Suggestions
-          :label="t('ai.message.system.welcome.suggestions.label')"
-          :suggestions="props.message.suggestionActions"
-          @select="(suggestion: string) => emit('send:message', suggestion)"
-        />
+        <span>
+          {{ props.content.message }}
+        </span>
       </div>
     </div>
     <div
@@ -89,6 +101,18 @@ const user = computed(() => {
         <span>
           {{ props.message.messageContent }}
         </span>
+      </div>
+    </div>
+    <div
+      v-if="props.message.completed && props.message.suggestionActions?.length"
+      class="chat-welcome-msg-bubble chat-welcome-suggestions"
+    >
+      <div class="chat-welcome-msg-text">
+        <Suggestions
+          :label="t('ai.message.system.welcome.suggestions.label')"
+          :suggestions="props.message.suggestionActions"
+          @select="(suggestion: string) => emit('send:message', suggestion)"
+        />
       </div>
     </div>
   </div>

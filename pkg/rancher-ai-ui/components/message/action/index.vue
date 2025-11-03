@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { MessageActionRelatedResource } from '../../../types';
-import { type PropType } from 'vue';
+import { computed, type PropType } from 'vue';
 import { useStore } from 'vuex';
 import RelatedResource from './RelatedResource.vue';
+
+const THRESHOLD = 7; // Maximum number of actions for human readability
 
 const store = useStore();
 const t = store.getters['i18n/t'];
@@ -13,6 +15,15 @@ const props = defineProps({
     default: () => ([] as MessageActionRelatedResource[]),
   },
 });
+
+const actions = computed(() => {
+  if (props.actions.length > THRESHOLD) {
+    return props.actions.slice(0, THRESHOLD);
+  }
+
+  return props.actions;
+});
+
 </script>
 
 <template>
@@ -20,14 +31,22 @@ const props = defineProps({
     <div class="chat-msg-action-title">
       <span>{{ t('ai.message.relatedResources.label') }}</span>
     </div>
-    <div class="chat-msg-action-tags">
-      <div
-        v-for="(action, index) in props.actions"
-        :key="index"
-        class="mt-2 chat-msg-actions"
-      >
-        <RelatedResource :value="action" />
+    <div class="chat-msg-actions-container">
+      <div class="chat-msg-action-tags">
+        <div
+          v-for="(action, index) in actions"
+          :key="index"
+          class="mt-2 chat-msg-actions"
+        >
+          <RelatedResource :value="action" />
+        </div>
       </div>
+      <span
+        v-if="props.actions.length > THRESHOLD"
+        class="chat-msg-actions-more"
+      >
+        {{ t('ai.message.relatedResources.more', { count: props.actions.length - THRESHOLD }, true) }}
+      </span>
     </div>
   </div>
 </template>
@@ -45,6 +64,12 @@ const props = defineProps({
   }
 }
 
+.chat-msg-actions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .chat-msg-action-tags {
   display: flex;
   gap: 4px;
@@ -57,5 +82,9 @@ const props = defineProps({
   gap: 6px;
   flex-wrap: wrap;
   margin-top: 2px;
+}
+
+.chat-msg-actions-more {
+  color: #94a3b8;
 }
 </style>

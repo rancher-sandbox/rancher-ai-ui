@@ -4,12 +4,12 @@ import {
 } from 'vue';
 import { useStore } from 'vuex';
 import {
-  Message, FormattedMessage, Role, ChatError, MessageTemplateComponent
+  Message, FormattedMessage, Role, ChatError, MessageTemplateComponent, MessagePhase
 } from '../../types';
 import { formatMessageContent } from '../../utils/format';
 import MessageComponent from '../message/index.vue';
 import Welcome from '../message/template/Welcome.vue';
-import FastScroll from '../FastScroll.vue';
+import ScrollButton from '../ScrollButton.vue';
 import Processing from '../Processing.vue';
 
 const store = useStore();
@@ -23,10 +23,6 @@ const props = defineProps({
   errors: {
     type:    Array as PropType<ChatError[]>,
     default: () => [],
-  },
-  pendingConfirmation: {
-    type:    Boolean,
-    default: false,
   },
   messagePhase: {
     type:    String,
@@ -85,8 +81,10 @@ function handleScroll() {
     return;
   }
 
-  autoScrollEnabled.value = container.scrollTop + container.clientHeight >= container.scrollHeight - 2;
-  fastScrollEnabled.value = container.scrollTop + container.clientHeight < container.scrollHeight - 150;
+  nextTick(() => {
+    autoScrollEnabled.value = container.scrollTop + container.clientHeight >= container.scrollHeight - 2;
+    fastScrollEnabled.value = container.scrollTop + container.clientHeight < container.scrollHeight - 150;
+  });
 }
 
 function scrollToBottom() {
@@ -97,13 +95,21 @@ function scrollToBottom() {
   messagesView.value.scrollTop = messagesView.value.scrollHeight;
 }
 
+// Watch both messages and messagePhase to handle auto-scroll when new messages arrive or phase changes
 watch(
-  () => props.messages,
-  (messages) => {
-    nextTick(() => {
-      const toScroll = autoScrollEnabled.value || (messages && messages[messages.length - 1]?.role === Role.User);
+  () => [
+    props.messages,
+    props.messagePhase
+  ],
+  (neu, old) => {
+    const newMsgs = (neu || [])[0] as Message[];
+    const oldMsgs = (old || [])[0] as Message[];
 
-      if (toScroll) {
+    nextTick(() => {
+      // Auto scroll only if enabled or if NEW user messages are added
+      const doScroll = autoScrollEnabled.value || (oldMsgs && newMsgs && newMsgs.length > oldMsgs.length && newMsgs[newMsgs.length - 1].role === Role.User);
+
+      if (doScroll) {
         scrollToBottom();
       }
     });
@@ -159,7 +165,7 @@ onBeforeUnmount(() => {
           'chat-message-template-welcome': formattedMessages.length > 1,
         }"
         :disabled="disabled"
-        :principal="message.templateContent?.props?.principal"
+        :content="message.templateContent.content"
         :message="message"
         @send:message="emit('send:message', $event)"
       />
@@ -167,7 +173,7 @@ onBeforeUnmount(() => {
         v-else
         :message="message"
         :disabled="disabled"
-        :pending-confirmation="pendingConfirmation"
+        :pending-confirmation="messagePhase === MessagePhase.AwaitingConfirmation"
         @update:message="emit('update:message', message)"
         @confirm:message="emit('confirm:message', $event)"
         @send:message="emit('send:message', $event)"
@@ -178,11 +184,6 @@ onBeforeUnmount(() => {
       :key="i"
       :message="error"
     />
-    <FastScroll
-      v-if="fastScrollEnabled && !disabled"
-      class="chat-message-fast-scroll"
-      @scroll="scrollToBottom"
-    />
     <Processing
       v-if="!disabled"
       class="chat-message-processing-label text-label"
@@ -191,6 +192,11 @@ onBeforeUnmount(() => {
         'sticky-bottom': formattedMessages.filter(m => m.role === Role.User).length > 0
       }"
       :phase="messagePhase"
+    />
+    <ScrollButton
+      v-if="fastScrollEnabled && !disabled"
+      class="chat-message-fast-scroll"
+      @scroll="scrollToBottom"
     />
   </div>
 </template>

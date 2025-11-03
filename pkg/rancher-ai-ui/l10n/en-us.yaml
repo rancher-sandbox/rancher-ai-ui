@@ -25,6 +25,11 @@ ai:
     relatedResources:
       label: RELATED RESOURCES
       tooltip: '{kind}: {namespace}/{name} in {cluster} cluster'
+      more: |-
+        {count, plural,
+          =1 { and {count} more resource }
+          other { and {count} more resources }
+        }
     actions:
       tooltip:
         copy: Copy to Clipboard
@@ -119,8 +124,10 @@ ai:
     thinking: 'Thinking'
     working: 'Working'
     processing: 'Processing'
-    generatingResponse: 'Generating Response'
-    finalizing: 'Finalizing'
+    awaitingConfirmation: 'Awaiting confirmation'
+    generatingResponse: 'Generating response'
+    confirming: 'Confirming'
+    finalizing: 'Finalizing results'
     connecting: 'Connecting'
     connected: 'Connected'
     disconnected: 'Disconnected'

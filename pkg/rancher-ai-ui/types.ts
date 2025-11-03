@@ -111,8 +111,9 @@ export const enum MessageTemplateComponent {
 
 export interface MessageTemplate {
   component: MessageTemplateComponent;
-  props?: {
+  content: {
     principal: any;
+    message: string;
   };
 }
 
@@ -173,7 +174,9 @@ export const enum MessagePhase {
   Thinking = 'thinking',
   Working = 'working',
   Processing = 'processing',
+  AwaitingConfirmation = 'awaitingConfirmation',
   GeneratingResponse = 'generatingResponse',
+  Confirming = 'confirming',
   Finalizing = 'finalizing',
 }
 
