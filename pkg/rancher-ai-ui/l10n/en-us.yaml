@@ -40,7 +40,7 @@ ai:
       showCompleteMessage: See More
       hideCompleteMessage: See Less
     suggestions:
-      label: Recommended Actions
+      label: Quick Actions
     template:
       heyAnalyzeResource: 'Hey Liz, please analyse the resource'
       namespace: 'Namespace'
