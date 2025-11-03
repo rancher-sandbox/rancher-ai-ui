@@ -30,6 +30,7 @@ ai:
           =1 { and {count} more resource }
           other { and {count} more resources }
         }
+      less: Show Less
     actions:
       tooltip:
         copy: Copy to Clipboard
