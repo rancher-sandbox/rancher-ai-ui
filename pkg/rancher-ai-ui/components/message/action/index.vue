@@ -24,6 +24,18 @@ const actions = computed(() => {
   return props.actions;
 });
 
+const remainings = computed(() => {
+  if (props.actions.length <= THRESHOLD) {
+    return '';
+  }
+
+  return props.actions.slice(THRESHOLD, props.actions.length).reduce((acc, curr) => {
+    acc += curr.resource?.kind && curr.resource?.name ? `${ curr.resource.kind }: ${ curr.resource.name }<br>` : `${ curr.label }<br>`;
+
+    return acc;
+  }, '');
+});
+
 </script>
 
 <template>
@@ -43,6 +55,7 @@ const actions = computed(() => {
       </div>
       <span
         v-if="props.actions.length > THRESHOLD"
+        v-clean-tooltip="{content: remainings, placement: 'top-start'}"
         class="chat-msg-actions-more"
       >
         {{ t('ai.message.relatedResources.more', { count: props.actions.length - THRESHOLD }, true) }}
@@ -86,5 +99,6 @@ const actions = computed(() => {
 
 .chat-msg-actions-more {
   color: #94a3b8;
+  width: fit-content;
 }
 </style>
