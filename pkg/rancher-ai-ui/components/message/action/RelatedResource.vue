@@ -19,7 +19,15 @@ const to = ref<any>(null);
 const tooltip = ref<string>('');
 
 function goTo() {
-  store.state.$router.push(to.value.detailLocation);
+  if (to.value.detailLocation) {
+    store.state.$router.push({
+      ...to.value.detailLocation,
+      params: {
+        ...(to.value.detailLocation.params || {}),
+        cluster: props.value?.resource?.cluster || to.value.detailLocation.params?.cluster, // Preserve cluster param
+      }
+    });
+  }
 }
 
 onMounted(async() => {
