@@ -24,6 +24,14 @@ function goTo() {
       ...to.value.detailLocation,
       params: {
         ...(to.value.detailLocation.params || {}),
+        /**
+         * TODO:
+         * We are assuming that the product is 'explorer' here because
+         * RelatedResource actions are only for resources that exist in the cluster explorer, at this time.
+         *
+         * 1. The productId should be dynamic and based on where the resource is located, ex: Fleet -> get Gitrepos
+         */
+        product: 'explorer',
         cluster: props.value?.resource?.cluster || to.value.detailLocation.params?.cluster, // Preserve cluster param
       }
     });
