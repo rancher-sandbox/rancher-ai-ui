@@ -230,6 +230,7 @@ onBeforeUnmount(() => {
           :key="index"
           :item="item"
           :remove-enabled="false"
+          type="user"
           class="chat-msg-user-context-tag"
         />
       </div>
@@ -292,7 +293,6 @@ onBeforeUnmount(() => {
   border-radius: 12px;
   box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
   padding: 12px;
-  font-size: 0.95rem;
   line-height: 21px;
   display: flex;
   flex-direction: column;
@@ -376,12 +376,28 @@ onBeforeUnmount(() => {
   list-style-position: inside;
 }
 
-.chat-msg-text :deep(code) {
-  padding: initial;
-  border: initial;
-  border-radius: initial;
-  background-color: transparent;
-  color: #025937;
+.chat-msg-text {
+  &:deep(code) {
+    padding: initial;
+    border: initial;
+    border-radius: initial;
+    background-color: transparent;
+    color: #025937;
+  }
+
+  &:deep(ul) {
+    white-space: normal;
+    margin: 0;
+    padding-left: 1rem;
+  }
+
+  &:deep(th) {
+    text-align: left;
+  }
+
+  &:deep(pre) {
+    margin: 0;
+  }
 }
 
 .theme-dark .chat-msg-text :deep(code) {
@@ -437,20 +453,5 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: flex-end;
   gap: 4px;
-}
-
-.chat-msg-user-context-tag {
-  background-color: transparent;
-  color: #9fabc6;
-  min-height: 16px;
-  height: fit-content;
-  border-radius: 8px;
-  font-size: 0.75rem;
-  border: 1px solid #9fabc6;
-  border-radius: 3px;
-  margin: 0;
-  cursor: default;
-  word-break: break-word;
-  white-space: pre-line;
 }
 </style>
