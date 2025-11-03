@@ -95,12 +95,19 @@ function scrollToBottom() {
   messagesView.value.scrollTop = messagesView.value.scrollHeight;
 }
 
+// Watch both messages and messagePhase to handle auto-scroll when new messages arrive or phase changes
 watch(
-  () => props.messages,
+  () => [
+    props.messages,
+    props.messagePhase
+  ],
   (neu, old) => {
+    const newMsgs = (neu || [])[0] as Message[];
+    const oldMsgs = (old || [])[0] as Message[];
+
     nextTick(() => {
       // Auto scroll only if enabled or if NEW user messages are added
-      const doScroll = autoScrollEnabled.value || (old && neu && neu.length > old.length && neu[neu.length - 1].role === Role.User);
+      const doScroll = autoScrollEnabled.value || (oldMsgs && newMsgs && newMsgs.length > oldMsgs.length && newMsgs[newMsgs.length - 1].role === Role.User);
 
       if (doScroll) {
         scrollToBottom();
