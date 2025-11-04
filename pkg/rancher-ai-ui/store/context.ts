@@ -56,7 +56,9 @@ function allowProduct(rootState: any, contextType: ContextType = ContextType.ALL
   case ContextType.ALL:
     return !currentPath.includes('/home') &&
         rootState.productId !== 'settings' &&
-        rootState.productId !== 'auth';
+        rootState.productId !== 'auth' &&
+        rootState.productId !== 'uiplugins';
+
   default:
     return true;
   }

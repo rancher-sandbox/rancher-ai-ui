@@ -34,7 +34,8 @@ class ChatHandler {
       position:      PANEL_POSITION,
       layouts:       [
         Layout.default,
-        Layout.home
+        Layout.home,
+        Layout.plain,
       ],
       showHeader: false,
     }, { root: true });
