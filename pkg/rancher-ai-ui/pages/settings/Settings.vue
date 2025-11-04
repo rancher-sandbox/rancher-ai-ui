@@ -305,6 +305,7 @@ const save = async(btnCB: (arg: boolean) => void) => { // eslint-disable-line no
 
       <div class="form-field">
         <labeled-select
+          :disabled="modelOptions.length <= 1"
           :value="formData[Settings.MODEL]"
           :label="t(`aiConfig.form.${ Settings.MODEL}.label`)"
           :options="modelOptions"
