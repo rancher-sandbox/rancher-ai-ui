@@ -48,7 +48,9 @@ export function useAgentComposable() {
   }
 
   async function checkAgentAvailability() {
-    if (store.getters['management/schemaFor'](WORKLOAD_TYPES.DEPLOYMENT)) {
+    if (!store.getters['management/canList'](WORKLOAD_TYPES.DEPLOYMENT)) {
+      error.value = { key: 'ai.error.agent.deployment.noPermission' };
+    } else {
       try {
         const agent = await store.dispatch('management/find', {
           type: WORKLOAD_TYPES.DEPLOYMENT,
@@ -57,7 +59,7 @@ export function useAgentComposable() {
 
         if (agent && agent.state !== 'active') {
           error.value = {
-            key:    'ai.error.agent.notActive',
+            key:    'ai.error.agent.deployment.notActive',
             action: {
               label:    t('ai.agent.goToDeployment'),
               type:     ActionType.Button,
@@ -73,7 +75,7 @@ export function useAgentComposable() {
       } catch (e) {
         warn('\'rancher-ai-agent\' deployment not found', e);
         error.value = {
-          key:    'ai.error.agent.notFound',
+          key:    'ai.error.agent.deployment.notFound',
           action: {
             label:    t('ai.agent.goToInstall'),
             type:     ActionType.Button,
@@ -81,14 +83,18 @@ export function useAgentComposable() {
           }
         };
       }
-    } else {
-      warn('Deployment schema not found');
     }
 
     return !error.value;
   }
 
   async function getAgentConfigs() {
+    if (!store.getters['management/canList'](SECRET)) {
+      error.value = { key: 'ai.error.agent.secret.noPermission' };
+
+      return;
+    }
+
     try {
       const secret = await store.dispatch('management/find', {
         type:    SECRET,
@@ -104,7 +110,7 @@ export function useAgentComposable() {
 
     if (!agent.value) {
       error.value = {
-        key:    'ai.error.agent.missingConfig',
+        key:    'ai.error.agent.secret.missingConfig',
         action: {
           label:    t('ai.settings.goToSettings'),
           type:     ActionType.Button,

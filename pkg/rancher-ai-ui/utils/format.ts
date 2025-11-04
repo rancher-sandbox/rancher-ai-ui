@@ -3,7 +3,7 @@ import {
   ActionType, MessageConfirmationAction, Tag, Context,
   Message,
   Role,
-  MessageActionRelatedResource
+  MessageAction
 } from '../types';
 import { validateActionResource } from './validator';
 
@@ -33,7 +33,7 @@ export function formatMessagePromptWithContext(prompt: string, selectedContext: 
   });
 }
 
-export function formatMessageRelatedResourcesActions(value: string, actionType = ActionType.Button): MessageActionRelatedResource[] {
+export function formatMessageRelatedResourcesActions(value: string, actionType = ActionType.Button): MessageAction[] {
   value = value.replaceAll(Tag.McpResultStart, '').replaceAll(Tag.McpResultEnd, '').replace(/'([^']*)'/g, '"');
 
   if (value) {

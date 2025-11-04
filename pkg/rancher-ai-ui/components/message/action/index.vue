@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { MessageActionRelatedResource } from '../../../types';
+import { MessageAction } from '../../../types';
 import { computed, type PropType, ref } from 'vue';
 import { useStore } from 'vuex';
-import RelatedResource from './RelatedResource.vue';
+import Action from './Action.vue';
 
 const THRESHOLD = 7; // Maximum number of actions for human readability
 
@@ -10,9 +10,13 @@ const store = useStore();
 const t = store.getters['i18n/t'];
 
 const props = defineProps({
+  label: {
+    type:    String,
+    default: '',
+  },
   actions: {
-    type:    Array as PropType<MessageActionRelatedResource[]>,
-    default: () => ([] as MessageActionRelatedResource[]),
+    type:    Array as PropType<MessageAction[]>,
+    default: () => ([] as MessageAction[]),
   },
 });
 
@@ -42,7 +46,7 @@ const toggleRemaining = () => {
 <template>
   <div class="chat-actions-container">
     <div class="chat-msg-action-title">
-      <span>{{ t('ai.message.relatedResources.label') }}</span>
+      <span>{{ props.label || 'ACTIONS' }}</span>
     </div>
     <div class="chat-msg-actions-container">
       <div class="chat-msg-action-tags">
@@ -51,7 +55,7 @@ const toggleRemaining = () => {
           :key="index"
           class="mt-2 chat-msg-actions"
         >
-          <RelatedResource :value="action" />
+          <Action :value="action" />
         </div>
         <template v-if="showRemaining">
           <div
@@ -59,7 +63,7 @@ const toggleRemaining = () => {
             :key="index"
             class="mt-2 chat-msg-actions"
           >
-            <RelatedResource :value="action" />
+            <Action :value="action" />
           </div>
         </template>
       </div>
@@ -69,10 +73,10 @@ const toggleRemaining = () => {
         @click="toggleRemaining"
       >
         <template v-if="!showRemaining">
-          {{ t('ai.message.relatedResources.more', { count: remaining.length }, true) }}
+          {{ t('ai.message.actions.more', { count: remaining.length }, true) }}
         </template>
         <template v-else>
-          {{ t('ai.message.relatedResources.less', {}, true) }}
+          {{ t('ai.message.actions.less', {}, true) }}
         </template>
         <i
           class="icon icon-sm"
