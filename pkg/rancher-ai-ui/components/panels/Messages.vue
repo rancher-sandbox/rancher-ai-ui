@@ -189,7 +189,7 @@ onBeforeUnmount(() => {
       class="chat-message-processing-label text-label"
       :class="{
         /* It avoids pushing the System messages up (Welcome template) */
-        'sticky-bottom': formattedMessages.filter(m => m.role === Role.User).length > 0
+        'sticky-bottom': formattedMessages.filter((m: Message) => m.role === Role.User).length > 0
       }"
       :phase="messagePhase"
     />

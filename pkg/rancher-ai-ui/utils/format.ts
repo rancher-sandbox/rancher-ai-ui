@@ -113,7 +113,7 @@ export function formatFileMessages(principal: any, messages: Message[]): string 
     [Role.System]:    '🛠️ Liz',
   };
 
-  return messages.map((msg) => {
+  return (messages || []).map((msg) => {
     const timestamp = msg.timestamp?.toLocaleTimeString([], {
       hour:   '2-digit',
       minute: '2-digit'
@@ -121,11 +121,16 @@ export function formatFileMessages(principal: any, messages: Message[]): string 
 
     let body = msg.summaryContent ? `Summary: ${ msg.summaryContent }\n` : '';
 
+    body += msg.templateContent?.content?.message ? `${ msg.templateContent.content.message }\n` : '';
     body += msg.messageContent ? `${ msg.messageContent }\n` : '';
     body += msg.thinkingContent ? `${ msg.thinkingContent }\n` : '';
 
     if (msg.contextContent?.length) {
       body += `Context: ${ JSON.stringify(msg.contextContent) }\n`;
+    }
+
+    if (msg.suggestionActions?.length) {
+      body += `Suggestions: [${ msg.suggestionActions.join('], [') }]\n`;
     }
 
     return `[${ timestamp }] [${ avatar[msg.role] }]: ${ body }`;
