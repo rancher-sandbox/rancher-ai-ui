@@ -237,7 +237,6 @@ onBeforeUnmount(() => {
           class="chat-msg-user-context-tag"
         />
       </div>
-      <!-- TODO: replace with actual source when available -->
       <div
         v-if="props.message.source || (props.message.role === RoleEnum.Assistant && props.message.formattedMessageContent)"
         class="chat-msg-section"
