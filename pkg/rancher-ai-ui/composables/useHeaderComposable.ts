@@ -7,6 +7,13 @@ import useDimensionsHandler from '@shell/components/nav/WindowManager/composable
 // @ts-expect-error missing shell export
 import useResizeHandler from '@shell/components/nav/WindowManager/composables/useResizeHandler.ts';
 
+/**
+ * Composable for managing the AI chat header actions.
+ *
+ * This uses some components from the shell's WindowManager to handle tab closing,
+ * dimension setting, and resizing.
+ * @returns Composable for managing the AI chat header actions.
+ */
 export function useHeaderComposable() {
   const store = useStore();
 

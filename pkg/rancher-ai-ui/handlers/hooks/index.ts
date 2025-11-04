@@ -13,6 +13,15 @@ interface Target {
   };
 }
 
+/**
+ * Handler for managing hooks overlays within the Rancher AI UI.
+ *
+ * - It listens for context changes and attaches/detaches overlays
+ * to the appropriate elements based on user interaction and key presses.
+ *
+ * - Overlays can be injected into the handler, allowing for modular
+ * addition of different types of hooks overlays.
+ */
 class HooksHandler {
   private targets: Set<Target> = new Set();
   private overlays: HooksOverlay[] = [];
@@ -30,6 +39,10 @@ class HooksHandler {
     }
   };
 
+  /**
+   * Add an easter egg to the header AI button to toggle all hooks overlays on hover.
+   * @param store The Vuex store instance.
+   */
   private addEasterEgg(store: Store<any>) {
     if (HooksHandler.headerBtn) {
       const prev = (HooksHandler.headerBtn as any).__easterHandlers;
@@ -65,10 +78,19 @@ class HooksHandler {
     }
   }
 
+  /**
+   * Get the overlay HTML element for a specific target element.
+   * @param target The target element to find the overlay for.
+   * @param overlay The overlay instance to find the element for.
+   * @returns The overlay HTML element, or null if not found.
+   */
   private getOverlayHTMLElement(target: HTMLElement, overlay: HooksOverlay) {
     return target.classList.contains(overlay.getSelector()) ? target : (target.querySelector(`.${ overlay.getSelector() }`) as HTMLElement);
   }
 
+  /**
+   * Clear all registered target elements and their event handlers.
+   */
   private clearTargets() {
     for (const t of this.targets) {
       if (t.handlers) {
@@ -83,6 +105,13 @@ class HooksHandler {
     this.targets.clear();
   }
 
+  /**
+   * Toggle overlays for a specific target element.
+   * @param store The Vuex store instance.
+   * @param target The target element to toggle overlays for.
+   * @param ctx The context for the overlay.
+   * @param show Whether to show or hide the overlay.
+   */
   private toggleOverlays(store: Store<any>, target: HTMLElement, ctx: Context, show: boolean) {
     this.overlays.forEach((overlay) => {
       // Get the first element with the overlay selector class, including the target itself
@@ -100,6 +129,12 @@ class HooksHandler {
     });
   }
 
+  /**
+   * Initialize the hooks handler.
+   * Init is called the first time the HooksHandler is used.
+   *
+   * @param store The Vuex store instance.
+   */
   private init(store: Store<any>) {
     // Debounce the expensive handler so only the last update is processed
     const handleHooksChange = debounce(async(hooks: Context[]) => {
@@ -136,6 +171,12 @@ class HooksHandler {
       });
     }, 300);
 
+    /**
+     * Watch for changes in the hooks context to update overlays accordingly.
+     *
+     * Updates are debounced to avoid excessive processing
+     * and because we are only interested in the latest changes in the hooks context.
+     */
     watch(
       () => store.getters['ui-context/all'].filter((c: Context) => !!c.hookId),
       (hooks) => handleHooksChange(hooks),
@@ -145,6 +186,9 @@ class HooksHandler {
       },
     );
 
+    /**
+     * Watch for theme changes to update overlays accordingly.
+     */
     watch(() => store.getters['prefs/theme'], (newTheme) => {
       this.targets.forEach(({ target }) => {
         this.overlays.forEach((overlay) => {
@@ -168,6 +212,12 @@ class HooksHandler {
     });
   }
 
+  /**
+   * Inject a new hooks overlay into the handler.
+   * @param overlay The hooks overlay to inject.
+   * @param store The Vuex store instance.
+   * @returns The injected hooks overlay.
+   */
   public inject(overlay: HooksOverlay, store: Store<any>) {
     if (!HooksHandler.initialized) {
       this.init(store);

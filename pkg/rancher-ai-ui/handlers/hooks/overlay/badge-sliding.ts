@@ -13,12 +13,30 @@ const enum Theme {
   Dark = 'dark', // eslint-disable-line no-unused-vars
 }
 
+/**
+ * Overlay that adds a sliding badge to status badges allowing
+ * users to quickly create an AI chat message about the badged state.
+ */
 class BadgeSlidingOverlay extends HooksOverlay {
   constructor(selector: string) {
     super();
     this.selector = selector;
   }
 
+  /**
+   * Compute the theme properties for the badge and overlay.
+   *
+   * - The badges in the main UI depend on the current theme and badge classes. The background colors use opacity
+   *   - When the overlay is applied, the badge background must be converted to a solid color
+   *     to avoid the overlay showing behind it.
+   *   - When the overlay is shown, it uses a fixed background color and text color.
+   *   - When the theme changes, both badge and overlay colors must be updated.
+   *   - When the overlay is destroyed, the badge background must be restored to the computed color.
+   *
+   * @param badge The badge element to compute properties for.
+   * @param theme The theme to apply (light or dark).
+   * @returns An object containing the computed properties for the badge and overlay.
+   */
   private computeThemeProperties(badge: HTMLElement, theme: Theme): { badge: any, overlay: any } {
     const out = {
       badge:   { background: '' },
@@ -210,20 +228,6 @@ class BadgeSlidingOverlay extends HooksOverlay {
 
   action(store: Store<any>, e: Event, overlay: HTMLElement, ctx: Context, globalCtx: Context[]) {
     e.stopPropagation();
-
-    // const obj = context.value as any;
-
-    // const ctx: Context[] = [{
-    //   tag:         obj?.kind?.toLowerCase(),
-    //   description: obj?.kind,
-    //   icon:        context.icon,
-    //   value:       obj?.name
-    // }];
-
-    // store.commit('rancher-ai-ui/context/reset');
-    // if (ctx) {
-    //   store.commit('rancher-ai-ui/context/add', ctx);
-    // }
 
     const message = TemplateMessage.fill(store, ctx, globalCtx);
 

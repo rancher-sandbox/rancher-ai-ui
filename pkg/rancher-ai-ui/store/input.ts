@@ -1,6 +1,10 @@
 import { PRODUCT_NAME } from '../product';
 import { CoreStoreSpecifics, CoreStoreConfig } from '@shell/core/types';
 
+/**
+ * Manages the state of text input within the Rancher AI UI.
+ */
+
 interface State {
   text: string;
 }

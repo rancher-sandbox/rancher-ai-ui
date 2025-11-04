@@ -12,6 +12,12 @@ import Welcome from '../message/template/Welcome.vue';
 import ScrollButton from '../ScrollButton.vue';
 import Processing from '../Processing.vue';
 
+/**
+ * Messages panel displaying the chat messages.
+ *
+ * Everything related to message rendering and auto-scrolling is handled here.
+ */
+
 const store = useStore();
 const t = store.getters['i18n/t'];
 

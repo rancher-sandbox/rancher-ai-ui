@@ -2,6 +2,10 @@ import { ref, computed, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 import type { Context } from '../types';
 
+/**
+ * Composable for managing the AI context state.
+ * @returns Composable for managing the AI context state.
+ */
 export function useContextComposable() {
   const store = useStore();
 

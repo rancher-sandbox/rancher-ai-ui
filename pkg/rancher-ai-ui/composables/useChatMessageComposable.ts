@@ -15,6 +15,16 @@ import { downloadFile } from '@shell/utils/download';
 const CHAT_ID = 'default';
 const EXPAND_THINKING = false;
 
+/**
+ * Composable for managing chat messages within the AI chat.
+ *
+ * It's designed to handle message sending, receiving, updating, and confirming,
+ * as well as managing the chat phase and error states.
+ *
+ * It exposes methods to interact with WebSocket events and to manipulate chat messages.
+ *
+ * @returns Composable for managing chat messages within the AI chat.
+ */
 export function useChatMessageComposable() {
   const store = useStore();
   const t = store.getters['i18n/t'];

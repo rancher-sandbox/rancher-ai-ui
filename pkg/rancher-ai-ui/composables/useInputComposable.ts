@@ -1,6 +1,10 @@
 import { useStore } from 'vuex';
 import { computed } from 'vue';
 
+/**
+ * Composable for managing the AI input text state.
+ * @returns Composable for managing the AI input text state.
+ */
 export function useInputComposable() {
   const store = useStore();
 
