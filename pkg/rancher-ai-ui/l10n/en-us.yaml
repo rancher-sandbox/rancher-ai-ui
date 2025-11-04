@@ -22,16 +22,17 @@ ai:
         inProgress: Thinking
     source:
       label: SOURCE
-    relatedResources:
+    relatedResourcesActions:
       label: RELATED RESOURCES
-      tooltip: '{kind}: {namespace}/{name} in {cluster} cluster'
+    quickActions:
+      label: QUICK ACTIONS
+    actions:
       more: |-
         {count, plural,
           =1 { and {count} more resource }
           other { and {count} more resources }
         }
       less: Show Less
-    actions:
       tooltip:
         copy: Copy to Clipboard
         resend: Resend Message
@@ -87,8 +88,8 @@ ai:
       openai: ChatGPT
       gemini: Gemini
     unknown: Unknown Agent
-    goToInstall: Install Agent
-    goToDeployment: View Deployment
+    goToInstall: View Charts
+    goToDeployment: View Agent Deployment
   hooks:
     menu:
       header:
@@ -110,7 +111,7 @@ ai:
         label: Ask Liz
   settings:
     title: AI Assistant
-    goToSettings: Settings
+    goToSettings: Configure AI Assistant
   confirmation:
     message:
       question: Are you sure you want to proceed with this action?
@@ -141,9 +142,13 @@ ai:
       connection: Failed to connect to Rancher AI Agent. Please try again later.
       disconnected: Connection closed.
     agent:
-      notFound: Rancher AI Agent not found. Please ensure the agent chart is installed.
-      notActive: Rancher AI Agent is not active. Please ensure the agent is running properly.
-      missingConfig: Rancher AI Agent configuration is missing. Please go to Global [Settings > AI Assistant] and configure the agent.
+      secret:
+        noPermission: You do not have permission to access the Rancher AI Agent configuration. Please contact your administrator.
+        missingConfig: Rancher AI Agent configuration is missing. Please go to Global [Settings > AI Assistant] and configure the agent.
+      deployment:
+        noPermission: You do not have permission to access the Rancher AI Agent. Please contact your administrator.
+        notFound: Rancher AI Agent not found. Please ensure the agent chart is installed.
+        notActive: Rancher AI Agent is not active. Please ensure the agent is running properly.
   options:
     chat:
       reset:

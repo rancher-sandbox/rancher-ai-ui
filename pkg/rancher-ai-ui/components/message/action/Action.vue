@@ -3,15 +3,15 @@ import { onMounted, ref, type PropType } from 'vue';
 import { useStore } from 'vuex';
 import { warn } from '../../../utils/log';
 import RcButton from '@components/RcButton/RcButton.vue';
-import { MessageActionRelatedResource } from '../../../types';
+import { MessageAction } from '../../../types';
 import { ActionType } from '../../../types';
 
 const store = useStore();
 
 const props = defineProps({
   value: {
-    type:    Object as PropType<MessageActionRelatedResource>,
-    default: () => ({} as MessageActionRelatedResource),
+    type:    Object as PropType<MessageAction>,
+    default: () => ({} as MessageAction),
   }
 });
 
@@ -27,7 +27,7 @@ function goTo() {
         /**
          * TODO:
          * We are assuming that the product is 'explorer' here because
-         * RelatedResource actions are only for resources that exist in the cluster explorer, at this time.
+         * Resource actions are only for resources that exist in the cluster explorer, at this time.
          *
          * 1. The productId should be dynamic and based on where the resource is located, ex: Fleet -> get Gitrepos
          */
@@ -55,7 +55,7 @@ onMounted(async() => {
         id: namespace ? `${ namespace }/${ name }` : name
       });
     } catch (e) {
-      warn('RelatedResource - Could not find related resource', e);
+      warn('Action - Could not find resource', e);
       to.value = null;
     }
   }

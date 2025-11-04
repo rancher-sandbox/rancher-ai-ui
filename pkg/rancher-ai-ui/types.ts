@@ -3,7 +3,7 @@
 export interface ChatError {
   key?:     string;
   message?: string;
-  action?:  MessageActionRelatedResource;
+  action?:  MessageAction;
 }
 
 export interface ConnectionError extends ChatError {
@@ -90,7 +90,7 @@ export interface MessageConfirmationAction {
   resource: ActionResource;
 }
 
-export interface MessageActionRelatedResource {
+export interface MessageAction {
   type: ActionType | string;
   label: string;
   tooltip?: string;
@@ -129,7 +129,8 @@ export interface Message {
   completed?: boolean;
   showThinking?: boolean;
   showCompleteMessage?: boolean;
-  relatedResourcesActions?: MessageActionRelatedResource[];
+  actions?: MessageAction[];
+  relatedResourcesActions?: MessageAction[];
   suggestionActions?: string[];
   confirmation?: MessageConfirmation;
   source?: object;

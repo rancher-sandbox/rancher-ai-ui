@@ -249,7 +249,17 @@ onBeforeUnmount(() => {
         class="chat-msg-section"
       >
         <Actions
+          :label="t('ai.message.relatedResourcesActions.label')"
           :actions="props.message.relatedResourcesActions"
+        />
+      </div>
+      <div
+        v-if="props.message.actions?.length"
+        class="chat-msg-section"
+      >
+        <Actions
+          :label="t('ai.message.quickActions.label')"
+          :actions="props.message.actions"
         />
       </div>
       <div
