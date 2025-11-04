@@ -42,7 +42,7 @@ const showCopySuccess = ref(false);
 const timeoutCopy = ref<any>(null);
 
 function handleCopy() {
-  if (!props.message.summaryContent && !props.message.messageContent && !props.message.thinkingContent) {
+  if (!props.message.summaryContent && !props.message.messageContent && !props.message.thinkingContent && !props.message.formattedMessageContent) {
     return;
   }
 
@@ -59,7 +59,8 @@ function handleCopy() {
       text += `\n${ props.message.messageContent || '' }`;
     }
   } else {
-    text += (props.message.messageContent || '');
+    // formattedMessageContent will contain error messages if any
+    text += (props.message.messageContent || props.message.formattedMessageContent || '');
   }
 
   navigator.clipboard.writeText(text.trim());
