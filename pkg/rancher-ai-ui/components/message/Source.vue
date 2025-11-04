@@ -9,6 +9,7 @@ const t = store.getters['i18n/t'];
 
 const isCollapsed = ref(true);
 
+// TODO: replace with actual source items when available
 const items = [
   { value: 'Cluster Management Guide' },
   { value: 'Best Practices' },

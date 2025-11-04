@@ -4,6 +4,12 @@ import { useStore } from 'vuex';
 import RcButton from '@components/RcButton/RcButton.vue';
 import ConsoleMenu from '../console/Menu.vue';
 
+/**
+ * Header panel for the AI chat interface.
+ *
+ * This is custom header for the AI chat, replacing the default shell WindowManager header.
+ */
+
 const store = useStore();
 const t = store.getters['i18n/t'];
 

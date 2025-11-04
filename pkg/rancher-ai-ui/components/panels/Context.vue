@@ -3,6 +3,10 @@ import { defineProps, type PropType } from 'vue';
 import SelectContext from '../context/SelectContext.vue';
 import { Context } from '../../types';
 
+/**
+ * Context panel for selecting AI chat contexts.
+ */
+
 const props = defineProps({
   value: {
     type:    Array as PropType<Context[]>,

@@ -9,6 +9,11 @@ interface MenuItems {
   label?: string;
 }
 
+/**
+ * Factory for creating context menus based on the current context.
+ *
+ * Not used at the moment.
+ */
 class MenuFactory {
   buildItems(store: Store<any>, context: Context): MenuItems[] {
     const t = store.getters['i18n/t'];

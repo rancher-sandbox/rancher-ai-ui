@@ -14,6 +14,10 @@ import { useInputComposable } from '../../composables/useInputComposable';
 
 import type { PropType } from 'vue';
 
+/**
+ * Console panel for AI chat messages input and info about the Agent.
+ */
+
 const store = useStore();
 const t = store.getters['i18n/t'];
 

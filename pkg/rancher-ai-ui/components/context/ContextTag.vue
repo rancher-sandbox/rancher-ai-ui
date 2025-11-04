@@ -2,7 +2,7 @@
 import { Context } from '../../types';
 
 type Props = {
-  item?: Context;
+  item?: Partial<Context>;
   removeEnabled?: boolean;
   type?: 'default' | 'user';
 }

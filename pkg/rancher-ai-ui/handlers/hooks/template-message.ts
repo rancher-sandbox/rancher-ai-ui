@@ -6,6 +6,11 @@ export interface MessageTemplateFill {
   payload: string;
 }
 
+/**
+ * Factory for creating template messages based on context.
+ *
+ * It's used in Hooks overlays to generate user messages for the AI based on the selected resource
+ */
 class TemplateMessageFactory {
   fill(store: Store<any>, ctx: Context, globalCtx: Context[]): Message {
     const t = store.getters['i18n/t'];

@@ -2,6 +2,10 @@ import { PRODUCT_NAME } from '../product';
 import { CoreStoreSpecifics, CoreStoreConfig } from '@shell/core/types';
 import { ConnectionError, ConnectionParams } from '../types';
 
+/**
+ * Manages the state of WebSocket connections within the Rancher AI UI.
+ */
+
 interface State {
   ws: WebSocket | null;
   error: ConnectionError | null;

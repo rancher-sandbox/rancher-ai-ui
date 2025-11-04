@@ -7,6 +7,14 @@ import { AGENT_NAMESPACE, AGENT_NAME, AGENT_CONFIG_SECRET_NAME, PRODUCT_NAME } f
 import { SECRET, WORKLOAD_TYPES } from '@shell/config/types';
 import { ActionType, Agent, ChatError } from '../types';
 
+/**
+ * Composable for managing the AI agent state.
+ *
+ * The Agent information is used to determine which AI model is being used (shown in the Console panel)
+ * and to handle any errors related to the agent's availability or configuration.
+ *
+ * @returns Composable for managing the AI agent state.
+ */
 export function useAgentComposable() {
   const store = useStore();
   const t = store.getters['i18n/t'];

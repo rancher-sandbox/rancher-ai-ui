@@ -64,11 +64,20 @@ function allowProduct(rootState: any, contextType: ContextType = ContextType.ALL
   }
 };
 
+/**
+ * Manages the state of context within the Rancher AI UI.
+ *
+ * Context is used to provide additional information to AI prompts.
+ */
+
 interface State {
   context: Context[];
 }
 
 const getters = {
+  /**
+   * Gets the default context from the main Rancher UI (those without a hookId).
+   */
   default: (state: State, getters: any, rootState: any, rootGetters: any) => {
     const all = rootGetters['ui-context/all'] || [];
 
@@ -79,6 +88,13 @@ const getters = {
     return state.context || [];
   },
 
+  /**
+   * Gets all active context.
+   *
+   * This includes context from the current cluster, active namespaces,
+   * default context from the main Rancher UI, and any transient context
+   * added specifically for Rancher AI.
+   */
   all: (state: State, getters: any, rootState: any, rootGetters: any) => {
     const t = rootGetters['i18n/t'];
 

@@ -24,6 +24,10 @@ import { Settings, FormData, Workload } from './types';
 import { SECRET } from '@shell/config/types';
 import dayjs from 'dayjs';
 
+/**
+ * Settings page for configuring Rancher AI agent.
+ */
+
 const store = useStore();
 const { t } = useI18n(store);
 

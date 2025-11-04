@@ -8,6 +8,10 @@ import { HooksOverlay } from './index';
 import Chat from '../../chat';
 import { formatMessagePromptWithContext } from '../../../utils/format';
 
+/**
+ * Overlay that adds a button to status banners allowing
+ * users to quickly create an AI chat message about the bannered state.
+ */
 class BannerButtonOverlay extends HooksOverlay {
   constructor(selector: string) {
     super();

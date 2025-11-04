@@ -14,6 +14,10 @@ import Context from '../components/panels/Context.vue';
 import Console from '../components/panels/Console.vue';
 import Chat from '../handlers/chat';
 
+/**
+ * Chat panel landing page.
+ */
+
 const store = useStore();
 
 const { agent, error: agentError } = useAgentComposable();

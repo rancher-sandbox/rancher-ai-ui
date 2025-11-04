@@ -4,6 +4,12 @@ import { nextTick } from 'vue';
 import MenuFactory from '../menu';
 import { HooksOverlay } from './index';
 
+/**
+ * Overlay that adds a button to status badges allowing
+ * users to quickly create an AI chat message about the badged state.
+ *
+ * Not used at the moment.
+ */
 class BadgeButtonOverlay extends HooksOverlay {
   constructor(selector: string) {
     super();

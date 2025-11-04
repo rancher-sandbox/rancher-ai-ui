@@ -4,6 +4,13 @@ import {
   ConfirmationStatus, Message, MessageError, MessagePhase, Role
 } from '../types';
 
+/**
+ * Manages the state of chat conversations within the Rancher AI UI.
+ *
+ * At the moment, we only use a single chat, but this structure allows
+ * for future expansion to multiple concurrent chats (chat history).
+ */
+
 interface Chat {
   id: string;
   msgIdCnt?: number;
