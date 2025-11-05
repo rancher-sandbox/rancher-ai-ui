@@ -280,7 +280,7 @@ const save = async(btnCB: (arg: boolean) => void) => { // eslint-disable-line no
         @update:model-value="(val: string | undefined) => updateValue(Settings.ACTIVE_CHATBOT, val as ChatBotEnum)"
       />
       <banner
-        v-if="formData[Settings.ACTIVE_CHATBOT] !== 'Local'"
+        v-if="formData[Settings.ACTIVE_CHATBOT] !== ChatBotEnum.Local"
         color="warning"
         class="mt-0 mb-0"
       >
