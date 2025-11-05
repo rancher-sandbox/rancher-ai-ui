@@ -54,6 +54,9 @@ class HooksHandler {
         try {
           HooksHandler.headerBtn.removeEventListener('mouseleave', prev.onLeave);
         } catch {}
+        try {
+          HooksHandler.headerBtn.removeEventListener('click', prev.onClick);
+        } catch {}
       }
       (HooksHandler.headerBtn as any).__easterHandlers = undefined;
       HooksHandler.headerBtn = null;
@@ -68,13 +71,18 @@ class HooksHandler {
       const onLeave = debounce(() => {
         this.toggleAllHooksOverlay(store, false);
       }, 150);
+      const onClick = debounce(() => {
+        this.toggleAllHooksOverlay(store, false);
+      }, 150);
 
       (HooksHandler.headerBtn as any).__easterHandlers = {
         onEnter,
-        onLeave
+        onLeave,
+        onClick
       };
       HooksHandler.headerBtn.addEventListener('mouseenter', onEnter);
       HooksHandler.headerBtn.addEventListener('mouseleave', onLeave);
+      HooksHandler.headerBtn.addEventListener('click', onClick);
     }
   }
 
