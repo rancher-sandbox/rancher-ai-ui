@@ -71,7 +71,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
   }
 
   /**
-   * Handle changes in the parent container's position.
+   * Handle changes in the parent container's position (e.g. due to scrolling or table resizing).
    * @param target The target element.
    * @param container The parent container element.
    * @param overlay The overlay element.
@@ -84,7 +84,7 @@ class BadgeSlidingOverlay extends HooksOverlay {
         const r = container.getBoundingClientRect();
 
         if (r.top !== lastContainerRect.top || r.left !== lastContainerRect.left) {
-          // parent moved -> remove overlays for this target
+          // parent moved -> remove overlays for this target, immediately
           this.destroy(target, true);
         } else {
           lastContainerRect = r;
@@ -258,17 +258,22 @@ class BadgeSlidingOverlay extends HooksOverlay {
 
   destroy(target: HTMLElement, immediate = false) {
     (target.parentElement as HTMLElement).querySelectorAll(`.${ HooksOverlay.defaultClassPrefix }-${ this.getSelector() }`).forEach((overlay: any) => {
-      if (overlay && !(overlay.matches(':hover') || (overlay.querySelector(':hover') !== null))) {
-        this.cleanupParentPosition(overlay);
-
-        // Animate width shrink before removing
-        overlay.style.transition = 'width 0.2s cubic-bezier(0.4,0,0.2,1), opacity 0.3s';
-        overlay.style.width = `${ 0 }px`;
-        overlay.style.opacity = '0';
-
-        setTimeout(() => {
+      if (overlay) {
+        if (immediate) {
+          this.cleanupParentPosition(overlay);
           overlay.remove();
-        }, immediate ? 0 : 500);
+        } else if (!(overlay.matches(':hover') || (overlay.querySelector(':hover') !== null))) {
+          this.cleanupParentPosition(overlay);
+
+          // Animate width shrink before removing
+          overlay.style.transition = 'width 0.2s cubic-bezier(0.4,0,0.2,1), opacity 0.3s';
+          overlay.style.width = '0px';
+          overlay.style.opacity = '0';
+
+          setTimeout(() => {
+            overlay.remove();
+          }, 500);
+        }
       }
     });
   }
