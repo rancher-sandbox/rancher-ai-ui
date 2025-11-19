@@ -8,7 +8,8 @@ class ChatHandler {
   panelPosition = PANEL_POSITION;
 
   isOpen(store: Store<any>) {
-    return store.getters['wm/isOpen'](PANEL_POSITION);
+    // wm/isOpen not working as expected here, can be restored when https://github.com/rancher/dashboard/issues/15941 is fixed
+    return !!store.state.wm?.tabs?.find((tab: { id: string }) => tab.id === PRODUCT_NAME);
   }
 
   open(store: Store<any>) {
