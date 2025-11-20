@@ -42,11 +42,13 @@ onMounted(async() => {
   if (!!props.value.resource.detailLocation) {
     to.value = props.value.resource;
   } else {
+    const inStore = 'management';
+
+    await store.dispatch('loadManagement');
+
     const {
       cluster, type, namespace, name
     } = props.value.resource;
-
-    const inStore = store.getters['currentProduct'].inStore || 'management';
 
     try {
       to.value = await store.dispatch(`${ inStore }/find`, {
