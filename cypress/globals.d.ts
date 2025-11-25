@@ -232,6 +232,10 @@ declare global {
        */
       checkElementAccessibility(selector: any, description?: string);
 
+      /**
+       * enqueue a request to mock AI Agent response
+       */
+      enqueueAIAgentResponse(args: { content: string, chunkSize?: number }): Chainable;
     }
   }
 }

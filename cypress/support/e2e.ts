@@ -3,6 +3,7 @@ import './commands/commands';
 import './commands/chainable';
 import './commands/rancher-api-commands';
 import './commands/accessiblity';
+import './commands/mock-ai-agent-api';
 
 import registerCypressGrep from '@cypress/grep/src/support';
 import { addCustomCommand } from 'cypress-delete-downloads-folder';

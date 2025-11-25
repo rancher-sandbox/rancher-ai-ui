@@ -162,6 +162,7 @@ export default defineConfig({
     VAI_ENABLED:         process.env.VAI_ENABLED,
     accessibility:       !!process.env.TEST_A11Y, // Are we running accessibility tests?
     a11yFolder:          path.join('.', 'cypress', 'accessibility'),
+    mockAgentApi:        'http://localhost:8000',
   },
   e2e: {
     fixturesFolder:               'cypress/e2e/blueprints',

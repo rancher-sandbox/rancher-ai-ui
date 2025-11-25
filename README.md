@@ -34,6 +34,18 @@ Bump the app version on `package.json` file, then run:
 yarn serve-pkgs
 ```
 
+## E2E tests
+Running locally:
+```bash
+# Build and Run the mock Agent
+cd mock-agent
+yarn install
+yarn mock:agent:start
+
+# Launch Cypress dashboard
+API=https://your-rancher VUE_APP_AGENT_MESSAGES_WS_PATH=ws://localhost:8000/ws/agent yarn dev
+```
+
 License
 =======
 Check Rancher AI UI Apache License details [here](LICENSE)

@@ -105,6 +105,7 @@ onBeforeUnmount(() => {
       'chat-message-user': props.message.role === RoleEnum.User,
       disabled: props.disabled
     }"
+    :data-testid="`rancher-ai-ui-chat-message-${ props.message.id }`"
   >
     <component
       :is="props.message.role === RoleEnum.User ? UserAvatar : SystemAvatar"

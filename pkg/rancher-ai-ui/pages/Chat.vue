@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useStore } from 'vuex';
 import { onMounted, onBeforeUnmount, computed, nextTick } from 'vue';
-import { PRODUCT_NAME, AGENT_NAME, AGENT_NAMESPACE, AGENT_API_PATH } from '../product';
+import { PRODUCT_NAME } from '../product';
 import { MessagePhase } from '../types';
 import { useConnectionComposable } from '../composables/useConnectionComposable';
 import { useChatMessageComposable } from '../composables/useChatMessageComposable';
@@ -76,9 +76,7 @@ function resetChat() {
   resetMessages();
   resetChatError();
   disconnect({ showError: false });
-  nextTick(() => {
-    connect(AGENT_NAMESPACE, AGENT_NAME, AGENT_API_PATH);
-  });
+  nextTick(connect);
 }
 
 function routeToSettings() {
@@ -89,7 +87,7 @@ function routeToSettings() {
 }
 
 onMounted(() => {
-  connect(AGENT_NAMESPACE, AGENT_NAME, AGENT_API_PATH);
+  connect();
   // Ensure disconnection on browser refresh/close
   window.addEventListener('beforeunload', unmount);
 });
@@ -109,7 +107,10 @@ function unmount() {
 </script>
 
 <template>
-  <div class="chat-container">
+  <div
+    class="chat-container"
+    data-testid="rancher-ai-ui-chat-container"
+  >
     <div
       class="resize-bar"
       @mousedown.prevent.stop="resize"
