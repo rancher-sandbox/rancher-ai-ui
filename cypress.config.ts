@@ -1,7 +1,5 @@
 /* eslint-disable no-console */
 import path from 'path';
-import net from 'net';
-import { spawn, ChildProcess } from 'child_process';
 import { defineConfig } from 'cypress';
 import { removeDirectory } from 'cypress-delete-downloads-folder';
 import websocketTasks from './cypress/support/utils/webSocket-utils';
@@ -51,82 +49,6 @@ if (apiUrl && !baseUrl.startsWith(apiUrl)) {
   console.log('\n ❗ API variable is different to TEST_BASE_URL - tests may fail due to authentication issues');
 }
 
-function waitForMockAgentPort(port: number, host = 'localhost', timeout = 10000): Promise<void> {
-  return new Promise<void>((resolve, reject) => {
-    const deadline = Date.now() + timeout;
-
-    (function check() {
-      const s = net.createConnection({
-        port,
-        host
-      }, () => {
-        s.end();
-        resolve();
-      });
-
-      s.on('error', () => {
-        if (Date.now() > deadline) {
-          return reject(new Error(`timeout waiting for ${ host }:${ port }`));
-        }
-        setTimeout(check, 100);
-      });
-    })();
-  });
-}
-
-async function spawnMockAgent(on: Cypress.PluginEvents) {
-  let mockProc: ChildProcess | null = null;
-  const mockPort = Number(process.env.MOCK_AGENT_PORT || 8000);
-  const scriptDir = path.resolve(__dirname, 'mock-agent');
-
-  async function startMockAgent() {
-    if (mockProc) {
-      return;
-    }
-
-    // Run `yarn mock:agent:start`
-    mockProc = spawn('yarn', ['mock:agent:start'], {
-      cwd:   scriptDir,
-      env:   {
-        ...process.env,
-        MOCK_AGENT_PORT: String(mockPort)
-      },
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
-
-    mockProc.stdout?.on('data', (d) => {
-      if (d?.includes('npx')) {
-        process.stdout.write(`\n    [mock agent] pid: ${ (mockProc as any).pid }\n`);
-      } else {
-        process.stdout.write(`    ${ d }`);
-      }
-    });
-    mockProc.stderr?.on('data', (d) => process.stderr.write(`     [err] ${ d }`));
-  }
-
-  try {
-    await startMockAgent();
-    await waitForMockAgentPort(mockPort, 'localhost', 8000);
-    console.log(`    [mock agent] Ready`);
-  } catch (error) {
-    console.error('    [mock agent] failed to start:', error);
-  } finally {
-    console.log('');
-  }
-
-  on('after:run', async() => {
-    if (mockProc && !mockProc.killed) {
-      mockProc.kill();
-      mockProc = null;
-    }
-  });
-  process.on('exit', () => {
-    if (mockProc && !mockProc.killed) {
-      mockProc.kill();
-    }
-  });
-}
-
 export default defineConfig({
   projectId:             process.env.TEST_PROJECT_ID,
   defaultCommandTimeout: process.env.TEST_TIMEOUT ? +process.env.TEST_TIMEOUT : 10000,
@@ -170,8 +92,6 @@ export default defineConfig({
     specPattern:                  'cypress/e2e/tests/**/*.spec.ts',
     baseUrl,
     async setupNodeEvents(on, config) {
-      // await spawnMockAgent(on);
-
       // For more info: https://docs.cypress.io/guides/tooling/code-coverage
       require('@cypress/code-coverage/task')(on, config);
       require('@cypress/grep/src/plugin')(config);
