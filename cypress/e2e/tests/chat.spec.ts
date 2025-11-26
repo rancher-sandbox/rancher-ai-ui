@@ -1,4 +1,3 @@
-import { HeaderPo } from '@/cypress/e2e/po/components/header.po';
 import HomePagePo from '@/cypress/e2e/po/pages/home.po';
 import ClusterDashboardPagePo from '@/cypress/e2e/po/pages/explorer/cluster-dashboard.po';
 import ClusterManagerListPagePo from '@/cypress/e2e/po/pages/cluster-manager/cluster-manager-list.po';
@@ -10,19 +9,18 @@ import { SettingsPagePo } from '@/cypress/e2e/po/pages/global-settings/settings.
 import ChatPo from '@/cypress/e2e/po/extensions/ai/chat.po';
 
 describe('Chat', () => {
-  const header = new HeaderPo();
   const chat = new ChatPo();
 
   beforeEach(() => {
     cy.login();
   });
 
-  describe('Open Chat from different UI areas', () => {
+  describe('Verify chat availability in different UI areas', () => {
     it('Home', () => {
       HomePagePo.goTo();
 
-      header.askLizButton().click();
-      chat.checkExists();
+      chat.open();
+      chat.close();
     });
 
     it('Cluster dashboard', () => {
@@ -30,8 +28,8 @@ describe('Chat', () => {
 
       localClusterDashboard.goTo();
 
-      header.askLizButton().click();
-      chat.checkExists();
+      chat.open();
+      chat.close();
     });
 
     it('Cluster management', () => {
@@ -40,8 +38,8 @@ describe('Chat', () => {
       clusterList.goTo();
       clusterList.waitForPage();
 
-      header.askLizButton().click();
-      chat.checkExists();
+      chat.open();
+      chat.close();
     });
 
     it('Fleet', () => {
@@ -50,8 +48,8 @@ describe('Chat', () => {
       fleetDashboardPage.goTo();
       fleetDashboardPage.waitForPage();
 
-      header.askLizButton().click();
-      chat.checkExists();
+      chat.open();
+      chat.close();
     });
 
     it('Users', () => {
@@ -60,8 +58,8 @@ describe('Chat', () => {
       usersPo.goTo();
       usersPo.waitForPage();
 
-      header.askLizButton().click();
-      chat.checkExists();
+      chat.open();
+      chat.close();
     });
 
     it('Extensions', () => {
@@ -70,8 +68,8 @@ describe('Chat', () => {
       extensionsPo.goTo();
       extensionsPo.waitForPage();
 
-      header.askLizButton().click();
-      chat.checkExists();
+      chat.open();
+      chat.close();
     });
 
     it('Settings', () => {
@@ -80,13 +78,13 @@ describe('Chat', () => {
       settingsPage.goTo();
       settingsPage.waitForPage();
 
-      header.askLizButton().click();
-      chat.checkExists();
+      chat.open();
+      chat.close();
     });
   });
 
   describe('Welcome Message', () => {
-    it('Show welcome message template and suggestions', () => {
+    it('Show static content and suggestions', () => {
       cy.login();
 
       HomePagePo.goTo();
@@ -96,8 +94,7 @@ describe('Chat', () => {
         chunkSize: 30
       });
 
-      header.askLizButton().click();
-      chat.checkExists();
+      chat.open();
 
       const welcomeMessage = chat.getTemplateMessage('welcome');
 
