@@ -233,7 +233,11 @@ declare global {
       checkElementAccessibility(selector: any, description?: string);
 
       /**
-       * enqueue a request to mock AI Agent response
+       * Enqueue a request to mock AI Agent response
+       *
+       * @param args.content The full content of the AI Agent response to be sent in chunks on next user message.
+       * @param args.chunkSize (optional) The size of each chunk to be sent. This simulates a streaming response.
+       * If not provided, the full content will be sent at once.
        */
       enqueueAIAgentResponse(args: { content: string, chunkSize?: number }): Chainable;
     }
