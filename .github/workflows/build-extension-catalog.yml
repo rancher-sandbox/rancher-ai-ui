@@ -11,6 +11,9 @@ defaults:
     working-directory: ./
 
 jobs:
+  validation:
+    name: Build Test
+    uses: ./.github/workflows/build-test.yaml
   build-extension-catalog:
     uses: rancher/dashboard/.github/workflows/build-extension-catalog.yml@master
     permissions:
@@ -23,3 +26,5 @@ jobs:
       tagged_release: ${{ github.ref_name }}
     secrets: 
       registry_token: ${{ secrets.GITHUB_TOKEN }}
+    needs:
+      - validation

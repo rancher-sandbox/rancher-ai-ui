@@ -1,0 +1,103 @@
+name: Tests
+on:
+  push:
+    branches:
+      - main
+      - 'release-*'
+  pull_request:
+    branches:
+      - main
+      - 'release-*'
+
+env:
+  RANCHER_VERSION: head
+  CATTLE_SERVER_URL: https://127.0.0.1
+  CATTLE_BOOTSTRAP_PASSWORD: password
+  KUBECONFIG_PATH: ${{ github.workspace }}/kubeconfig.yaml
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node env
+        uses: ./.github/actions/setup
+
+      - name: Start Rancher
+        run: .github/scripts/install-rancher.sh ${{ env.RANCHER_VERSION }} ${{ env.CATTLE_SERVER_URL }} ${{ env.CATTLE_BOOTSTRAP_PASSWORD }}
+
+      - name: Deploy AI Agent chart
+        run: .github/scripts/deploy-ai-agent.sh ${{ env.KUBECONFIG_PATH }}
+
+      - name: Start Mock Agent
+        working-directory: ./mock-agent
+        run: |
+          yarn install --frozen-lockfile
+          nohup yarn mock:agent:start > mock-agent.log 2>&1 & echo $! > mock-agent.pid
+
+      - name: Start dev UI
+        env:
+          API: ${{ env.CATTLE_SERVER_URL }}
+          VUE_APP_AGENT_MESSAGES_WS_PATH: ws://localhost:8000/ws/agent
+        run: |
+          nohup yarn dev > dev.log 2>&1 & echo $! > dev.pid
+
+      - name: Wait for dev UI to be ready
+        run: |
+          npx wait-on https://localhost:8005
+
+      - name: Run Cypress tests
+        id: cypress
+        continue-on-error: true
+        env:
+          TEST_USERNAME: admin
+          TEST_PASSWORD: ${{ env.CATTLE_BOOTSTRAP_PASSWORD }}
+          CATTLE_BOOTSTRAP_PASSWORD: ${{ env.CATTLE_BOOTSTRAP_PASSWORD }}
+          TEST_BASE_URL: https://localhost:8005
+          TEST_SKIP: setup
+          API: ${{ env.CATTLE_SERVER_URL }}
+        run: |
+          yarn e2e --browser chrome
+
+      - name: Upload videos on failure
+        if: steps.cypress.outcome != 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-videos
+          path: cypress/videos
+          retention-days: 7
+
+      - name: Tear down background processes
+        if: always()
+        run: |
+          if [ -f dev.pid ]; then kill $(cat dev.pid) || true; fi
+          if [ -f mock-agent.pid ]; then kill $(cat mock-agent.pid) || true; fi
+
+      - name: Check failed tests
+        if: steps.cypress.outcome != 'success'
+        run: |
+          echo "Cypress tests failed"
+          exit 1
+
+  i18n:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      - name: Run i18n lint
+        uses: ./.github/actions/i18n-lint
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      - name: Run tests
+        uses: ./.github/actions/lint

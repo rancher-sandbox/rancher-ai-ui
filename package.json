@@ -20,9 +20,11 @@
     "serve-pkgs": "./node_modules/@rancher/shell/scripts/serve-pkgs",
     "publish-pkgs": "./node_modules/@rancher/shell/scripts/extension/publish",
     "parse-tag-name": "./node_modules/@rancher/shell/scripts/extension/parse-tag-name",
-    "lint": "eslint .",
+    "lint": "eslint --max-warnings 0 .",
+    "lint-l10n": "./node_modules/.bin/yamllint pkg/rancher-ai-ui/l10n/en-us.yaml",
     "cypress:open": "cypress open --e2e --browser chrome",
-    "cypress:run": "cypress run"
+    "cypress:run": "cypress run",
+    "e2e": "TEST_SKIP=setup CATTLE_BOOTSTRAP_PASSWORD=$CATTLE_BOOTSTRAP_PASSWORD TEST_PASSWORD=$TEST_PASSWORD TEST_USERNAME=$TEST_USERNAME VAI_ENABLED=$VAI_ENABLED TEST_BASE_URL=$TEST_BASE_URL API=$API yarn cypress:run --spec 'cypress/e2e/tests/rancher-setup.spec.ts,cypress/e2e/tests/**/*.spec.ts'"
   },
   "devDependencies": {
     "@types/lodash": "4.17.20",
@@ -46,6 +48,7 @@
     "globals": "^16.4.0",
     "jiti": "^2.5.1",
     "typescript-eslint": "^8.44.0",
-    "vue-eslint-parser": "^10.2.0"
+    "vue-eslint-parser": "^10.2.0",
+    "yaml-lint": "1.7.0"
   }
 }

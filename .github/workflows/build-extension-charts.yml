@@ -11,6 +11,9 @@ defaults:
     working-directory: ./
 
 jobs:
+  validation:
+    name: Build Test
+    uses: ./.github/workflows/build-test.yaml
   build-extension-charts:
     uses: rancher/dashboard/.github/workflows/build-extension-charts.yml@master
     permissions:
@@ -21,3 +24,5 @@ jobs:
     with:
       target_branch: gh-pages
       tagged_release: ${{ github.ref_name }}
+    needs:
+      - validation
