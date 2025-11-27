@@ -37,7 +37,7 @@ jobs:
         working-directory: ./mock-agent
         run: |
           yarn install --frozen-lockfile
-          nohup yarn start > mock-agent.log 2>&1 & echo $! > mock-agent.pid
+          nohup yarn start > mock-agent.log 2>&1 &
 
       - name: Start dev UI
         env:
@@ -75,7 +75,7 @@ jobs:
         if: always()
         run: |
           if [ -f dev.pid ]; then kill $(cat dev.pid) || true; fi
-          if [ -f mock-agent.pid ]; then kill $(cat mock-agent.pid) || true; fi
+          if [ -f mock-agent.pid ]; then kill -2 $(cat mock-agent.pid) || true; fi
 
       - name: Check failed tests
         if: steps.cypress.outcome != 'success'

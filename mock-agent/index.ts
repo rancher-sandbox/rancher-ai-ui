@@ -2,6 +2,7 @@
 /* eslint-disable no-undef */
 import express from 'express';
 import http from 'http';
+import fs from 'fs';
 import { WebSocketServer } from 'ws';
 import bodyParser from 'body-parser';
 
@@ -141,6 +142,13 @@ wss.on('connection', (ws) => {
 });
 
 server.listen(PORT, () => {
+  try {
+    fs.writeFileSync('mock-agent.pid', process.pid.toString());
+    _log(`Wrote PID ${ process.pid } to mock-agent.pid`);
+  } catch (err) {
+    console.error('Failed to write PID file:', err);
+  }
+
   _log(`WS connection open at:   ws://localhost:${ PORT }${ WS_PATH }`);
   _log(`Control API available at: http://localhost:${ PORT }/control`);
 });
