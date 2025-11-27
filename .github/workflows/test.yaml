@@ -37,7 +37,7 @@ jobs:
         working-directory: ./mock-agent
         run: |
           yarn install --frozen-lockfile
-          nohup yarn mock:agent:start > mock-agent.log 2>&1 & echo $! > mock-agent.pid
+          nohup yarn start > mock-agent.log 2>&1 & echo $! > mock-agent.pid
 
       - name: Start dev UI
         env:

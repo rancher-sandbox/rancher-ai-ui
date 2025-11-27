@@ -40,7 +40,7 @@ Running locally:
 # Build and Run the mock Agent
 cd mock-agent
 yarn install
-yarn mock:agent:start
+yarn start
 
 # Launch Cypress dashboard
 API=https://your-rancher VUE_APP_AGENT_MESSAGES_WS_PATH=ws://localhost:8000/ws/agent yarn dev

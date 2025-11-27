@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A mock AI agent server for testing purposes.",
   "scripts": {
-    "mock:agent:start": "npx ts-node -P tsconfig.json index.ts"
+    "start": "npx ts-node -P tsconfig.json index.ts"
   },
   "devDependencies": {
     "@types/lodash": "4.17.20",
