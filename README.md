@@ -42,8 +42,11 @@ cd mock-agent
 yarn install
 yarn start
 
-# Launch Cypress dashboard
+# Launch dev UI
 API=https://your-rancher VUE_APP_AGENT_MESSAGES_WS_PATH=ws://localhost:8000/ws/agent yarn dev
+
+# Launch Cypress Dashboard
+TEST_SKIP=setup TEST_PASSWORD=${rancher-password} yarn cypress:open
 ```
 
 License
