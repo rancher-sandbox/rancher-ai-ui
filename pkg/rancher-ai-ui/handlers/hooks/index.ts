@@ -109,6 +109,9 @@ class HooksHandler {
           t.target.removeEventListener('mouseleave', t.handlers.mouseleave!);
         } catch {}
       }
+      try {
+        t.target.removeAttribute('ux-context-hook-status');
+      } catch {}
     }
     this.targets.clear();
   }
@@ -175,6 +178,8 @@ class HooksHandler {
               mouseleave: onLeave
             },
           });
+
+          target.setAttribute('ux-context-hook-status', 'bound');
         }
       });
     }, 300);

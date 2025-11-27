@@ -28,7 +28,7 @@ export default class ChatPo extends ComponentPo {
   }
 
   messages() {
-    return this.self().get('[data-testid="rancher-ai-ui-chat-message"]');
+    return this.self().get('[data-testid^="rancher-ai-ui-chat-message"]');
   }
 
   getMessage(index: number) {
@@ -36,6 +36,6 @@ export default class ChatPo extends ComponentPo {
   }
 
   getTemplateMessage(templateName: string) {
-    return this.self().get(`[data-testid="rancher-ai-ui-chat-message-template-${ templateName }"]`);
+    return this.self().find(`[data-testid="rancher-ai-ui-chat-message-template-${ templateName }"]`);
   }
 }
