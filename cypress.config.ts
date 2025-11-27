@@ -10,6 +10,7 @@ require('dotenv').config();
 /**
  * VARIABLES
  */
+let testDirs = ['setup', 'tests'];
 const hasCoverage = (process.env.TEST_INSTRUMENT === 'true') || false; // Add coverage if instrumented
 const skipSetup = process.env.TEST_SKIP?.includes('setup');
 const baseUrl = (process.env.TEST_BASE_URL || 'https://localhost:8005').replace(/\/$/, '');
@@ -48,6 +49,28 @@ console.log(`    Rancher API URL: ${ apiUrl }`);
 if (apiUrl && !baseUrl.startsWith(apiUrl)) {
   console.log('\n ❗ API variable is different to TEST_BASE_URL - tests may fail due to authentication issues');
 }
+
+/**
+ * Filter test spec paths based on env var configuration
+ * @returns
+ */
+const getSpecPattern = (dirs: string[], envs: NodeJS.ProcessEnv): string[] => {
+  // Gets paths with only
+  const onlyDirs = dirs.filter((dir) => (envs.TEST_ONLY?.split(',').map((env) => env.trim()).includes(dir)));
+
+  // List the test directories to be included
+  const activeDirs = dirs.filter((dir) => !(envs.TEST_SKIP?.split(',').map((env) => env.trim()).includes(dir)));
+
+  const finalDirs = onlyDirs.length ? onlyDirs : activeDirs;
+  const paths = finalDirs.map((dir) => `cypress/e2e/${ dir }/**/*.spec.ts`);
+
+  if (process.env.NODE_ENV !== 'test') {
+    // eslint-disable-next-line no-console
+    console.log(`Running tests for paths: ${ paths.join(', ') }`);
+  }
+
+  return paths;
+};
 
 export default defineConfig({
   projectId:             process.env.TEST_PROJECT_ID,
@@ -89,7 +112,7 @@ export default defineConfig({
   e2e: {
     fixturesFolder:               'cypress/e2e/blueprints',
     experimentalSessionAndOrigin: true,
-    specPattern:                  'cypress/e2e/tests/**/*.spec.ts',
+    specPattern:                  getSpecPattern(testDirs, process.env),
     baseUrl,
     async setupNodeEvents(on, config) {
       // For more info: https://docs.cypress.io/guides/tooling/code-coverage

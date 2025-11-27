@@ -24,7 +24,7 @@
     "lint-l10n": "./node_modules/.bin/yamllint pkg/rancher-ai-ui/l10n/en-us.yaml",
     "cypress:open": "cypress open --e2e --browser chrome",
     "cypress:run": "cypress run",
-    "e2e": "TEST_SKIP=setup CATTLE_BOOTSTRAP_PASSWORD=$CATTLE_BOOTSTRAP_PASSWORD TEST_PASSWORD=$TEST_PASSWORD TEST_USERNAME=$TEST_USERNAME VAI_ENABLED=$VAI_ENABLED TEST_BASE_URL=$TEST_BASE_URL API=$API yarn cypress:run --spec 'cypress/e2e/tests/rancher-setup.spec.ts,cypress/e2e/tests/**/*.spec.ts'"
+    "e2e": "CATTLE_BOOTSTRAP_PASSWORD=$CATTLE_BOOTSTRAP_PASSWORD TEST_PASSWORD=$TEST_PASSWORD TEST_USERNAME=$TEST_USERNAME VAI_ENABLED=$VAI_ENABLED TEST_BASE_URL=$TEST_BASE_URL API=$API yarn cypress:run"
   },
   "devDependencies": {
     "@types/lodash": "4.17.20",
