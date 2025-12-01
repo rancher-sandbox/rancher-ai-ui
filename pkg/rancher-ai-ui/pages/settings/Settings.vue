@@ -121,21 +121,21 @@ const resource = useFetch(async() => {
           name:      AGENT_CONFIG_SECRET_NAME,
         },
         data: {
-          [Settings.ACTIVE_CHATBOT]:      base64Encode(ChatBotEnum.Local),
-          [Settings.OLLAMA_URL]:          base64Encode(''),
-          [Settings.OPENAI_API_KEY]:      base64Encode(''),
-          [Settings.GOOGLE_API_KEY]:      base64Encode(''),
-          [Settings.AWS_SECRET_ACCESS_KEY]:     base64Encode(''),
-          [Settings.AWS_ACCESS_KEY_ID]:     base64Encode(''),
-          [Settings.AWS_REGION_NAME]:     base64Encode(''),
-          [Settings.AWS_BEARER_TOKEN_BEDROCK]:     base64Encode(''),
-          [Settings.MODEL]:               base64Encode(models[ChatBotEnum.Local][0]),
-          [Settings.ENABLE_RAG]:          base64Encode(''),
-          [Settings.EMBEDDINGS_MODEL]:    base64Encode(''),
-          [Settings.LANGFUSE_HOST]:       base64Encode(''),
-          [Settings.LANGFUSE_PUBLIC_KEY]: base64Encode(''),
-          [Settings.LANGFUSE_SECRET_KEY]: base64Encode(''),
-          [Settings.SYSTEM_PROMPT]:       base64Encode(''),
+          [Settings.ACTIVE_CHATBOT]:           base64Encode(ChatBotEnum.Local),
+          [Settings.OLLAMA_URL]:               base64Encode(''),
+          [Settings.OPENAI_API_KEY]:           base64Encode(''),
+          [Settings.GOOGLE_API_KEY]:           base64Encode(''),
+          [Settings.AWS_SECRET_ACCESS_KEY]:    base64Encode(''),
+          [Settings.AWS_ACCESS_KEY_ID]:        base64Encode(''),
+          [Settings.AWS_REGION_NAME]:          base64Encode(''),
+          [Settings.AWS_BEARER_TOKEN_BEDROCK]: base64Encode(''),
+          [Settings.MODEL]:                    base64Encode(models[ChatBotEnum.Local][0]),
+          [Settings.ENABLE_RAG]:               base64Encode(''),
+          [Settings.EMBEDDINGS_MODEL]:         base64Encode(''),
+          [Settings.LANGFUSE_HOST]:            base64Encode(''),
+          [Settings.LANGFUSE_PUBLIC_KEY]:      base64Encode(''),
+          [Settings.LANGFUSE_SECRET_KEY]:      base64Encode(''),
+          [Settings.SYSTEM_PROMPT]:            base64Encode(''),
         }
       });
 
@@ -162,8 +162,10 @@ const chatbotConfigComponent = computed(() => {
  */
 const updateFormConfig = (chatbot: ChatBotEnum) => {
   const modelField = formData.value[Settings.MODEL];
+
   if (modelField) {
     modelOptions.value = models[chatbot as ChatBotEnum];
+
     switch (chatbot) {
     case ChatBotEnum.OpenAI:
       chatbotConfigKey.value = Settings.OPENAI_API_KEY;
@@ -196,7 +198,6 @@ function updateChatBotConfig() {
   if (formData.value[Settings.OLLAMA_URL]) {
     chatBot = ChatBotEnum.Local;
   } else if (formData.value[Settings.GOOGLE_API_KEY]) {
-
     chatBot = ChatBotEnum.Gemini;
   } else if (formData.value[Settings.OPENAI_API_KEY]) {
     chatBot = ChatBotEnum.OpenAI;
