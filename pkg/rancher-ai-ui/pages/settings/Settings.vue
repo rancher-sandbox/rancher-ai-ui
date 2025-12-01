@@ -35,10 +35,11 @@ const enum ChatBotEnum {
   Local = 'ollama', // eslint-disable-line no-unused-vars
   OpenAI = 'openai', // eslint-disable-line no-unused-vars
   Gemini = 'gemini', // eslint-disable-line no-unused-vars
+  Bedrock = 'bedrock', // eslint-disable-line no-unused-vars
 }
 
 const models = {
-  [ChatBotEnum.Local]:  ['qwen3:4b'],
+  [ChatBotEnum.Local]:  ['gpt-oss:20b'],
   [ChatBotEnum.OpenAI]: [
     'gpt-4o',
     'gpt-4o-mini',
@@ -55,7 +56,8 @@ const models = {
     'gemini-2.5-pro',
     'gemini-2.5-flash',
     'gemini-2.5-flash-lite',
-  ]
+  ],
+  [ChatBotEnum.Bedrock]:  ['anthropic.claude-3-5-sonnet-20240620-v1:0'],
 };
 
 const activeChatbotOptions = [
@@ -76,6 +78,12 @@ const activeChatbotOptions = [
     description: t(`aiConfig.form.${ Settings.ACTIVE_CHATBOT }.options.${ ChatBotEnum.Gemini }.description`, {}, true),
     icon:        'icon-gemini',
     value:       ChatBotEnum.Gemini,
+  },
+  {
+    name:        t(`aiConfig.form.${ Settings.ACTIVE_CHATBOT }.options.${ ChatBotEnum.Bedrock }.name`),
+    description: t(`aiConfig.form.${ Settings.ACTIVE_CHATBOT }.options.${ ChatBotEnum.Bedrock }.description`, {}, true),
+    icon:        'icon-aws',
+    value:       ChatBotEnum.Bedrock,
   },
 ];
 
@@ -117,6 +125,10 @@ const resource = useFetch(async() => {
           [Settings.OLLAMA_URL]:          base64Encode(''),
           [Settings.OPENAI_API_KEY]:      base64Encode(''),
           [Settings.GOOGLE_API_KEY]:      base64Encode(''),
+          [Settings.AWS_SECRET_ACCESS_KEY]:     base64Encode(''),
+          [Settings.AWS_ACCESS_KEY_ID]:     base64Encode(''),
+          [Settings.AWS_REGION_NAME]:     base64Encode(''),
+          [Settings.AWS_BEARER_TOKEN_BEDROCK]:     base64Encode(''),
           [Settings.MODEL]:               base64Encode(models[ChatBotEnum.Local][0]),
           [Settings.ENABLE_RAG]:          base64Encode(''),
           [Settings.EMBEDDINGS_MODEL]:    base64Encode(''),
@@ -136,7 +148,7 @@ const resource = useFetch(async() => {
 
 const formData = ref<FormData>(resource.value?.data?.data || {});
 const modelOptions = ref(models[ChatBotEnum.Local]);
-const chatbotConfigKey = ref<Settings.OLLAMA_URL | Settings.GOOGLE_API_KEY | Settings.OPENAI_API_KEY>(Settings.OLLAMA_URL);
+const chatbotConfigKey = ref<Settings.OLLAMA_URL | Settings.GOOGLE_API_KEY | Settings.OPENAI_API_KEY | Settings.AWS_SECRET_ACCESS_KEY>(Settings.OLLAMA_URL);
 
 const chatbotConfigComponent = computed(() => {
   return chatbotConfigKey.value === Settings.OLLAMA_URL ? LabeledInput : Password;
@@ -150,16 +162,17 @@ const chatbotConfigComponent = computed(() => {
  */
 const updateFormConfig = (chatbot: ChatBotEnum) => {
   const modelField = formData.value[Settings.MODEL];
-
   if (modelField) {
     modelOptions.value = models[chatbot as ChatBotEnum];
-
     switch (chatbot) {
     case ChatBotEnum.OpenAI:
       chatbotConfigKey.value = Settings.OPENAI_API_KEY;
       break;
     case ChatBotEnum.Gemini:
       chatbotConfigKey.value = Settings.GOOGLE_API_KEY;
+      break;
+    case ChatBotEnum.Bedrock:
+      chatbotConfigKey.value = Settings.AWS_SECRET_ACCESS_KEY;
       break;
     case ChatBotEnum.Local:
     default:
@@ -174,7 +187,7 @@ const updateFormConfig = (chatbot: ChatBotEnum) => {
  * If no chatbot is currently selected, it calculates the default chatbot in the order: Ollama, Gemini and OpenAI
  */
 function updateChatBotConfig() {
-  if (!![ChatBotEnum.Gemini, ChatBotEnum.OpenAI, ChatBotEnum.Local].find((c) => c === formData.value[Settings.ACTIVE_CHATBOT])) {
+  if (!![ChatBotEnum.Gemini, ChatBotEnum.OpenAI, ChatBotEnum.Local, ChatBotEnum.Bedrock].find((c) => c === formData.value[Settings.ACTIVE_CHATBOT])) {
     return;
   }
 
@@ -183,9 +196,12 @@ function updateChatBotConfig() {
   if (formData.value[Settings.OLLAMA_URL]) {
     chatBot = ChatBotEnum.Local;
   } else if (formData.value[Settings.GOOGLE_API_KEY]) {
+
     chatBot = ChatBotEnum.Gemini;
   } else if (formData.value[Settings.OPENAI_API_KEY]) {
     chatBot = ChatBotEnum.OpenAI;
+  }  else if (formData.value[Settings.AWS_SECRET_ACCESS_KEY]) {
+    chatBot = ChatBotEnum.Bedrock;
   }
 
   formData.value[Settings.ACTIVE_CHATBOT] = chatBot;
@@ -207,6 +223,13 @@ watch(resource, (newResource) => {
 
   updateChatBotConfig();
 
+  // Initialize the models based on the formData values
+  if (formData.value[Settings.ACTIVE_CHATBOT]) {
+    models[formData.value[Settings.ACTIVE_CHATBOT] as ChatBotEnum] = formData.value[Settings.MODEL]
+      ? [formData.value[Settings.MODEL]]
+      : models[formData.value[Settings.ACTIVE_CHATBOT] as ChatBotEnum];
+  }
+
   updateFormConfig(formData.value[Settings.ACTIVE_CHATBOT] as ChatBotEnum);
 });
 
@@ -220,7 +243,6 @@ watch(resource, (newResource) => {
  */
 const updateValue = (key: Settings, val: ChatBotEnum | string) => {
   formData.value[key] = val;
-
   if (key === Settings.ACTIVE_CHATBOT) {
     updateFormConfig(val as ChatBotEnum);
     formData.value[Settings.MODEL] = models[val as keyof typeof models][0];
@@ -307,9 +329,41 @@ const save = async(btnCB: (arg: boolean) => void) => { // eslint-disable-line no
         </label>
       </div>
 
-      <div class="form-field">
+      <div class="form-field" v-if="formData[Settings.ACTIVE_CHATBOT] == ChatBotEnum.Bedrock">
+        <component
+          :is="chatbotConfigComponent"
+          :value="formData[Settings.AWS_ACCESS_KEY_ID]"
+          :label="t(`aiConfig.form.${ Settings.AWS_ACCESS_KEY_ID}.label`)"
+          @update:value="(val: string) => updateValue(Settings.AWS_ACCESS_KEY_ID, val)"
+        />
+        <label class="text-label">
+          {{ t(`aiConfig.form.${ Settings.AWS_ACCESS_KEY_ID}.description`) }}
+        </label>
+      </div>
+      <div class="form-field" v-if="formData[Settings.ACTIVE_CHATBOT] == ChatBotEnum.Bedrock">
+        <component
+          :is="chatbotConfigComponent"
+          :value="formData[Settings.AWS_BEARER_TOKEN_BEDROCK]"
+          :label="t(`aiConfig.form.${ Settings.AWS_BEARER_TOKEN_BEDROCK}.label`)"
+          @update:value="(val: string) => updateValue(Settings.AWS_BEARER_TOKEN_BEDROCK, val)"
+        />
+        <label class="text-label">
+          {{ t(`aiConfig.form.${ Settings.AWS_BEARER_TOKEN_BEDROCK}.description`) }}
+        </label>
+      </div>
+      <div class="form-field" v-if="formData[Settings.ACTIVE_CHATBOT] == ChatBotEnum.Bedrock">
+        <labeled-input
+          :value="formData[Settings.AWS_REGION_NAME]"
+          :label="t(`aiConfig.form.${ Settings.AWS_REGION_NAME}.label`)"
+          @update:value="(val: string) => updateValue(Settings.AWS_REGION_NAME, val)"
+        />
+        <label class="text-label">
+          {{ t(`aiConfig.form.${ Settings.AWS_REGION_NAME}.description`) }}
+        </label>
+      </div>
+
+      <div class="form-field" v-if="modelOptions.length > 1">
         <labeled-select
-          :disabled="modelOptions.length <= 1"
           :value="formData[Settings.MODEL]"
           :label="t(`aiConfig.form.${ Settings.MODEL}.label`)"
           :options="modelOptions"
@@ -319,7 +373,16 @@ const save = async(btnCB: (arg: boolean) => void) => { // eslint-disable-line no
           {{ t(`aiConfig.form.${ Settings.MODEL}.description`) }}
         </label>
       </div>
-
+      <div class="form-field" v-else>
+        <labeled-input
+          :value="formData[Settings.MODEL]"
+          :label="t(`aiConfig.form.${ Settings.MODEL}.label`)"
+          @update:value="(val: string) => updateValue(Settings.MODEL, val)"
+        />
+        <label class="text-label">
+          {{ t(`aiConfig.form.${ Settings.MODEL}.description`) }}
+        </label>
+      </div>
       <advanced-section
         :mode="_EDIT"
         class="mt-0 font-bold"
@@ -423,7 +486,7 @@ const save = async(btnCB: (arg: boolean) => void) => { // eslint-disable-line no
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  max-width: 50rem;
+  max-width: 70rem;
   flex-grow: 1;
 }
 
