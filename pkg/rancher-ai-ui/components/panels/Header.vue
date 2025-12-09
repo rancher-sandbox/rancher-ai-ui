@@ -45,6 +45,7 @@ const emit = defineEmits([
         small
         ghost
         class="btn-close"
+        data-testid="rancher-ai-ui-chat-close-button"
         @click="emit('close')"
         @keydown.enter.stop="emit('close')"
         @keydown.space.enter.stop="emit('close')"

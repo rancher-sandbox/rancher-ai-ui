@@ -53,6 +53,7 @@ export default function(plugin: IPlugin, { store }: any): void {
     ActionLocation.HEADER,
     {},
     {
+      labelKey:   'ai.action.openChat',
       tooltipKey: 'ai.action.openChat',
       shortcut: { 
         windows: ['alt', 'k'], 

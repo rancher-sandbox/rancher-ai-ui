@@ -57,6 +57,7 @@ const user = computed(() => {
     :class="{
       disabled: props.disabled
     }"
+    data-testid="rancher-ai-ui-chat-message-template-welcome"
   >
     <div class="chat-welcome-msg-splash">
       <div class="chat-welcome-msg-avatar-panel">

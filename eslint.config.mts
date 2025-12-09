@@ -8,7 +8,11 @@ export default defineConfig([
     '**/vue.config.js',
     '**/babel.config.js',
     'pkg/rancher-ai-ui/index.ts',
-    'dist-pkg/**'
+    'dist-pkg/**',
+    'cypress.config.ts',
+    'cypress/**/support/**',
+    'cypress/**/blueprints/**',
+    'cypress/globals*',
   ]),
   {
     files:           ['**/*.{js,mjs,cjs,ts,mts,cts,vue}'],
@@ -245,4 +249,29 @@ export default defineConfig([
       'vue/multi-word-component-names':         'off'
     },
   },
+  {
+    files: [
+      'cypress/**/*.js',
+      'cypress/**/*.ts',
+      'cypress/e2e/**/*.spec.{js,ts}',
+      'cypress/e2e/**/*.cy.{js,ts}'
+    ],
+    languageOptions: {
+      globals: {
+        cy:         'readonly',
+        Cypress:    'readonly',
+        describe:   'readonly',
+        it:         'readonly',
+        before:     'readonly',
+        after:      'readonly',
+        beforeEach: 'readonly',
+        afterEach:  'readonly',
+        expect:     'readonly'
+      }
+    },
+    rules: {
+      'no-unused-vars':                    'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+    }
+  }
 ]);

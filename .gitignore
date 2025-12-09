@@ -107,3 +107,6 @@ shell/rancher-components
 scripts/standalone/ui
 scripts/standalone/cert
 scripts/standalone/node
+
+# Cypress
+browser-logs
