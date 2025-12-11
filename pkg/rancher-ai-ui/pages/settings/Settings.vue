@@ -57,7 +57,7 @@ const models = {
     'gemini-2.5-flash',
     'gemini-2.5-flash-lite',
   ],
-  [ChatBotEnum.Bedrock]:  ['anthropic.claude-3-5-sonnet-20240620-v1:0'],
+  [ChatBotEnum.Bedrock]:  ['global.anthropic.claude-opus-4-5-20251101-v1:0'],
 };
 
 const activeChatbotOptions = [
