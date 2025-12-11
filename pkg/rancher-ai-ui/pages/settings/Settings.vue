@@ -57,7 +57,7 @@ const models = {
     'gemini-2.5-flash',
     'gemini-2.5-flash-lite',
   ],
-  [ChatBotEnum.Bedrock]:  ['global.anthropic.claude-opus-4-5-20251101-v1:0'],
+  [ChatBotEnum.Bedrock]: ['global.anthropic.claude-opus-4-5-20251101-v1:0'],
 };
 
 const activeChatbotOptions = [
@@ -226,9 +226,7 @@ watch(resource, (newResource) => {
 
   // Initialize the models based on the formData values
   if (formData.value[Settings.ACTIVE_CHATBOT]) {
-    models[formData.value[Settings.ACTIVE_CHATBOT] as ChatBotEnum] = formData.value[Settings.MODEL]
-      ? [formData.value[Settings.MODEL]]
-      : models[formData.value[Settings.ACTIVE_CHATBOT] as ChatBotEnum];
+    models[formData.value[Settings.ACTIVE_CHATBOT] as ChatBotEnum] = formData.value[Settings.MODEL] ? [formData.value[Settings.MODEL]] : models[formData.value[Settings.ACTIVE_CHATBOT] as ChatBotEnum];
   }
 
   updateFormConfig(formData.value[Settings.ACTIVE_CHATBOT] as ChatBotEnum);
@@ -330,7 +328,10 @@ const save = async(btnCB: (arg: boolean) => void) => { // eslint-disable-line no
         </label>
       </div>
 
-      <div class="form-field" v-if="formData[Settings.ACTIVE_CHATBOT] == ChatBotEnum.Bedrock">
+      <div
+        v-if="formData[Settings.ACTIVE_CHATBOT] == ChatBotEnum.Bedrock"
+        class="form-field"
+      >
         <component
           :is="chatbotConfigComponent"
           :value="formData[Settings.AWS_ACCESS_KEY_ID]"
@@ -341,7 +342,10 @@ const save = async(btnCB: (arg: boolean) => void) => { // eslint-disable-line no
           {{ t(`aiConfig.form.${ Settings.AWS_ACCESS_KEY_ID}.description`) }}
         </label>
       </div>
-      <div class="form-field" v-if="formData[Settings.ACTIVE_CHATBOT] == ChatBotEnum.Bedrock">
+      <div
+        v-if="formData[Settings.ACTIVE_CHATBOT] == ChatBotEnum.Bedrock"
+        class="form-field"
+      >
         <component
           :is="chatbotConfigComponent"
           :value="formData[Settings.AWS_BEARER_TOKEN_BEDROCK]"
@@ -352,7 +356,10 @@ const save = async(btnCB: (arg: boolean) => void) => { // eslint-disable-line no
           {{ t(`aiConfig.form.${ Settings.AWS_BEARER_TOKEN_BEDROCK}.description`) }}
         </label>
       </div>
-      <div class="form-field" v-if="formData[Settings.ACTIVE_CHATBOT] == ChatBotEnum.Bedrock">
+      <div
+        v-if="formData[Settings.ACTIVE_CHATBOT] == ChatBotEnum.Bedrock"
+        class="form-field"
+      >
         <labeled-input
           :value="formData[Settings.AWS_REGION]"
           :label="t(`aiConfig.form.${ Settings.AWS_REGION}.label`)"
@@ -363,7 +370,10 @@ const save = async(btnCB: (arg: boolean) => void) => { // eslint-disable-line no
         </label>
       </div>
 
-      <div class="form-field" v-if="modelOptions.length > 1">
+      <div
+        v-if="modelOptions.length > 1"
+        class="form-field"
+      >
         <labeled-select
           :value="formData[Settings.MODEL]"
           :label="t(`aiConfig.form.${ Settings.MODEL}.label`)"
@@ -374,7 +384,10 @@ const save = async(btnCB: (arg: boolean) => void) => { // eslint-disable-line no
           {{ t(`aiConfig.form.${ Settings.MODEL}.description`) }}
         </label>
       </div>
-      <div class="form-field" v-else>
+      <div
+        v-else
+        class="form-field"
+      >
         <labeled-input
           :value="formData[Settings.MODEL]"
           :label="t(`aiConfig.form.${ Settings.MODEL}.label`)"
