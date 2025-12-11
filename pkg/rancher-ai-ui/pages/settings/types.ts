@@ -13,7 +13,7 @@ export enum Settings {
   ACTIVE_CHATBOT = 'ACTIVE_LLM',
   AWS_ACCESS_KEY_ID = 'AWS_ACCESS_KEY_ID',
   AWS_SECRET_ACCESS_KEY = 'AWS_SECRET_ACCESS_KEY',
-  AWS_REGION_NAME = 'AWS_REGION_NAME',
+  AWS_REGION = 'AWS_REGION',
   AWS_BEARER_TOKEN_BEDROCK= 'AWS_BEARER_TOKEN_BEDROCK'
 }
 
@@ -31,7 +31,7 @@ export interface FormData {
   [Settings.ACTIVE_CHATBOT]?: string;
   [Settings.AWS_ACCESS_KEY_ID]?: string;
   [Settings.AWS_SECRET_ACCESS_KEY]?: string;
-  [Settings.AWS_REGION_NAME]?: string;
+  [Settings.AWS_REGION]?: string;
   [Settings.AWS_BEARER_TOKEN_BEDROCK]?: string;
 }
 

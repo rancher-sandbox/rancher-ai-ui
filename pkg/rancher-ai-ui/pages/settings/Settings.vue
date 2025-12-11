@@ -127,7 +127,7 @@ const resource = useFetch(async() => {
           [Settings.GOOGLE_API_KEY]:           base64Encode(''),
           [Settings.AWS_SECRET_ACCESS_KEY]:    base64Encode(''),
           [Settings.AWS_ACCESS_KEY_ID]:        base64Encode(''),
-          [Settings.AWS_REGION_NAME]:          base64Encode(''),
+          [Settings.AWS_REGION]:               base64Encode(''),
           [Settings.AWS_BEARER_TOKEN_BEDROCK]: base64Encode(''),
           [Settings.MODEL]:                    base64Encode(models[ChatBotEnum.Local][0]),
           [Settings.ENABLE_RAG]:               base64Encode(''),
@@ -354,12 +354,12 @@ const save = async(btnCB: (arg: boolean) => void) => { // eslint-disable-line no
       </div>
       <div class="form-field" v-if="formData[Settings.ACTIVE_CHATBOT] == ChatBotEnum.Bedrock">
         <labeled-input
-          :value="formData[Settings.AWS_REGION_NAME]"
-          :label="t(`aiConfig.form.${ Settings.AWS_REGION_NAME}.label`)"
-          @update:value="(val: string) => updateValue(Settings.AWS_REGION_NAME, val)"
+          :value="formData[Settings.AWS_REGION]"
+          :label="t(`aiConfig.form.${ Settings.AWS_REGION}.label`)"
+          @update:value="(val: string) => updateValue(Settings.AWS_REGION, val)"
         />
         <label class="text-label">
-          {{ t(`aiConfig.form.${ Settings.AWS_REGION_NAME}.description`) }}
+          {{ t(`aiConfig.form.${ Settings.AWS_REGION}.description`) }}
         </label>
       </div>
 

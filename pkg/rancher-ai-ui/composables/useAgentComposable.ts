@@ -29,6 +29,8 @@ export function useAgentComposable() {
       OLLAMA_URL,
       GOOGLE_API_KEY,
       OPENAI_API_KEY,
+      AWS_SECRET_ACCESS_KEY,
+      AWS_BEARER_TOKEN_BEDROCK,
       MODEL
     } = data;
 
@@ -38,6 +40,8 @@ export function useAgentComposable() {
       agent.name = t('ai.agent.models.gemini');
     } else if (OPENAI_API_KEY) {
       agent.name = t('ai.agent.models.openai');
+    } else if (AWS_SECRET_ACCESS_KEY || AWS_BEARER_TOKEN_BEDROCK) {
+      agent.name = t('ai.agent.models.bedrock');
     }
 
     if (agent.name) {

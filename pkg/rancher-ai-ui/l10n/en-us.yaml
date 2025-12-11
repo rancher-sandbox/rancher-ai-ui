@@ -227,7 +227,7 @@ aiConfig:
         bedrock:
           name: Bedrock
           description: Use Amazon's Bedrock models
-    AWS_REGION_NAME:
+    AWS_REGION:
       label: AWS Region
       description: The AWS region where your Bedrock instance is hosted
     AWS_SECRET_ACCESS_KEY:
