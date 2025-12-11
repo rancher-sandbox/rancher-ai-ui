@@ -3,7 +3,7 @@ import {
   ref, watch, toValue, computed, onBeforeMount
 } from 'vue';
 import { useStore } from 'vuex';
-import { cloneDeep } from 'lodash';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { warn } from '../../utils/log';
 import { useFetch } from '@shell/components/Resource/Detail/FetchLoader/composables';
@@ -129,7 +129,11 @@ const resource = useFetch(async() => {
           [Settings.AWS_ACCESS_KEY_ID]:        base64Encode(''),
           [Settings.AWS_REGION]:               base64Encode(''),
           [Settings.AWS_BEARER_TOKEN_BEDROCK]: base64Encode(''),
-          [Settings.MODEL]:                    base64Encode(models[ChatBotEnum.Local][0]),
+          [Settings.MODEL]:                    base64Encode(''),
+          [Settings.OLLAMA_MODEL]:             base64Encode(''),
+          [Settings.GEMINI_MODEL]:             base64Encode(''),
+          [Settings.OPENAI_MODEL]:             base64Encode(''),
+          [Settings.BEDROCK_MODEL]:            base64Encode(''),
           [Settings.ENABLE_RAG]:               base64Encode(''),
           [Settings.EMBEDDINGS_MODEL]:         base64Encode(''),
           [Settings.LANGFUSE_HOST]:            base64Encode(''),
@@ -154,6 +158,10 @@ const chatbotConfigComponent = computed(() => {
   return chatbotConfigKey.value === Settings.OLLAMA_URL ? LabeledInput : Password;
 });
 
+function getModelKey(chatbot: ChatBotEnum) {
+  return Settings[`${ chatbot.toUpperCase() }_MODEL` as keyof typeof Settings] as Settings.OLLAMA_MODEL | Settings.GEMINI_MODEL | Settings.OPENAI_MODEL | Settings.BEDROCK_MODEL;
+}
+
 /**
  * Updates the form configuration based on the selected chatbot.
  * Sets the appropriate model options and config key for the selected chatbot.
@@ -161,10 +169,12 @@ const chatbotConfigComponent = computed(() => {
  * 'Local').
  */
 const updateFormConfig = (chatbot: ChatBotEnum) => {
-  const modelField = formData.value[Settings.MODEL];
+  const modelKey = getModelKey(chatbot);
+  const modelField = formData.value[modelKey] || models[chatbot as ChatBotEnum][0];
 
   if (modelField) {
     modelOptions.value = models[chatbot as ChatBotEnum];
+    formData.value[modelKey] = modelField;
 
     switch (chatbot) {
     case ChatBotEnum.OpenAI:
@@ -224,11 +234,6 @@ watch(resource, (newResource) => {
 
   updateChatBotConfig();
 
-  // Initialize the models based on the formData values
-  if (formData.value[Settings.ACTIVE_CHATBOT]) {
-    models[formData.value[Settings.ACTIVE_CHATBOT] as ChatBotEnum] = formData.value[Settings.MODEL] ? [formData.value[Settings.MODEL]] : models[formData.value[Settings.ACTIVE_CHATBOT] as ChatBotEnum];
-  }
-
   updateFormConfig(formData.value[Settings.ACTIVE_CHATBOT] as ChatBotEnum);
 });
 
@@ -243,8 +248,11 @@ watch(resource, (newResource) => {
 const updateValue = (key: Settings, val: ChatBotEnum | string) => {
   formData.value[key] = val;
   if (key === Settings.ACTIVE_CHATBOT) {
-    updateFormConfig(val as ChatBotEnum);
-    formData.value[Settings.MODEL] = models[val as keyof typeof models][0];
+    const chatbot = val as ChatBotEnum;
+    const modelKey = getModelKey(chatbot);
+
+    updateFormConfig(chatbot);
+    formData.value[modelKey] = formData.value[modelKey] || models[chatbot][0];
   }
 };
 
@@ -328,73 +336,49 @@ const save = async(btnCB: (arg: boolean) => void) => { // eslint-disable-line no
         </label>
       </div>
 
-      <div
-        v-if="formData[Settings.ACTIVE_CHATBOT] == ChatBotEnum.Bedrock"
-        class="form-field"
-      >
-        <component
-          :is="chatbotConfigComponent"
-          :value="formData[Settings.AWS_ACCESS_KEY_ID]"
-          :label="t(`aiConfig.form.${ Settings.AWS_ACCESS_KEY_ID}.label`)"
-          @update:value="(val: string) => updateValue(Settings.AWS_ACCESS_KEY_ID, val)"
-        />
-        <label class="text-label">
-          {{ t(`aiConfig.form.${ Settings.AWS_ACCESS_KEY_ID}.description`) }}
-        </label>
-      </div>
-      <div
-        v-if="formData[Settings.ACTIVE_CHATBOT] == ChatBotEnum.Bedrock"
-        class="form-field"
-      >
-        <component
-          :is="chatbotConfigComponent"
-          :value="formData[Settings.AWS_BEARER_TOKEN_BEDROCK]"
-          :label="t(`aiConfig.form.${ Settings.AWS_BEARER_TOKEN_BEDROCK}.label`)"
-          @update:value="(val: string) => updateValue(Settings.AWS_BEARER_TOKEN_BEDROCK, val)"
-        />
-        <label class="text-label">
-          {{ t(`aiConfig.form.${ Settings.AWS_BEARER_TOKEN_BEDROCK}.description`) }}
-        </label>
-      </div>
-      <div
-        v-if="formData[Settings.ACTIVE_CHATBOT] == ChatBotEnum.Bedrock"
-        class="form-field"
-      >
-        <labeled-input
-          :value="formData[Settings.AWS_REGION]"
-          :label="t(`aiConfig.form.${ Settings.AWS_REGION}.label`)"
-          @update:value="(val: string) => updateValue(Settings.AWS_REGION, val)"
-        />
-        <label class="text-label">
-          {{ t(`aiConfig.form.${ Settings.AWS_REGION}.description`) }}
-        </label>
-      </div>
+      <template v-if="formData[Settings.ACTIVE_CHATBOT] == ChatBotEnum.Bedrock">
+        <div class="form-field">
+          <Password
+            :value="formData[Settings.AWS_ACCESS_KEY_ID]"
+            :label="t(`aiConfig.form.${ Settings.AWS_ACCESS_KEY_ID}.label`)"
+            @update:value="(val: string) => updateValue(Settings.AWS_ACCESS_KEY_ID, val)"
+          />
+          <label class="text-label">
+            {{ t(`aiConfig.form.${ Settings.AWS_ACCESS_KEY_ID}.description`) }}
+          </label>
+        </div>
+        <div class="form-field">
+          <Password
+            :value="formData[Settings.AWS_BEARER_TOKEN_BEDROCK]"
+            :label="t(`aiConfig.form.${ Settings.AWS_BEARER_TOKEN_BEDROCK}.label`)"
+            @update:value="(val: string) => updateValue(Settings.AWS_BEARER_TOKEN_BEDROCK, val)"
+          />
+          <label class="text-label">
+            {{ t(`aiConfig.form.${ Settings.AWS_BEARER_TOKEN_BEDROCK}.description`) }}
+          </label>
+        </div>
+        <div class="form-field">
+          <labeled-input
+            :value="formData[Settings.AWS_REGION]"
+            :label="t(`aiConfig.form.${ Settings.AWS_REGION}.label`)"
+            @update:value="(val: string) => updateValue(Settings.AWS_REGION, val)"
+          />
+          <label class="text-label">
+            {{ t(`aiConfig.form.${ Settings.AWS_REGION}.description`) }}
+          </label>
+        </div>
+      </template>
 
-      <div
-        v-if="modelOptions.length > 1"
-        class="form-field"
-      >
-        <labeled-select
-          :value="formData[Settings.MODEL]"
-          :label="t(`aiConfig.form.${ Settings.MODEL}.label`)"
+      <div class="form-field">
+        <component
+          :is="modelOptions.length > 1 ? LabeledSelect : LabeledInput"
+          :value="formData[getModelKey(formData[Settings.ACTIVE_CHATBOT])]"
+          :label="t(`aiConfig.form.${ Settings.MODEL }.label`)"
           :options="modelOptions"
-          @update:value="(val: string) => updateValue(Settings.MODEL, val)"
+          @update:value="(val: string) => updateValue(getModelKey(formData[Settings.ACTIVE_CHATBOT]), val)"
         />
         <label class="text-label">
-          {{ t(`aiConfig.form.${ Settings.MODEL}.description`) }}
-        </label>
-      </div>
-      <div
-        v-else
-        class="form-field"
-      >
-        <labeled-input
-          :value="formData[Settings.MODEL]"
-          :label="t(`aiConfig.form.${ Settings.MODEL}.label`)"
-          @update:value="(val: string) => updateValue(Settings.MODEL, val)"
-        />
-        <label class="text-label">
-          {{ t(`aiConfig.form.${ Settings.MODEL}.description`) }}
+          {{ t(`aiConfig.form.${ Settings.MODEL }.description`) }}
         </label>
       </div>
       <advanced-section

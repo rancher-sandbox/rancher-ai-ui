@@ -7,6 +7,10 @@ export enum Settings {
   LANGFUSE_PUBLIC_KEY = 'LANGFUSE_PUBLIC_KEY',
   LANGFUSE_SECRET_KEY = 'LANGFUSE_SECRET_KEY',
   MODEL = 'MODEL',
+  OLLAMA_MODEL = 'OLLAMA_MODEL',
+  GEMINI_MODEL = 'GEMINI_MODEL',
+  OPENAI_MODEL = 'OPENAI_MODEL',
+  BEDROCK_MODEL = 'BEDROCK_MODEL',
   OLLAMA_URL = 'OLLAMA_URL',
   OPENAI_API_KEY = 'OPENAI_API_KEY',
   SYSTEM_PROMPT = 'SYSTEM_PROMPT',
@@ -25,6 +29,10 @@ export interface FormData {
   [Settings.LANGFUSE_PUBLIC_KEY]?: string;
   [Settings.LANGFUSE_SECRET_KEY]?: string;
   [Settings.MODEL]?: string;
+  [Settings.OLLAMA_MODEL]?: string;
+  [Settings.GEMINI_MODEL]?: string;
+  [Settings.OPENAI_MODEL]?: string;
+  [Settings.BEDROCK_MODEL]?: string;
   [Settings.OLLAMA_URL]?: string;
   [Settings.OPENAI_API_KEY]?: string;
   [Settings.SYSTEM_PROMPT]?: string;
