@@ -82,7 +82,7 @@ const activeChatbotOptions = [
   {
     name:        t(`aiConfig.form.${ Settings.ACTIVE_CHATBOT }.options.${ ChatBotEnum.Bedrock }.name`),
     description: t(`aiConfig.form.${ Settings.ACTIVE_CHATBOT }.options.${ ChatBotEnum.Bedrock }.description`, {}, true),
-    icon:        'icon-aws',
+    icon:        'icon-aws-bedrock',
     value:       ChatBotEnum.Bedrock,
   },
 ];
