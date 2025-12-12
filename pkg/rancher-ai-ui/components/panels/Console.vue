@@ -133,7 +133,10 @@ watch(() => text.value, () => {
       </div>
     </div>
     <div class="chat-console-row chat-console-chat-text-info">
-      <span class="chat-model label text-deemphasized">
+      <span
+        v-clean-tooltip="!!props.agent && props.agent.model?.length > 20 ? props.agent.model : ''"
+        class="chat-model label text-deemphasized"
+      >
         {{ !!props.agent ? t('ai.agent.label', { name: props.agent.name, model: props.agent.model }, true) : t('ai.agent.unknown') }}
       </span>
       <TextLabelPopover

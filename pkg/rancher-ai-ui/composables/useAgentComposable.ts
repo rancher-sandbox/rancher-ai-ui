@@ -1,7 +1,6 @@
 import { useStore } from 'vuex';
 import { onMounted, ref } from 'vue';
 import { base64Decode } from '@shell/utils/crypto';
-import YAML from 'yaml';
 import { warn } from '../utils/log';
 import { AGENT_NAMESPACE, AGENT_NAME, AGENT_CONFIG_SECRET_NAME, PRODUCT_NAME } from '../product';
 import { SECRET, WORKLOAD_TYPES } from '@shell/config/types';
@@ -22,38 +21,70 @@ export function useAgentComposable() {
   const agent = ref<Agent | null>(null);
   const error = ref<ChatError | null>(null);
 
+  function decodeLLM(ACTIVE_LLM: string): string {
+    try {
+      return base64Decode(ACTIVE_LLM);
+    } catch (error) {
+      warn('Error decoding ACTIVE_LLM:', error);
+    }
+
+    return '';
+  }
+
+  function decodeModel(data: any, activeLLM: string | null) {
+    let model = '';
+
+    try {
+      if (activeLLM) {
+        const modelKey = `${ activeLLM.toUpperCase() }_MODEL`;
+
+        model = base64Decode(data[modelKey] || '');
+      }
+
+      if (!model) {
+        const { MODEL } = data;
+
+        model = base64Decode(MODEL || '');
+      }
+    } catch (err) {
+      warn(`Error decoding model for ${ activeLLM }:`, err);
+    }
+
+    return model;
+  }
+
   function decodeAgentConfigs(data: any): Agent | null {
-    const agent = {} as Agent;
+    let activeLLM = '';
+    let activeModel = '';
 
     const {
+      ACTIVE_LLM,
       OLLAMA_URL,
       GOOGLE_API_KEY,
       OPENAI_API_KEY,
       AWS_SECRET_ACCESS_KEY,
       AWS_BEARER_TOKEN_BEDROCK,
-      MODEL
     } = data;
 
-    if (OLLAMA_URL) {
-      agent.name = t('ai.agent.models.ollama');
+    if (ACTIVE_LLM) {
+      activeLLM = decodeLLM(ACTIVE_LLM);
+    } else if (OLLAMA_URL) {
+      activeLLM = 'ollama';
     } else if (GOOGLE_API_KEY) {
-      agent.name = t('ai.agent.models.gemini');
+      activeLLM = 'gemini';
     } else if (OPENAI_API_KEY) {
-      agent.name = t('ai.agent.models.openai');
+      activeLLM = 'openai';
     } else if (AWS_SECRET_ACCESS_KEY || AWS_BEARER_TOKEN_BEDROCK) {
-      agent.name = t('ai.agent.models.bedrock');
+      activeLLM = 'bedrock';
     }
 
-    if (agent.name) {
-      try {
-        const parsedModel = YAML.parse(base64Decode(MODEL || ''));
+    activeModel = decodeModel(data, activeLLM);
 
-        agent.model = parsedModel || 'unknown';
-      } catch (err) {
-        warn('Error parsing agent model version', err);
-      }
-
-      return agent;
+    if (activeLLM && activeModel) {
+      return {
+        name:  t(`ai.agent.models.${ activeLLM }`),
+        model: activeModel
+      };
     }
 
     return null;
