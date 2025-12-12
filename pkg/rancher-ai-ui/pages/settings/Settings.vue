@@ -123,6 +123,7 @@ const resource = useFetch(async() => {
         data: {
           [Settings.ACTIVE_CHATBOT]:           base64Encode(ChatBotEnum.Local),
           [Settings.OLLAMA_URL]:               base64Encode(''),
+          [Settings.OPENAI_THIRD_PARTY_URL]:   base64Encode(''),
           [Settings.OPENAI_API_KEY]:           base64Encode(''),
           [Settings.GOOGLE_API_KEY]:           base64Encode(''),
           [Settings.AWS_SECRET_ACCESS_KEY]:    base64Encode(''),
@@ -381,10 +382,25 @@ const save = async(btnCB: (arg: boolean) => void) => { // eslint-disable-line no
           {{ t(`aiConfig.form.${ Settings.MODEL }.description`) }}
         </label>
       </div>
+
       <advanced-section
         :mode="_EDIT"
         class="mt-0 font-bold"
       >
+        <div
+          v-if="formData[Settings.ACTIVE_CHATBOT] == ChatBotEnum.OpenAI"
+          class="form-field mt-30"
+        >
+          <LabeledInput
+            :value="formData[Settings.OPENAI_THIRD_PARTY_URL]"
+            :label="t(`aiConfig.form.${ Settings.OPENAI_THIRD_PARTY_URL }.label`)"
+            @update:value="(val: string) => updateValue(Settings.OPENAI_THIRD_PARTY_URL, val)"
+          />
+          <label class="text-label">
+            {{ t(`aiConfig.form.${ Settings.OPENAI_THIRD_PARTY_URL }.description`) }}
+          </label>
+        </div>
+
         <h4 class="mt-30">
           {{ t('aiConfig.form.section.rag.header') }}
         </h4>
