@@ -1,19 +1,38 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, PropType, ref } from 'vue';
 import { useStore } from 'vuex';
-
 import ContextTag from '../context/ContextTag.vue';
 
 const store = useStore();
 const t = store.getters['i18n/t'];
 
-const isCollapsed = ref(true);
+const isCollapsed = ref(false);
 
-// TODO: replace with actual source items when available
-const items = [
-  { value: 'Cluster Management Guide' },
-  { value: 'Best Practices' },
-];
+const props = defineProps({
+  links: {
+    type:    Array as PropType<string[]>,
+    default: () => ([]),
+  },
+});
+
+const items = computed(() => {
+  return props.links.map((value) => {
+    const lastChunk = value?.split('/').pop() || '';
+    const label = lastChunk
+      .split('-')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+
+    return {
+      label: label || 'Link',
+      value
+    };
+  });
+});
+
+function openLink(url: string) {
+  window.open(url, '_blank');
+}
 
 </script>
 
@@ -40,9 +59,10 @@ const items = [
       >
         <context-tag
           :remove-enabled="false"
-          :item="item"
+          :item="{ value: item.label }"
           type="user"
-          class="chat-msg-user-context-tag"
+          class="chat-msg-source-tag"
+          @click.native="openLink(item.value)"
         >
         </context-tag>
       </template>
@@ -71,10 +91,12 @@ const items = [
 }
 
 .chat-msg-source-tag {
+  height: auto;
   color: #9fabc6;
   border-radius: 8px;
   padding: 2px 8px;
   font-size: 0.75rem;
   border: 1px solid #9fabc6;
+  cursor: pointer;
 }
 </style>

@@ -6,7 +6,7 @@ import { useStore } from 'vuex';
 import { FormattedMessage, MessagePhase, Role as RoleEnum } from '../../types';
 import Processing from '../Processing.vue';
 import Actions from './action/index.vue';
-import Source from './Source.vue';
+import SourceLinks from './SourceLinks.vue';
 import Confirmation from './Confirmation.vue';
 import Suggestions from './Suggestions.vue';
 import ContextTag from '../context/ContextTag.vue';
@@ -240,10 +240,12 @@ onBeforeUnmount(() => {
         />
       </div>
       <div
-        v-if="props.message.source || (props.message.role === RoleEnum.Assistant && props.message.formattedMessageContent)"
+        v-if="props.message.sourceLinks?.length"
         class="chat-msg-section"
       >
-        <Source />
+        <SourceLinks
+          :links="props.message.sourceLinks"
+        />
       </div>
       <div
         v-if="props.message.relatedResourcesActions?.length"

@@ -137,6 +137,15 @@ export function formatFileMessages(principal: any, messages: Message[]): string 
   }).join('\n');
 }
 
+export function formatSourceLinks(links: string[], value: string): string[] {
+  const cleanedLink = value.replaceAll(Tag.DocLinkStart, '').replaceAll(Tag.DocLinkEnd, '').trim();
+
+  return [
+    ...links,
+    cleanedLink
+  ];
+}
+
 export function formatErrorMessage(value: string): { message: string } {
   value = value.replaceAll(Tag.ErrorStart, '').replaceAll(Tag.ErrorEnd, '').replace(/'([^']*)'/g, '"');
 
