@@ -207,6 +207,9 @@ aiConfig:
     OLLAMA_URL:
       label: Ollama URL
       description: The URL where your Ollama instance is hosted
+    OPENAI_URL:
+      label: OpenAI Third-Party URL
+      description: (Optional) The URL of a third-party OpenAI-compatible service, e.g., Azure or Evroc
     OPENAI_API_KEY:
       label: OpenAI Key
       description: The key to authenticate requests to OpenAI’s services

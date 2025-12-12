@@ -12,6 +12,7 @@ export enum Settings {
   OPENAI_MODEL = 'OPENAI_MODEL',
   BEDROCK_MODEL = 'BEDROCK_MODEL',
   OLLAMA_URL = 'OLLAMA_URL',
+  OPENAI_THIRD_PARTY_URL = 'OPENAI_URL',
   OPENAI_API_KEY = 'OPENAI_API_KEY',
   SYSTEM_PROMPT = 'SYSTEM_PROMPT',
   ACTIVE_CHATBOT = 'ACTIVE_LLM',
@@ -34,6 +35,7 @@ export interface FormData {
   [Settings.OPENAI_MODEL]?: string;
   [Settings.BEDROCK_MODEL]?: string;
   [Settings.OLLAMA_URL]?: string;
+  [Settings.OPENAI_THIRD_PARTY_URL]?: string;
   [Settings.OPENAI_API_KEY]?: string;
   [Settings.SYSTEM_PROMPT]?: string;
   [Settings.ACTIVE_CHATBOT]?: string;
