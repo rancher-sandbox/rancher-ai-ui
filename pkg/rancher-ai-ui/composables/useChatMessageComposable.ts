@@ -1,6 +1,6 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
-import { debounce } from 'lodash';
+import debounce from 'lodash/debounce';
 import { NORMAN } from '@shell/config/types';
 import { useContextComposable } from './useContextComposable';
 import {
@@ -8,7 +8,7 @@ import {
 } from '../types';
 import {
   formatMessagePromptWithContext, formatMessageRelatedResourcesActions, formatConfirmationAction, formatSuggestionActions, formatFileMessages,
-  formatErrorMessage
+  formatErrorMessage, formatSourceLinks
 } from '../utils/format';
 import { downloadFile } from '@shell/utils/download';
 
@@ -38,7 +38,7 @@ export function useChatMessageComposable() {
   // Get phase from store with debounce to avoid rapid changes
   const _phase = computed(() => store.getters['rancher-ai-ui/chat/phase'](CHAT_ID));
   const phase = ref(_phase.value || MessagePhase.Initializing);
-  const applyPhase = debounce((v) => {
+  const applyPhase = debounce((v: MessagePhase) => {
     phase.value = v;
   }, 150);
 
@@ -276,6 +276,12 @@ export function useChatMessageComposable() {
 
             break;
           }
+        }
+
+        if (data.startsWith(Tag.DocLinkStart) && data.endsWith(Tag.DocLinkEnd)) {
+          currentMsg.value.sourceLinks = formatSourceLinks(currentMsg.value.sourceLinks || [], data);
+
+          break;
         }
 
         if (data.startsWith(Tag.ErrorStart) && data.endsWith(Tag.ErrorEnd)) {

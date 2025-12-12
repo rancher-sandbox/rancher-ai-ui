@@ -40,6 +40,8 @@ export const enum Tag {
   ConfirmationEnd = '</confirmation-response>',
   SuggestionsStart = '<suggestion>',
   SuggestionsEnd = '</suggestion>',
+  DocLinkStart = '<mcp-doclink>',
+  DocLinkEnd = '</mcp-doclink>',
   ErrorStart = '<error>',
   ErrorEnd = '</error>',
 }
@@ -133,7 +135,7 @@ export interface Message {
   relatedResourcesActions?: MessageAction[];
   suggestionActions?: string[];
   confirmation?: MessageConfirmation;
-  source?: object;
+  sourceLinks?: string[];
   timestamp?: Date;
 }
 
