@@ -21,7 +21,7 @@ import {
   MessageInternalSource,
   MessageLabelKey,
   MessagePhase,
-  MessagePlanningItem,
+  MessagePlanningState,
   MessageProcessingState,
   MessageTag,
   MessageTemplateComponent,
@@ -101,7 +101,7 @@ export function useChatMessageComposable(
     });
   };
 
-  const setPlanningState = (planningState: MessagePlanningItem[]) => {
+  const setPlanningState = (planningState: MessagePlanningState | null) => {
     store.commit('rancher-ai-ui/chat/setPlanningState', {
       chatId,
       planningState
@@ -651,7 +651,13 @@ export function useChatMessageComposable(
         if (data.startsWith(Tag.PlanningStart) && data.endsWith(Tag.PlanningEnd)) {
           const items = formatPlanning(data);
 
-          setPlanningState(items);
+          setPlanningState({
+            messageId: currentMsg.value.id || '',
+            items,
+          });
+
+          // TODO reset planning state after finalizing
+          // setPlanningState(null);
 
           break;
         }

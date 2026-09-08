@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { computed, type PropType } from 'vue';
-import { MessagePlanningItemStatus } from '../../types';
 import { useStore } from 'vuex';
 import { useI18n } from '@shell/composables/useI18n';
-import { MessagePlanningItem } from '../../types';
+import { MessagePlanningState, MessagePlanningItemStatus } from '../../types';
 
 const store = useStore();
 const { t } = useI18n(store);
@@ -16,13 +15,13 @@ const ICON_STATUS: Record<MessagePlanningItemStatus, string> = {
 };
 
 const props = defineProps({
-  items: {
-    type:    Array as PropType<MessagePlanningItem[]>,
-    default: () => ([] as MessagePlanningItem[]),
+  value: {
+    type:     Object as PropType<MessagePlanningState>,
+    required: true,
   },
 });
 
-const items = computed(() => props.items.map(({ content, status }) => ({
+const items = computed(() => (props.value?.items || []).map(({ content, status }) => ({
   content,
   icon: ICON_STATUS[status || MessagePlanningItemStatus.Pending],
 })));
@@ -65,6 +64,27 @@ const items = computed(() => props.items.map(({ content, status }) => ({
     background: var(--disabled-bg);
     border: 1px solid var(--border);
     border-radius: 8px;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -26px; // +1 pixel is for the border offset
+      left: -1px;
+      right: -1px;
+      height: 25px;
+      background: var(--box-bg);
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -21px; // +1 pixel is for the border offset
+      left: -1px;
+      right: -1px;
+      height: 20px;
+      background: linear-gradient(180deg, var(--box-bg) 25%, transparent 100%);
+    }
   }
 
   &-item {

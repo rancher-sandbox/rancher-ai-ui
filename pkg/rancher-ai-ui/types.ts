@@ -210,6 +210,7 @@ export const enum MessageTemplateComponent {
   NoPermission = 'no-permission',
   SystemRequest = 'system-request',
   McpAuthenticationRequest = 'mcp-authentication-request',
+  Planning = 'planning',
 }
 
 export interface MessageTemplate {
@@ -230,7 +231,12 @@ export const enum MessagePlanningItemStatus {
 
 export interface MessagePlanningItem {
   status?: MessagePlanningItemStatus;
-  content?: string; // e.g., the content of the planning item
+  content?: string;
+}
+
+export interface MessagePlanningState {
+  messageId: number | string;
+  items: MessagePlanningItem[];
 }
 
 export const enum MessageLabelKey {
