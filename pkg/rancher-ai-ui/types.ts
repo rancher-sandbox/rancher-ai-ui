@@ -27,6 +27,10 @@ export const enum Tag {
   AuthenticationRequestEnd = '</authentication>',
   TokenRefreshRequestStart = '<token-refresh>',
   TokenRefreshRequestEnd = '</token-refresh>',
+  PlanningStart = '<planning>',
+  PlanningEnd = '</planning>',
+  PlanningApprovalStart = '<planning-approval>',
+  PlanningApprovalEnd = '</planning-approval>',
   ChatErrorStart = '<chat-error>',
   ChatErrorEnd = '</chat-error>',
   AuthenticationErrorStart = '<auth-error>',
@@ -206,6 +210,7 @@ export const enum MessageTemplateComponent {
   NoPermission = 'no-permission',
   SystemRequest = 'system-request',
   McpAuthenticationRequest = 'mcp-authentication-request',
+  Planning = 'planning',
 }
 
 export interface MessageTemplate {
@@ -215,6 +220,23 @@ export interface MessageTemplate {
     principal?: any;
     [key: string]: unknown;
   };
+}
+
+export const enum MessagePlanningItemStatus {
+  Pending = 'pending',
+  InProgress = 'in_progress',
+  Completed = 'completed',
+  Error = 'error',
+}
+
+export interface MessagePlanningItem {
+  status?: MessagePlanningItemStatus;
+  content?: string;
+}
+
+export interface MessagePlanningState {
+  messageId: number | string;
+  items: MessagePlanningItem[];
 }
 
 export const enum MessageLabelKey {
